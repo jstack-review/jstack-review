@@ -104,6 +104,11 @@ function ThreadStatus(thread) {
         return this.thread.frames.length > 0 &&
             this.thread.threadState === "RUNNABLE";
     };
+    
+    this.isWaiting = function() {
+        return this.thread.wantNotificationOn !== null ||
+            this.thread.wantToAcquire !== null;
+    };
 
     this.toHtml = function() { //jshint ignore:line
         var html = '';
@@ -502,6 +507,9 @@ function Synchronizer(id, className) {
         html += '<td class="synchronizer">';
         html += '<div class="synchronizer">';
         html += this._id + "<br>" + this.getPrettyClassName();
+        if (this.lockHolder != null && this.lockHolder.getStatus().isWaiting() && this.lockWaiters.length > 0) {
+          html += '<br><span class="label label-warning">Possible deadlock</span> ';
+        }
         html += "</div>";
         html += "</td>";
 
@@ -510,7 +518,8 @@ function Synchronizer(id, className) {
 
         if (this.lockHolder !== null) {
             html += '<div class="synchronizer">';
-            html += 'Held by:<br><span class="raw">  ' + this.lockHolder.getLinkedName() + '</span>';
+            html += 'Held by:';
+            html += '<br><span class="raw">  ' + this.lockHolder.getLinkedName() +'<br />  '+ this.lockHolder.getStatus().toHtml() + '</span>';
             html += "</div>";
         }
 

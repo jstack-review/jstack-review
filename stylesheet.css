@@ -66,3 +66,8 @@ div.synchronizer {
     color: inherit;
     background-color: #ffa;
 }
+
+div.container-fluid:target {
+  color: inherit;
+  background-color: inherit;
+}

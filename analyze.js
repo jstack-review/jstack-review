@@ -21,10 +21,11 @@ var generatedIdCounter = 1;
 
 // This method is called from HTML so we need to tell JSHint it's not unused
 function analyzeTextfield() { // jshint ignore: line
-    var text = document.getElementById("TEXTAREA").value;
+    var text = $("#TEXTAREA").val();
 
     var analyzer = new Analyzer(text);
     setHtml("OUTPUT", analyzer.toHtml());
+    $('#OUTPUT_NAV a span.label').html(analyzer.threadCount());
 
     var ignores = analyzer.toIgnoresHtml();
     setHtml("IGNORED", ignores);
@@ -34,11 +35,23 @@ function analyzeTextfield() { // jshint ignore: line
 
     var synchronizers = analyzer.toSynchronizersHtml();
     setHtml("SYNCHRONIZERS", synchronizers);
+    $('#SYNCHRONIZERS_NAV a span.label').html(analyzer.synchronizerCount());
+    switch (analyzer.synchronizerDeadlockStatus) {
+      case 3:
+        $('#SYNCHRONIZERS_NAV a span.label').removeClass('label-warning').addClass('label-danger');
+        break;
+      case 2:
+        $('#SYNCHRONIZERS_NAV a span.label').removeClass('label-danger').addClass('label-warning');
+        break;
+      case 1:
+      default:
+        $('#SYNCHRONIZERS_NAV a span.label').removeClass('label-danger label-warning');
+    }
 
-    var runningHeader = document.getElementById("RUNNING_HEADER");
-    runningHeader.innerHTML = "Top Methods From " +
+    var runningHeader = $("#RUNNING_HEADER");
+    runningHeader.html("Top Methods From " +
         analyzer.countedRunningMethods.length +
-        " Running Threads";
+        " Running Threads");
 }
 
 // This method is called from HTML so we need to tell JSHint it's not unused
@@ -62,11 +75,8 @@ function stringToId(string) {
 }
 
 function setHtml(name, html) {
-    var destination = document.getElementById(name);
-    destination.innerHTML = html;
-
-    var div = document.getElementById(name + '_DIV');
-    div.style.display = (html.length > 0) ? 'block' : 'none';
+    $('#'+name).html(html);
+    $('#'+name+'_DIV').show();
 }
 
 // Extracts a substring from a string.
@@ -507,8 +517,19 @@ function Synchronizer(id, className) {
         html += '<td class="synchronizer">';
         html += '<div class="synchronizer">';
         html += this._id + "<br>" + this.getPrettyClassName();
-        if (this.lockHolder != null && this.lockHolder.getStatus().isWaiting() && this.lockWaiters.length > 0) {
-          html += '<br><span class="label label-warning">Possible deadlock</span> ';
+        switch (this.deadlockStatus) {
+          case 1:
+            html += '<br><span class="label label-info">Waiting</span>';
+            break;
+          case 2:
+            html += '<br><span class="label label-warning">Possible deadlock</span>';
+            break;
+          case 3:
+            html += '<br><span class="label label-error">Deadlock</span>';
+            break;
+          case 0:
+          default:
+            // bop
         }
         html += "</div>";
         html += "</td>";
@@ -533,6 +554,14 @@ function Synchronizer(id, className) {
         html += "</tr>";
         return html;
     };
+    
+    this.getDeadlockStatus = function() {
+      return this.deadlockStatus;
+    };
+    
+    this.setDeadlockStatus = function(val) {
+      this.deadlockStatus = val;
+    };
 
     this._id = id;
     this._className = className;
@@ -540,6 +569,7 @@ function Synchronizer(id, className) {
     this.notificationWaiters = [];
     this.lockWaiters = [];
     this.lockHolder = null;
+    this.deadlockStatus = 0;
 }
 
 function synchronizerComparator(a, b) {
@@ -929,6 +959,67 @@ function Analyzer(text) {
 
         return synchronizers;
     };
+    
+    this.analyseDeadlocks = function() {
+      var highest = 0;
+      for (var synchronizer of this._synchronizers) {
+        var val = this.determineDeadlockStatus(synchronizer, {});
+        highest = Math.max(val, highest);
+        synchronizer.setDeadlockStatus(val);
+      }
+      return highest;
+    };
+    
+    this.determineDeadlockStatus = function(sync, visited) {
+      if (sync.lockHolder == null) {
+        if (sync.lockWaiters.length > 0) {
+          return 3;
+        }
+        else if (sync.notificationWaiters > 0) {
+          return 1;
+        }
+        else {
+          return 0;
+        }
+      }
+      if (!sync.lockHolder.getStatus().isWaiting()) {
+        return 0;
+      }
+      if (sync.lockWaiters.length == 0 && sync.notificationWaiters == 0) {
+        // nobody is waiting for us
+        return 0;
+      }
+      // If there is a loop on "waiting to acquire" then there is a deadlock
+      // If a thread is "awaiting notification" then there might be a deadlock
+      var work = [];
+      work.push(sync.lockHolder);
+      while (work.length > 0) {
+        var thread = work.pop();
+        if (thread.wantNotificationOn !== null) {
+          return 2;
+        }
+        if (thread.wantToAcquire !== null) {
+          if (visited[thread.wantToAcquire]) {
+            console.log('Deadlock '+sync);
+            return 3;
+          }
+          visited[thread.wantToAcquire] = true;
+          var synchro = this._synchronizerById[thread.wantToAcquire];
+          if (synchro.lockHolder !== null) {
+            work.push(synchro.lockHolder);
+          }
+        }
+      }
+      return 3;
+    };
+    
+    this.threadCount = function() {
+      return this.threads.length;
+    };
+    
+    this.synchronizerCount = function() {
+      return this._synchronizers.length;
+    };
 
     this.threads = [];
     this._ignores = new StringCounter();
@@ -938,4 +1029,5 @@ function Analyzer(text) {
     this.countedRunningMethods = this._countRunningMethods();
     this._synchronizerById = this._createSynchronizerById();
     this._synchronizers = this._enumerateSynchronizers();
+    this.synchronizerDeadlockStatus = this.analyseDeadlocks();
 }

@@ -21,12 +21,24 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="stylesheet.css"/>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" type="text/javascript"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
   </head>
+  <body data-spy="scroll" data-target="#navbar"><script src="analyze.js" type="text/javascript"></script>
 
-  <body>
-    <script src="analyze.js" type="text/javascript"></script>
+    <nav id="navbar" class="navbar navbar-default navbar-fixed-bottom">
+      <div class="container-fluid">
+        <ul class="nav navbar-nav">
+          <li id="INPUT_NAV"><a href="#INPUT_DIV">Input</a></li>
+          <li id="RUNNING_NAV"><a href="#RUNNING_DIV">Top Running Methods <span class="label label-default"></span></a></li>
+          <li id="OUTPUT_NAV"><a href="#OUTPUT_DIV">Thread Overview <span class="label label-default"></span></a></li>
+          <li id="SYNCHRONIZERS_NAV"><a href="#SYNCHRONIZERS_DIV">Synchronizers <span class="label label-default"></span></a></li>
+          <li id="IGNORED_NAV"><a href="#IGNORED_DIV">Ignored Lines</a></li>
+        </ul>
+      </div>
+    </nav>
 
-    <div id="INPUT" class="container-fluid">
+    <div id="INPUT_DIV" class="container-fluid">
     <h1>Online Java Thread Dump Analyzer</h1>
 
     <p>Paste your thread dump here:</p>
@@ -39,18 +51,6 @@
     <p>This page is client-side only, and no data will leave your
       computer when you click Analyze.</p>
     </div>
-    
-    <nav class="navbar navbar-default navbar-fixed-bottom">
-      <div class="container-fluid">
-        <ul class="nav navbar-nav">
-          <li><a href="#INPUT">Input</a></li>
-          <li><a href="#RUNNING_DIV">Top Running Methods</a></li>
-          <li><a href="#OUTPUT_DIV">Thread Overview</a></li>
-          <li><a href="#SYNCHRONIZERS_DIV">Synchronizers</a></li>
-          <li><a href="#IGNORED_DIV">Ignored Lines</a></li>
-        </ul>
-      </div>
-    </nav>
 
     <div id="RUNNING_DIV" class="container-fluid" style="display: none;">
       <h2 id="RUNNING_HEADER">Top Running Methods</h2>

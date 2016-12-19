@@ -66,7 +66,7 @@ function setHtml(name, html) {
     destination.innerHTML = html;
 
     var div = document.getElementById(name + '_DIV');
-    div.style.display = (html.length > 0) ? 'inline' : 'none';
+    div.style.display = (html.length > 0) ? 'block' : 'none';
 }
 
 // Extracts a substring from a string.

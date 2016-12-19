@@ -1,3 +1,5 @@
+body { padding-bottom: 70px; }
+
 .ignored {
     color: red;
     background-color: inherit;

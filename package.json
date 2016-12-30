@@ -1,26 +1,29 @@
 {
-    "name": "threaddump-analyzer",
-    "version": "0.0.0",
-    "description": "Java thread dump analyzer",
-    "license": "Apache-2.0",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/spotify/threaddump-analyzer.git"
-    },
-    "bugs": { "url" : "https://github.com/spotify/threaddump-analyzer/issues" },
-    "scripts": {
-        "test": "gulp test jslint htmllint csslint"
-    },
-    "keywords": [
-        "java",
-        "thread",
-        "thread dump"
-    ],
-    "devDependencies": {
-        "gulp-qunit": "1.3.1",
-        "gulp-jshint": "2.0.0",
-        "gulp-htmlhint": "0.3.1",
-        "gulp-csslint": "0.2.0",
-        "gulp": "3.9.1"
-    }
+  "name": "threaddump-analyzer",
+  "version": "0.0.0",
+  "description": "Java thread dump analyzer",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mpobjects/threaddump-analyzer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mpobjects/threaddump-analyzer/issues"
+  },
+  "scripts": {
+    "test": "gulp test jslint htmllint csslint"
+  },
+  "keywords": [
+    "java",
+    "thread",
+    "thread dump"
+  ],
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-csslint": "0.2.0",
+    "gulp-htmlhint": "0.3.1",
+    "gulp-jshint": "2.0.0",
+    "gulp-qunit": "1.3.1",
+    "gulp-util": "^3.0.8"
+  }
 }

@@ -19,12 +19,21 @@ limitations under the License.
 var jtda = jtda || {};
 jtda.util = jtda.util || {};
 
-jtda.Analyze = function () {
+jtda.AnalysisConfig = function() {
+  // for future usage
+};
+
+jtda.Analysis = function(id, config) {
 
   /* analyse the provided stack trace */
   this.analyze = function(text) {
     this._init();
-    
+    this._analyzeThreads(text);
+    // TODO analyze the rest
+  };
+  
+  this._analyzeThreads = function(text) {
+    this._currentThread = null;  
     var lines = text.split('\n');
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i];
@@ -45,6 +54,9 @@ jtda.Analyze = function () {
       }
 
       this._handleLine(line);
+    }
+    if (this._currentThread) {
+      delete this._currentThread;
     }
 
     this._identifyWaitedForSynchronizers();
@@ -76,6 +88,7 @@ jtda.Analyze = function () {
     var thread = new jtda.Thread(line);
     if (thread.isValid()) {
       this.threads.push(thread);
+      this.threadMap[thread.tid] = thread;
       this._currentThread = thread;
       return;
     } else if (/^\s*$/.exec(line)) {
@@ -87,7 +100,27 @@ jtda.Analyze = function () {
       }
     }
 
-    this.ignoredData.addString(line);
+    // TODO: this.ignoredData.addString(line);
+  };
+  
+  /* Some threads are waiting for notification, but the thread dump
+   * doesn't say on which object. This function guesses in the
+   * simple case where those threads are holding only a single lock.
+   */
+  this._identifyWaitedForSynchronizers = function() {
+    for (var i = 0; i < this.threads.length; i++) {
+      var thread = this.threads[i];
+
+      if (-1 === ['TIMED_WAITING (on object monitor)', 'WAITING (on object monitor)'].indexOf(thread.threadState)) {
+        // Not waiting for notification
+        continue;
+      }
+      if (thread.wantNotificationOn !== null || thread.classicalLocksHeld.length !== 1) {
+        continue;
+      }
+
+      thread.setWantNotificationOn(thread.classicalLocksHeld[0]);
+    }
   };
 
   /* (re)initialize the state of the analysis */
@@ -99,10 +132,200 @@ jtda.Analyze = function () {
     this.ignoredData = [];
   };
   
+  this.id = id;
+  this.config = config;
   this._init();
 };
 
-jtda.Thead = function () {
+jtda.Thread = function(spec) {
+
+  this.isValid = function() {
+    return this.hasOwnProperty('name') && this.name !== undefined;
+  };
+  
+  // Return true if the line was understood, false otherwise 
+  this.addStackLine = function(line) {
+    var match;
+
+    var FRAME = /^\s+at (.*)/;
+    match = line.match(FRAME);
+    if (match !== null) {
+      this.frames.push(match[1]);
+      return true;
+    }
+
+    var THREAD_STATE = /^\s*java.lang.Thread.State: (.*)/;
+    match = line.match(THREAD_STATE);
+    if (match !== null) {
+      this.threadState = match[1];
+      return true;
+    }
+
+    var SYNCHRONIZATION_STATUS = /^\s+- (.*?) +<([x0-9a-f]+)> \(a (.*)\)/;
+    match = line.match(SYNCHRONIZATION_STATUS);
+    if (match !== null) {
+      var state = match[1];
+      var id = match[2];
+      var className = match[3];
+      this.synchronizerClasses[id] = className;
+
+      switch (state) {
+      case "eliminated":
+        // JVM internal optimization, not sure why it's in the
+        // thread dump at all
+        return true;
+
+      case "waiting on":
+        this.wantNotificationOn = id;
+        return true;
+
+      case "parking to wait for":
+        this.wantNotificationOn = id;
+        return true;
+
+      case "waiting to lock":
+        this.wantToAcquire = id;
+        return true;
+
+      case "locked":
+        if (this.wantNotificationOn === id) {
+          // Lock is released while waiting for the notification
+          return true;
+        }
+        // Threads can take the same lock in different frames,
+        // but we just want a mapping between threads and
+        // locks so we must not list any lock more than once.
+        jtda.util.arrayAddUnique(this.locksHeld, id);
+        jtda.util.arrayAddUnique(this.classicalLocksHeld, id);
+        return true;
+
+      default:
+        return false;
+      }
+    }
+
+    var HELD_LOCK = /^\s+- <([x0-9a-f]+)> \(a (.*)\)/;
+    match = line.match(HELD_LOCK);
+    if (match !== null) {
+      var lockId = match[1];
+      var lockClassName = match[2];
+      this.synchronizerClasses[lockId] = lockClassName;
+      // Threads can take the same lock in different frames, but
+      // we just want a mapping between threads and locks so we
+      // must not list any lock more than once.
+      jtda.util.arrayAddUnique(this.locksHeld, lockId);
+      return true;
+    }
+
+    var LOCKED_OWNABLE_SYNCHRONIZERS = /^\s+Locked ownable synchronizers:/;
+    match = line.match(LOCKED_OWNABLE_SYNCHRONIZERS);
+    if (match !== null) {
+      // Ignore these lines
+      return true;
+    }
+
+    var NONE_HELD = /^\s+- None/;
+    match = line.match(NONE_HELD);
+    if (match !== null) {
+      // Ignore these lines
+      return true;
+    }
+
+    return false;
+  };
+  
+  this.getStatus = function() {
+    // TODO: do not recreate every time
+    return new jtda.TheadStatus(this);
+  };
+  
+  this.setWantNotificationOn = function(lockId) {
+    this.wantNotificationOn = lockId;
+
+    var lockIndex = this.locksHeld.indexOf(lockId);
+    if (lockIndex >= 0) {
+      this.locksHeld.splice(lockIndex, 1);
+    }
+
+    var classicalLockIndex = this.classicalLocksHeld.indexOf(lockId);
+    if (classicalLockIndex >= 0) {
+      this.classicalLocksHeld.splice(classicalLockIndex, 1);
+    }
+  };
+  
+  this._parseSpec = function(line) {
+    var match;
+    match = jtda.util.extract(/\[([0-9a-fx,]+)\]$/, line);
+    this.dontKnow = match.value;
+    line = match.shorterString;
+
+    match = jtda.util.extract(/ nid=([0-9a-fx,]+)/, line);
+    this.nid = match.value;
+    line = match.shorterString;
+
+    match = jtda.util.extract(/ tid=([0-9a-fx,]+)/, line);
+    this.tid = match.value;
+    line = match.shorterString;
+
+    if(this.tid === undefined){
+      match = jtda.util.extract(/ - Thread t@([0-9a-fx]+)/,line);
+      this.tid = match.value;
+      line = match.shorterString;
+    }
+
+    match = jtda.util.extract(/ prio=([0-9]+)/, line);
+    this.prio = match.value;
+    line = match.shorterString;
+
+    match = jtda.util.extract(/ os_prio=([0-9a-fx,]+)/, line);
+    this.osPrio = match.value;
+    line = match.shorterString;
+
+    match = jtda.util.extract(/ (daemon)/, line);
+    this.daemon = (match.value !== undefined);
+    line = match.shorterString;
+
+    match = jtda.util.extract(/ #([0-9]+)/, line);
+    this.number = match.value;
+    line = match.shorterString;
+
+    match = jtda.util.extract(/ group="(.*)"/, line);
+    this.group = match.value;
+    line = match.shorterString;
+
+    match = jtda.util.extract(/^"(.*)" /, line);
+    this.name = match.value;
+    line = match.shorterString;
+
+    if (this.name === undefined) {
+      match = jtda.util.extract(/^"(.*)":?$/, line);
+      this.name = match.value;
+      line = match.shorterString;
+    }
+
+    this.state = line.trim();
+
+    if (this.name === undefined) {
+      return undefined;
+    }
+    if (this.tid === undefined) {
+      this.tid = "generated-id-" + jtda._internal.generatedIdCounter;
+      jtda._internal.generatedIdCounter++;
+    }
+  };
+  
+  // Initialize the object
+  this._parseSpec(spec);
+  
+  this.frames = [];
+  this.wantNotificationOn = null;
+  this.wantToAcquire = null;
+  this.locksHeld = [];
+  this.synchronizerClasses = {};
+  this.threadState = null;
+
+  // Only synchronized(){} style locks
+  this.classicalLocksHeld = [];
 };
 
 jtda.TheadStatus = function(thread) {
@@ -203,3 +426,26 @@ jtda.util.getPrettyClassName = function(className) {
 
   return className;
 };
+
+jtda.util.arrayAddUnique = function(array, toAdd) {
+    if (array.indexOf(toAdd) === -1) {
+        array.push(toAdd);
+    }
+};
+
+// Extracts a substring from a string.
+//
+// Returns an object with two properties:
+// value = the first group of the extracted object
+// shorterString = the string with the full contents of the regex removed
+jtda.util.extract = function(regex, string) {
+  var match = regex.exec(string);
+  if (match === null) {
+    return {value: undefined, shorterString: string};
+  }
+
+  return {value: match[1], shorterString: string.replace(regex, "")};
+};
+
+jtda._internal = jtda._internal || {};
+jtda._internal.generatedIdCounter = 1;

@@ -1,6 +1,6 @@
 /*
 Copyright 2014 Spotify AB
-Copyright 2014 MP Objects BV
+Copyright 2016 MP Objects BV
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -60,6 +60,7 @@ jtda.Analysis = function(id, config) {
     }
 
     this._identifyWaitedForSynchronizers();
+    this._mapThreadsByStatus();
   };
   
   this._isIncompleteThreadHeader = function(line) {
@@ -122,11 +123,25 @@ jtda.Analysis = function(id, config) {
       thread.setWantNotificationOn(thread.classicalLocksHeld[0]);
     }
   };
+  
+  this._mapThreadsByStatus = function() {
+    for (var i = 0; i < this.threads.length; i++) {
+      var thread = this.threads[i];
+      var status = thread.getStatus().status;
+      if (this.threadsByStatus[status]) {
+        this.threadsByStatus[status].push(thread);
+      }
+      else {
+        this.threadsByStatus[status] = [thread];
+      }
+    }
+  }
 
   /* (re)initialize the state of the analysis */
   this._init = function() {
     this.threads = [];
     this.threadMap = {};
+    this.threadsByStatus = {};
     this.synchronizers = [];
     this.synchronizerMap = {};
     this.ignoredData = [];
@@ -329,46 +344,50 @@ jtda.Thread = function(spec) {
 };
 
 jtda.TheadStatus = function(thread) {
-  this.UNKNOWN = "?unknown?";
-  this.RUNNING = "running";
-  this.NON_JAVA_THREAD = "non-Java thread";
-  this.TERMINATED = "terminated";
-  this.NEW = "not started";
-  this.SLEEPING = "sleeping";
-  this.WAITING_ACQUIRE = "waiting to acquire";
-  this.WAITING_NOTIFY = "awaiting notification";
-
   this.isRunning = function() {
-    return this.status === this.RUNNING;
+    return this.status === jtda.TheadStatus.RUNNING;
   };
     
   this.isWaiting = function() {
-    return this.status === this.WAITING_ACQUIRE || this.status === this.WAITING_NOTIFY;
+    return this.status === jtda.TheadStatus.WAITING_ACQUIRE || this.status === jtda.TheadStatus.WAITING_NOTIFY;
   };
   
   this.determineStatus = function() {
     if (this.thread.wantNotificationOn !== null) {
-      this.status = this.WAITING_NOTIFY;
+      this.status = jtda.TheadStatus.WAITING_NOTIFY;
     } else if (this.thread.wantToAcquire !== null) {
-      this.status = this.WAITING_ACQUIRE;
+      this.status = jtda.TheadStatus.WAITING_ACQUIRE;
     } else if (this.thread.threadState === 'TIMED_WAITING (sleeping)') {
-      this.status = this.SLEEPING;
+      this.status = jtda.TheadStatus.SLEEPING;
     } else if (this.thread.threadState === 'NEW') {
-      this.status = this.NEW;
+      this.status = jtda.TheadStatus.NEW;
     } else if (this.thread.threadState === 'TERMINATED') {
-      this.status = this.TERMINATED;
+      this.status = jtda.TheadStatus.TERMINATED;
     } else if (this.thread.threadState === null || this.thread.frames.length === 0 ) {
-      this.status = this.NON_JAVA_THREAD;
+      this.status = jtda.TheadStatus.NON_JAVA_THREAD;
     } else if (this.thread.threadState === 'RUNNABLE') {
-      this.status = this.RUNNING;
+      this.status = jtda.TheadStatus.RUNNING;
     } else {
-      this.status = this.UNKNOWN;
+      this.status = jtda.TheadStatus.UNKNOWN;
     }
   };
+  
+  this.toString = function() {
+    return this.status;
+  }
     
   this.thread = thread;
   this.determineStatus();
 };
+
+jtda.TheadStatus.UNKNOWN = "?unknown?";
+jtda.TheadStatus.RUNNING = "running";
+jtda.TheadStatus.NON_JAVA_THREAD = "non-Java thread";
+jtda.TheadStatus.TERMINATED = "terminated";
+jtda.TheadStatus.NEW = "not started";
+jtda.TheadStatus.SLEEPING = "sleeping";
+jtda.TheadStatus.WAITING_ACQUIRE = "waiting to acquire";
+jtda.TheadStatus.WAITING_NOTIFY = "awaiting notification";
 
 jtda.DeadlockStatus = function(severity, trail) {
   /* There is no deadlock */ 

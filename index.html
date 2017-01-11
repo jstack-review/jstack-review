@@ -156,7 +156,7 @@
           <ul class="nav navbar-nav">
             <li><a href="#top" title="Top"><span class="glyphicon glyphicon-triangle-top"></span></a></li>
             <li id="nav_input_{{id}}"><a href="#input_{{id}}">Input</a></li>
-            <li id="nav_methods_{{id}}"><a href="#top_methods_{{id}}">Top Running Methods <span class="label label-default"></span></a></li>
+            <li id="nav_methods_{{id}}"><a href="#running_methods_{{id}}">Running Methods <span class="label label-default"></span></a></li>
             <li id="nav_threads_{{id}}"><a href="#threads_{{id}}">Thread Overview <span class="label label-default">{{threads.length}}</span></a></li>
             <li id="nav_synchronizers_{{id}}"><a href="#synchronizers_{{id}}">Synchronizers <span class="label label-default">{{synchronizers.length}}</span></a></li>
             <li id="nav_garbage_{{id}}"><a href="#garbage_{{id}}">Ignored Lines</a></li>
@@ -186,9 +186,23 @@
     </div>
     </script>
     
-    <script id="tmpl-analysis-top-methods" type="x-tmpl-mustache">
-    <div class="container-fluid" id="top_methods_{{id}}">
-      <h2>Top Methods</h2>
+    <script id="tmpl-analysis-running-methods" type="x-tmpl-mustache">
+    <div class="container-fluid" id="running_methods_{{id}}">
+      <h2>Running Methods</h2>
+      <table class="table table-striped">
+      {{#runningMethods}}
+        {{#getStrings}}
+        <tr>
+          <td>{{string}}</td>
+          <td>
+            {{#sources}}
+              <a href="#thread_{{tid}}">{{name}}</a> <br />
+            {{/sources}}
+          </td>
+        </tr>
+        {{/getStrings}}
+      {{/runningMethods}}
+      </table>
     </div>
     </script>
     

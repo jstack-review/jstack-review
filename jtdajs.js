@@ -29,6 +29,7 @@ jtda.Analysis = function(id, config) {
   this.analyze = function(text) {
     this._init();
     this._analyzeThreads(text);
+    this._countRunningMethods();
     // TODO analyze the rest
   };
   
@@ -136,6 +137,17 @@ jtda.Analysis = function(id, config) {
       }
     }
   }
+  
+  this._countRunningMethods = function() {
+    for (var i = 0; i < this.threads.length; i++) {
+      var thread = this.threads[i];
+      if (!thread.getStatus().isRunning() || thread.frames.length ===  0) {
+        continue;
+      }
+      var runningMethod = thread.frames[0].replace(/^\s+at\s+/, '');
+      this.runningMethods.addString(runningMethod, thread);
+    }
+  };
 
   /* (re)initialize the state of the analysis */
   this._init = function() {
@@ -145,6 +157,7 @@ jtda.Analysis = function(id, config) {
     this.synchronizers = [];
     this.synchronizerMap = {};
     this.ignoredData = [];
+    this.runningMethods = new jtda.util.StringCounter();
   };
   
   this.id = id;
@@ -389,19 +402,19 @@ jtda.TheadStatus.SLEEPING = "sleeping";
 jtda.TheadStatus.WAITING_ACQUIRE = "waiting to acquire";
 jtda.TheadStatus.WAITING_NOTIFY = "awaiting notification";
 
-jtda.DeadlockStatus = function(severity, trail) {
-  /* There is no deadlock */ 
-  this.NO_RISK = 0; 
-  /*  */
-  this.LOW_RISK = 1;
-  /* There might be a deadlock, but cannot be confirmed. */ 
-  this.HIGH_RISK = 2;
-  /* Definite deadlock */ 
-  this.DEADLOCKED = 3;
-  
+jtda.DeadlockStatus = function(severity, trail) {  
   this.severity = severity;
   this.trail = trail || []; 
 };
+
+/* There is no deadlock */ 
+jtda.DeadlockStatus.NO_RISK = 0; 
+/*  */
+jtda.DeadlockStatus.LOW_RISK = 1;
+/* There might be a deadlock, but cannot be confirmed. */ 
+jtda.DeadlockStatus.HIGH_RISK = 2;
+/* Definite deadlock */ 
+jtda.DeadlockStatus.DEADLOCKED = 3;
 
 jtda.DeadlockStatus.NONE = new jtda.DeadlockStatus(jtda.DeadlockStatus.NO_RISK, []);
 
@@ -424,6 +437,21 @@ jtda.Synchronizer = function(id, className) {
   this.lockWaiters = [];
   this.lockHolder = null;
   this.deadlockStatus = jtda.DeadlockStatus.NONE;
+};
+
+jtda.Synchronizer.compare = function(a, b) {
+    var countDiff = b.getThreadCount() - a.getThreadCount();
+    if (countDiff !== 0) {
+        return countDiff;
+    }
+
+    var prettyA = jtda.util.getPrettyClassName(a.className);
+    var prettyB = jtda.util.getPrettyClassName(b.className);
+    if (prettyA !== prettyB) {
+        return prettyA.localeCompare(prettyB);
+    }
+
+    return a._id.localeCompare(b._id);
 };
 
 jtda.util.getPrettyClassName = function(className) {
@@ -465,6 +493,59 @@ jtda.util.extract = function(regex, string) {
 
   return {value: match[1], shorterString: string.replace(regex, "")};
 };
+
+jtda.util.StringCounter = function() {
+    this.addString = function(string, source) {
+        if (!this._stringsToCounts.hasOwnProperty(string)) {
+            this._stringsToCounts[string] = {count: 0, sources: []};
+        }
+        this._stringsToCounts[string].count++;
+        this._stringsToCounts[string].sources.push(source);
+        this.length++;
+    };
+
+    this.hasString = function(string) {
+        return this._stringsToCounts.hasOwnProperty(string);
+    };
+
+    // Returns all individual string and their counts as
+    // {count:5, string:"foo", sources: [...]} hashes.
+    this.getStrings = function() {
+        var returnMe = [];
+
+        for (var string in this._stringsToCounts) {
+            var count = this._stringsToCounts[string].count;
+            var sources = this._stringsToCounts[string].sources;
+            returnMe.push({count:count, string:string, sources:sources});
+        }
+
+        returnMe.sort(function(a, b) {
+            if (a.count === b.count) {
+                return a.string < b.string ? -1 : 1;
+            }
+
+            return b.count - a.count;
+        });
+
+        return returnMe;
+    };
+
+    this.toString = function() {
+        var string = "";
+        var countedStrings = this.getStrings();
+        for (var i = 0; i < countedStrings.length; i++) {
+            if (string.length > 0) {
+                string += '\n';
+            }
+            string += countedStrings[i].count +
+                " " + countedStrings[i].string;
+        }
+        return string;
+    };
+
+    this._stringsToCounts = {};
+    this.length = 0;
+}
 
 jtda._internal = jtda._internal || {};
 jtda._internal.generatedIdCounter = 1;

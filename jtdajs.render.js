@@ -37,7 +37,7 @@ jtda.render.Renderer = function(target, config) {
     this.target.append(Mustache.render($('#tmpl-analysis-navbar').html(), analysis));
     
     this.renderOverview(analysis);
-    this.renderTopMethods(analysis);
+    this.renderRunningMethods(analysis);
     this.renderThreads(analysis);
     this.renderSynchronizers(analysis);
     this.renderGarbage(analysis);
@@ -82,8 +82,8 @@ jtda.render.Renderer = function(target, config) {
     return res;
   };
   
-  this.renderTopMethods = function(analysis) {
-    this.target.append(Mustache.render($('#tmpl-analysis-top-methods').html(), analysis));
+  this.renderRunningMethods = function(analysis) {
+    this.target.append(Mustache.render($('#tmpl-analysis-running-methods').html(), analysis));
   };
   
   this.renderThreads = function(analysis) {

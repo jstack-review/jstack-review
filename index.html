@@ -28,6 +28,10 @@
     <script src="jtdajs.js" type="text/javascript"></script>
     <script src="jtdajs.render.js" type="text/javascript"></script>
     <style type="text/css">
+    body {
+      position: relative;
+    }
+    
     ul.nav li > span.glyphicon-remove {
       display: none;
       position: absolute;
@@ -43,6 +47,13 @@
     
     ul.nav li:hover > span.glyphicon-remove:hover {
       color: #d00;
+    }
+    
+    span.thread-status-color {
+      display: inline-block;
+      height: 0.5em;
+      width: 0.5em;
+      vertical-align: middle;
     }
     </style>
     <script type="text/javascript">    
@@ -63,6 +74,26 @@
       $('#dumps').append(Mustache.render($('#tmpl-tab-panel').html(), model));
       $('#dumps>div[data-dumpid='+model.id+'] form button').click(function() { executeAnalysis(model.id, $('#dumpInput_'+model.id).val()); });
       $('#dumptabs>li[data-dumpid='+model.id+']>a').tab('show');
+      
+      // just to make developments easier
+      var saveFlag = sessionStorage.getItem('input.save.'+model.id);
+      if (saveFlag == 'true') {
+        $('#dumpInput_save_'+model.id).prop("checked", true);
+        $('#dumpInput_'+model.id).val(sessionStorage.getItem('input.'+model.id));
+      }
+      $('#dumpInput_save_'+model.id).change(function() {
+        var checked = $(this).prop("checked");
+        sessionStorage.setItem('input.save.'+model.id, checked);
+        if (!checked) {
+          sessionStorage.removeItem('input.'+model.id);
+        }
+      });
+      $('#dumpInput_'+model.id).change(function() {
+        var checked = $('#dumpInput_save_'+model.id).prop("checked");
+        if (checked) {
+          sessionStorage.setItem('input.'+model.id, $(this).val());
+        }
+      });
     }
     
     function removeDump() {
@@ -119,7 +150,7 @@
           <h2>License</h2>
           <p>The Java Thread Dump Analyzer is licensed under version <a href="http://www.apache.org/licenses/LICENSE-2.0.html">2.0 of the Apache license</a>.</p>
           <p>Copyright 2014 Spotify AB</p>
-          <p>Copyright 2016 MP Objects BV</p>
+          <p>Copyright 2016-2017 MP Objects BV</p>
         </div>
       </div>
     </div>
@@ -141,7 +172,7 @@
             <!-- TODO: different input method, textarea is slow when it has a lot of content -->
             <textarea class="form-control" id="dumpInput_{{id}}" rows="5" placeholder="Paste your thread dump here"></textarea>
           </div>
-          <button type="button" class="btn btn-primary">Analyze</button>
+          <button type="button" class="btn btn-primary">Analyze</button> <label><input type="checkbox" id="dumpInput_save_{{id}}" value="1"> Remember input</label>
         </form>
       </div>
       
@@ -151,15 +182,15 @@
     </script>
     
     <script id="tmpl-analysis-navbar" type="x-tmpl-mustache">
-      <nav id="navbar_{{id}}" class="navbar navbar-default navbar-fixed-bottom">
+      <nav id="navbar_{{analysis_id}}" class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid">
           <ul class="nav navbar-nav">
             <li><a href="#top" title="Top"><span class="glyphicon glyphicon-triangle-top"></span></a></li>
-            <li id="nav_input_{{id}}"><a href="#input_{{id}}">Input</a></li>
-            <li id="nav_methods_{{id}}"><a href="#running_methods_{{id}}">Running Methods <span class="label label-default"></span></a></li>
-            <li id="nav_threads_{{id}}"><a href="#threads_{{id}}">Thread Overview <span class="label label-default">{{threads.length}}</span></a></li>
-            <li id="nav_synchronizers_{{id}}"><a href="#synchronizers_{{id}}">Synchronizers <span class="label label-default">{{synchronizers.length}}</span></a></li>
-            <li id="nav_garbage_{{id}}"><a href="#garbage_{{id}}">Ignored Lines</a></li>
+            <li><a href="#input_{{analysis_id}}">Input</a></li>
+            <li><a href="#running_methods_{{analysis_id}}">Running Methods <span class="label label-default"></span></a></li>
+            <li><a href="#threads_{{analysis_id}}">Thread <span class="label label-default">{{analysis.threads.length}}</span></a></li>
+            <li><a href="#synchronizers_{{analysis_id}}">Synchronizers <span class="label label-default">{{analysis.synchronizers.length}}</span></a></li>
+            <li><a href="#garbage_{{analysis_id}}">Ignored Lines</a></li>
           </ul>
         </div>
       </nav>
@@ -172,74 +203,79 @@
         <div class="col-md-4">
           <dl class="dl-horizontal">
             <dt>Threads</dt>
-            <dd>{{threads.length}}</dd>
+            <dd>{{analysis.threads.length}}</dd>
             <dt>Synchronizers</dt>
-            <dd>{{synchronizers.length}}</dd>
+            <dd>{{analysis.synchronizers.length}}</dd>
             <dt>Deadlock status</dt>
-            <dd>{{deadlockStatus}}</dd>
+            <dd>{{analysis.deadlockStatus}}</dd>
           </dl>
         </div>
         <div class="col-md-4">
-          <canvas id="thread_status_chart_{{id}}" width="300" height="100"></canvas>
+          <canvas id="thread_status_chart_{{analysis_id}}" width="300" height="100"></canvas>
         </div>
       </div>
     </div>
     </script>
     
     <script id="tmpl-analysis-running-methods" type="x-tmpl-mustache">
-    <div class="container-fluid" id="running_methods_{{id}}">
+    <div class="container-fluid" id="running_methods_{{analysis_id}}">
       <h2>Running Methods</h2>
       <table class="table table-striped">
-      {{#runningMethods}}
-        {{#getStrings}}
+      {{#methods}}
         <tr>
           <td>{{string}}</td>
           <td>
             {{#sources}}
-              <a href="#thread_{{tid}}">{{name}}</a> <br />
+              <a href="#thread_{{analysis_id}}_{{tid}}">{{name}}</a> <br />
             {{/sources}}
           </td>
         </tr>
-        {{/getStrings}}
-      {{/runningMethods}}
+      {{/methods}}
       </table>
     </div>
     </script>
     
     <script id="tmpl-analysis-threads" type="x-tmpl-mustache">
-    <div class="container-fluid" id="threads_{{id}}">
+    <div class="container-fluid" id="threads_{{analysis_id}}">
       <h2>Threads</h2>
       
       {{#threads}}
-        <div id="thread_{{tid}}" class="thread-header">
+      <div class="thread-entry">
+        <div id="thread_{{analysis_id}}_{{tid}}" class="thread-header">
+          <span class="thread-status-color" style="background-color: {{threadStatusColor}}" title="{{getStatus}}"></span>
           <span class="thread-name">"{{name}}"</span>
           <span class="thread-status">{{getStatus}}</span> 
           {{#wantNotificationOn}}
-          on [<span class="thread-wait-on-sync"><a href="#sync_{{wantNotificationOn}}">{{wantNotificationOn}}</a></span>]
+          on [<span class="thread-wait-on-sync"><a href="#sync_{{analysis_id}}_{{wantNotificationOn}}">{{wantNotificationOn}}</a></span>]
           {{/wantNotificationOn}}
           {{#wantToAcquire}}
-          [<span class="thread-wait-on-sync"><a href="#sync_{{wantToAcquire}}">{{wantToAcquire}}</a></span>]
+          [<span class="thread-wait-on-sync"><a href="#sync_{{analysis_id}}_{{wantToAcquire}}">{{wantToAcquire}}</a></span>]
           {{/wantToAcquire}}         
         </div>
-        <div class="row">
+        <div class="row thread-stack">
           <div class="col-md-offset-1 thread-stack">        
             {{#frames}}
               <samp>{{.}}</samp><br />
             {{/frames}}
           </div>
         </div>
+      </div>
       {{/threads}}
     </div>
     </script>
     
     <script id="tmpl-analysis-synchronizers" type="x-tmpl-mustache">
-    <div class="container-fluid" id="synchronizers_{{id}}">
+    <div class="container-fluid" id="synchronizers_{{analysis_id}}">
       <h2>Synchronizers</h2>
+      {{#synchronizers}}
+      <div class="synchronizer-entry" id="sync_{{analysis_id}}_{{id}}">
+      </div>
+      {{/synchronizers}}
     </div>
     </script>
     
     <script id="tmpl-analysis-garbage" type="x-tmpl-mustache">
-    <div class="container-fluid" id="garbage_{{id}}">
+    <div class="container-fluid" id="garbage_{{analysis_id}}">
       <h2>Ignored Lines</h2>
     </div>
     </script>

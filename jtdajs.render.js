@@ -34,7 +34,7 @@ jtda.render.RenderConfig = function() {
 jtda.render.Renderer = function(target, config) {
   this.render = function(analysis) {
     this.target.empty();
-    this.target.append(Mustache.render($('#tmpl-analysis-navbar').html(), analysis));
+    this.target.append(Mustache.render($('#tmpl-analysis-navbar').html(), {analysis_id: analysis.id, analysis: analysis}));
     
     this.renderOverview(analysis);
     this.renderRunningMethods(analysis);
@@ -44,7 +44,11 @@ jtda.render.Renderer = function(target, config) {
   };
   
   this.renderOverview = function(analysis) {
-    this.target.append(Mustache.render($('#tmpl-analysis-overview').html(), analysis));
+    this.target.append(Mustache.render($('#tmpl-analysis-overview').html(), {
+      analysis_id: analysis.id, 
+      analysis: analysis
+    }));
+    
     new Chart('thread_status_chart_'+analysis.id, {
       type: 'doughnut',
       data: this.getThreadStatusChartData(analysis),
@@ -83,19 +87,38 @@ jtda.render.Renderer = function(target, config) {
   };
   
   this.renderRunningMethods = function(analysis) {
-    this.target.append(Mustache.render($('#tmpl-analysis-running-methods').html(), analysis));
+    this.target.append(Mustache.render($('#tmpl-analysis-running-methods').html(), {
+      analysis_id: analysis.id, 
+      analysis: analysis,
+      methods: function() {return analysis.runningMethods.getStrings();}
+    }));
   };
   
   this.renderThreads = function(analysis) {
-    this.target.append(Mustache.render($('#tmpl-analysis-threads').html(), analysis));
+    var config = this.config;
+    this.target.append(Mustache.render($('#tmpl-analysis-threads').html(), {
+      analysis_id: analysis.id, 
+      analysis: analysis,
+      threads: function() {return analysis.threads;},
+      threadStatusColor: function() {        
+        return config.threadStatusColor[this.getStatus()]; 
+      }
+    }));
   };
   
   this.renderSynchronizers = function(analysis) {
-    this.target.append(Mustache.render($('#tmpl-analysis-synchronizers').html(), analysis));
+    this.target.append(Mustache.render($('#tmpl-analysis-synchronizers').html(), {
+      analysis_id: analysis.id, 
+      analysis: analysis,
+      synchronizers: function() {return analysis.synchronizers;}
+    }));
   };
   
   this.renderGarbage = function(analysis) {
-    this.target.append(Mustache.render($('#tmpl-analysis-garbage').html(), analysis));
+    this.target.append(Mustache.render($('#tmpl-analysis-garbage').html(), {
+      analysis_id: analysis.id, 
+      analysis: analysis
+    }));
   };
 
   this.target = target;

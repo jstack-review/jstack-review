@@ -32,9 +32,21 @@ jtda.render.RenderConfig = function() {
 };
 
 jtda.render.Renderer = function(target, config) {
+  this.getTemplate = function(name) {
+    return $('#tmpl-analysis-'+name).html();
+  };
+  
+  /**
+   * returns a function to lookup Mustache partials
+   */
+  this._partials = function() {
+    var _this = this;
+    return function(name) {return _this.getTemplate(name);};
+  }; 
+
   this.render = function(analysis) {
     this.target.empty();
-    this.target.append(Mustache.render($('#tmpl-analysis-navbar').html(), {analysis_id: analysis.id, analysis: analysis}));
+    this.target.append(Mustache.render(this.getTemplate('navbar'), {analysis_id: analysis.id, analysis: analysis}, this._partials()));
     
     this.renderOverview(analysis);
     this.renderRunningMethods(analysis);
@@ -44,10 +56,10 @@ jtda.render.Renderer = function(target, config) {
   };
   
   this.renderOverview = function(analysis) {
-    this.target.append(Mustache.render($('#tmpl-analysis-overview').html(), {
+    this.target.append(Mustache.render(this.getTemplate('overview'), {
       analysis_id: analysis.id, 
       analysis: analysis
-    }));
+    }, this._partials()));
     
     new Chart('thread_status_chart_'+analysis.id, {
       type: 'doughnut',
@@ -87,38 +99,44 @@ jtda.render.Renderer = function(target, config) {
   };
   
   this.renderRunningMethods = function(analysis) {
-    this.target.append(Mustache.render($('#tmpl-analysis-running-methods').html(), {
+    this.target.append(Mustache.render(this.getTemplate('running-methods'), {
       analysis_id: analysis.id, 
       analysis: analysis,
       methods: function() {return analysis.runningMethods.getStrings();}
-    }));
+    }, this._partials()));
   };
   
   this.renderThreads = function(analysis) {
     var config = this.config;
-    this.target.append(Mustache.render($('#tmpl-analysis-threads').html(), {
+    this.target.append(Mustache.render(this.getTemplate('threads'), {
       analysis_id: analysis.id, 
       analysis: analysis,
       threads: function() {return analysis.threads;},
       threadStatusColor: function() {        
         return config.threadStatusColor[this.getStatus()]; 
       }
-    }));
+    }, this._partials()));
   };
   
   this.renderSynchronizers = function(analysis) {
-    this.target.append(Mustache.render($('#tmpl-analysis-synchronizers').html(), {
+    this.target.append(Mustache.render(this.getTemplate('synchronizers'), {
       analysis_id: analysis.id, 
       analysis: analysis,
-      synchronizers: function() {return analysis.synchronizers;}
-    }));
+      synchronizers: function() {return analysis.synchronizers;},
+      prettyClassName: function() {
+        return jtda.util.getPrettyClassName(this.className);
+      },
+      threadStatusColor: function() {        
+        return config.threadStatusColor[this.getStatus()]; 
+      }
+    }, this._partials()));
   };
   
   this.renderGarbage = function(analysis) {
-    this.target.append(Mustache.render($('#tmpl-analysis-garbage').html(), {
+    this.target.append(Mustache.render(this.getTemplate('garbage'), {
       analysis_id: analysis.id, 
       analysis: analysis
-    }));
+    }, this._partials()));
   };
 
   this.target = target;

@@ -30,6 +30,7 @@ jtda.Analysis = function(id, config) {
     this._init();
     this._analyzeThreads(text);
     this._countRunningMethods();
+    this._analyzeSynchronizers();
     // TODO analyze the rest
   };
   
@@ -146,6 +147,67 @@ jtda.Analysis = function(id, config) {
       }
       var runningMethod = thread.frames[0].replace(/^\s+at\s+/, '');
       this.runningMethods.addString(runningMethod, thread);
+    }
+  };
+  
+  this._analyzeSynchronizers = function() {
+    this._mapSynchronizers();
+    this._xrefSynchronizers();    
+    // Sort the synchronizers by number of references
+    this.synchronizers.sort(jtda.Synchronizer.compare);
+  };
+  
+  /**
+   * Build up the synchronizer map
+   */
+  this._mapSynchronizers = function() {
+    for (var i = 0; i < this.threads.length; i++) {
+      var thread = this.threads[i];
+
+      this._registerSynchronizer(thread.wantNotificationOn, thread.synchronizerClasses);
+      this._registerSynchronizer(thread.wantToAcquire, thread.synchronizerClasses);
+
+      for (var j = 0; j < thread.locksHeld.length; j++) {
+        this._registerSynchronizer(thread.locksHeld[j], thread.synchronizerClasses);
+      }
+    }
+        
+    var ids = Object.keys(this.synchronizerMap);
+    for (var k = 0; k < ids.length; k++) {
+      var id = ids[k];
+      this.synchronizers.push(this.synchronizerMap[id]);
+    }
+  };
+  
+  this._registerSynchronizer = function(id, synchronizerClasses) {
+    if (id === null) {
+      return;
+    }
+    if (this.synchronizerMap[id] === undefined) {
+      this.synchronizerMap[id] = new jtda.Synchronizer(id, synchronizerClasses[id]);
+    }
+  };
+  
+  /**
+   * Cross reference the synchronizers and threads
+   */
+  this._xrefSynchronizers = function() {
+    for (var i = 0; i < this.threads.length; i++) {
+      var thread = this.threads[i];
+      
+      if (thread.wantNotificationOn !== null) {
+        var synchronizer = this.synchronizerMap[thread.wantNotificationOn];
+        synchronizer.notificationWaiters.push(thread);
+      }
+      if (thread.wantToAcquire !== null) {
+        var synchronizer = this.synchronizerMap[thread.wantToAcquire];
+        synchronizer.lockWaiters.push(thread);
+      }
+
+      for (var j = 0; j < thread.locksHeld.length; j++) {
+        var synchronizer = this.synchronizerMap[thread.locksHeld[j]];
+        synchronizer.lockHolder = thread;
+      }
     }
   };
 
@@ -405,6 +467,26 @@ jtda.TheadStatus.WAITING_NOTIFY = "awaiting notification";
 jtda.DeadlockStatus = function(severity, trail) {  
   this.severity = severity;
   this.trail = trail || []; 
+  
+  this.toString = function() {
+    switch (this.severity) {
+      case jtda.DeadlockStatus.NO_RISK: return "";
+      case jtda.DeadlockStatus.LOW_RISK: return "Deadlock suspect";
+      case jtda.DeadlockStatus.HIGH_RISK: return "Possible deadlock";
+      case jtda.DeadlockStatus.DEADLOCKED: return "Deadlocked";
+      default: return "Unknown?";
+    }
+  };
+  
+  this.notificationLevel = function() {
+    switch (this.severity) {
+      case jtda.DeadlockStatus.NO_RISK: return "";
+      case jtda.DeadlockStatus.LOW_RISK: return "info";
+      case jtda.DeadlockStatus.HIGH_RISK: return "warning";
+      case jtda.DeadlockStatus.DEADLOCKED: return "danger";
+      default: return "default";
+    }
+  };
 };
 
 /* There is no deadlock */ 
@@ -451,7 +533,7 @@ jtda.Synchronizer.compare = function(a, b) {
         return prettyA.localeCompare(prettyB);
     }
 
-    return a._id.localeCompare(b._id);
+    return a.id.localeCompare(b.id);
 };
 
 jtda.util.getPrettyClassName = function(className) {

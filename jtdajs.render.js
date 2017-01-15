@@ -29,6 +29,10 @@ jtda.render.RenderConfig = function() {
   this.threadStatusColor[jtda.TheadStatus.WAITING_ACQUIRE] = '#ff7f0e'; 
   this.threadStatusColor[jtda.TheadStatus.WAITING_NOTIFY] = '#d62728';
   
+  this.synchronizerChart = {
+    max: 7,
+    colors: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf' ]
+  };
 };
 
 jtda.render.Renderer = function(target, config) {
@@ -77,6 +81,32 @@ jtda.render.Renderer = function(target, config) {
         }
       }
     });
+    
+    new Chart('sync_type_chart_'+analysis.id, {
+      type: 'doughnut',
+      data: this.getSynchronizerTypeChartData(analysis),
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        title: {
+          display: true,
+          position: "left",
+          text: "Synchronizer Types"
+        },
+        legend: {
+          position: "right",          
+        },
+        tooltips: {
+          callbacks: {
+            label: function(t, n) {
+              var lbl = n.longLabels[t.index],
+              cnt = ': ' + n.datasets[t.datasetIndex].data[t.index];
+              return lbl+cnt;
+            }
+          }
+        }
+      }
+    });
   };
   
   this.getThreadStatusChartData = function(analysis) {
@@ -86,8 +116,8 @@ jtda.render.Renderer = function(target, config) {
     }
     sorted.sort(function(a, b) {
         return b[1] - a[1];
-    })
-    var labels = [];      
+    });
+    var labels = [];          
     var dataset = { data: [], backgroundColor: [] };
     for (var i = 0; i < sorted.length; ++i) {
       labels.push(sorted[i][0]);
@@ -95,6 +125,48 @@ jtda.render.Renderer = function(target, config) {
       dataset.backgroundColor.push(this.config.threadStatusColor[sorted[i][0]]);
     }
     var res = { labels: labels, datasets: [dataset] };
+    return res;
+  };
+  
+  this.getSynchronizerTypeChartData = function(analysis) {
+    var indexed = {};
+    var sorted = [];
+    for (var sync of analysis.synchronizers) {
+      if (indexed[sync.className] === undefined) {
+        indexed[sync.className] = sorted.length;
+        sorted.push([sync.className, 1])
+      }
+      else {
+        var idx = indexed[sync.className];
+        sorted[idx][1] = ++sorted[idx][1]; 
+      }
+    }
+    sorted.sort(function(a, b) {
+        return b[1] - a[1];
+    });
+    
+    var maxLegend = this.config.synchronizerChart.max;
+    var labels = [];
+    var shortLabels = [];      
+    var dataset = { data: [], backgroundColor: [] };
+    for (var i = 0; i < sorted.length && i < maxLegend; ++i) {
+      labels.push(sorted[i][0]);
+      shortLabels.push(jtda.util.getPrettyClassName(sorted[i][0]));
+      dataset.data.push(sorted[i][1]);
+      dataset.backgroundColor.push(this.config.synchronizerChart.colors[i]);
+    }
+    if (sorted.length > maxLegend) {
+      var cnt = 0;
+      for (var i = maxLegend; i < sorted.length; ++i) {
+        cnt += sorted[i][1];
+      }
+      if (cnt > 0) {
+        labels.push('Others');
+        shortLabels.push('Others');
+        dataset.data.push(cnt);
+      }
+    }
+    var res = { labels: shortLabels, longLabels: labels, datasets: [dataset] };
     return res;
   };
   

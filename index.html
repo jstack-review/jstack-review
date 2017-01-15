@@ -212,7 +212,7 @@
     <div class="container-fluid">
       <h2>Overview</h2>
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-2">
           <dl class="dl-horizontal">
             <dt>Threads</dt>
             <dd>{{analysis.threads.length}}</dd>
@@ -222,8 +222,11 @@
             <dd>{{analysis.deadlockStatus}}</dd>
           </dl>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-5">
           <canvas id="thread_status_chart_{{analysis_id}}" width="300" height="100"></canvas>
+        </div>
+        <div class="col-md-5">
+          <canvas id="sync_type_chart_{{analysis_id}}" width="300" height="100"></canvas>
         </div>
       </div>
     </div>

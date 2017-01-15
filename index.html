@@ -28,7 +28,7 @@
     <script src="jtdajs.render.js" type="text/javascript"></script>
     <style type="text/css">
     :target {
-      background-color: #ffa;
+      background-color: #fcf8e3;
     }
     
     div.container-fluid:target {
@@ -59,17 +59,30 @@
       vertical-align: middle;
     }
     
-    div.thread-entry {
-      margin-top: 0.5em;
-    }
-    
     .synchronizer-class {
-      border-bottom: 1px dashed;
+      border-bottom: 1px dotted;
       cursor: help;
     }
     
     .results {
       padding-bottom: 70px;
+    }
+    
+    .thread-entry .thread-name a {
+      color: unset;
+    }
+    
+    .thread-entry .thread-name a:hover {
+      text-decoration: none;
+    }
+    
+    .thread-entry .thread-name::after {
+      content: ": ";
+    }
+    
+    .synchronizer-entry .thread-name::after {
+      content: "\A";
+      white-space: pre; 
     }
     </style>
     <script type="text/javascript">    
@@ -242,7 +255,7 @@
       <table class="table table-striped">
       {{#methods}}
         <tr>
-          <td>{{string}}</td>
+          <td><samp>{{string}}</samp></td>
           <td>
             {{#sources}}
               <a href="#thread_{{analysis_id}}_{{tid}}">{{name}}</a> <br />
@@ -278,15 +291,31 @@
       <h2>Threads</h2>
       
       {{#threads}}
-      <div class="thread-entry">
-        <div id="thread_{{analysis_id}}_{{tid}}" class="thread-header">
-          {{> thread-summary}}
-        </div>
-        <div class="row thread-stack">
-          <div class="col-md-offset-1 thread-stack">        
-            {{#frames}}
-              <samp>{{.}}</samp><br />
-            {{/frames}}
+      <div class="thread-entry panel panel-default">
+        {{! It is either a group of threads, or just a single thread}}
+        {{#threads.length}}
+        <div class="panel-heading"><span class="badge">{{threads.length}}</span> thread(s) with {{#frames.length}}this{{/frames.length}}{{^frames}}no{{/frames}} stack</div>
+        {{/threads.length}}
+        <div class="panel-body">
+          {{#threads}}
+          <div id="thread_{{analysis_id}}_{{tid}}" class="thread-header">
+            {{> thread-summary}}
+          </div>
+          {{/threads}}
+          {{^threads}}
+          <div id="thread_{{analysis_id}}_{{tid}}" class="thread-header">
+            {{> thread-summary}}
+          </div>
+          {{/threads}}
+          <div class="row thread-stack">
+            <div class="col-md-offset-1 thread-stack">        
+              {{#frames}}
+                <samp>at {{.}}</samp><br />
+              {{/frames}}
+              {{^frames}}
+                <samp>&lt;Empty stack&gt;</samp><br />
+              {{/frames}}
+            </div>
           </div>
         </div>
       </div>
@@ -312,25 +341,33 @@
         </td>
         <td>
           {{#lockHolder}}
-            Held by<br />           
+            <p>Held by<br />           
             {{> thread-summary}}
-            <br />
+            </p>
           {{/lockHolder}}
           
           {{#notificationWaiters.length}}
-            <span>{{notificationWaiters.length}} thread(s) waiting for notifcation:</span><br />
+            <span>{{notificationWaiters.length}} thread(s) waiting for notifcation:</span>
+            <ul class="list-unstyled">
             {{#notificationWaiters}}
-              <span class="thread-status-color" style="background-color: {{threadStatusColor}}" title="{{getStatus}}"></span>
-              <a href="#thread_{{analysis_id}}_{{tid}}">{{name}}</a> <br />
+              <li>
+                <span class="thread-status-color" style="background-color: {{threadStatusColor}}" title="{{getStatus}}"></span>
+                <a href="#thread_{{analysis_id}}_{{tid}}">{{name}}</a>
+              </li>
             {{/notificationWaiters}}
+            </ul>
           {{/notificationWaiters.length}}
         
           {{#lockWaiters.length}}
-            <span>{{lockWaiters.length}} thread{s} waiting to take lock</span> <br />
+            <span>{{lockWaiters.length}} thread(s) waiting to take lock</span>
+            <ul class="list-unstyled">
             {{#lockWaiters}}
-              <span class="thread-status-color" style="background-color: {{threadStatusColor}}" title="{{getStatus}}"></span>
-              <a href="#thread_{{analysis_id}}_{{tid}}">{{name}}</a> <br />
+              <li>
+                <span class="thread-status-color" style="background-color: {{threadStatusColor}}" title="{{getStatus}}"></span>
+                <a href="#thread_{{analysis_id}}_{{tid}}">{{name}}</a>
+              </li>
             {{/lockWaiters}}
+            </ul>
           {{/lockWaiters.length}}
         </td>
       </tr>

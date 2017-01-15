@@ -19,6 +19,10 @@ var jtda = jtda || {};
 jtda.render = jtda.render || {};
 
 jtda.render.RenderConfig = function() {
+  this.threads = {
+    groupSimilar: true
+  };
+
   this.threadStatusColor = {}; 
   this.threadStatusColor[jtda.TheadStatus.UNKNOWN] = '#7f7f7f'; 
   this.threadStatusColor[jtda.TheadStatus.RUNNING] = '#2ca02c'; 
@@ -174,20 +178,102 @@ jtda.render.Renderer = function(target, config) {
     this.target.append(Mustache.render(this.getTemplate('running-methods'), {
       analysis_id: analysis.id, 
       analysis: analysis,
-      methods: function() {return analysis.runningMethods.getStrings();}
+      methods: function() {
+        return analysis.runningMethods.getStrings();
+      }
     }, this._partials()));
   };
   
   this.renderThreads = function(analysis) {
     var config = this.config;
-    this.target.append(Mustache.render(this.getTemplate('threads'), {
+    var model = {
       analysis_id: analysis.id, 
       analysis: analysis,
-      threads: function() {return analysis.threads;},
+      threads: analysis.threads,
       threadStatusColor: function() {        
         return config.threadStatusColor[this.getStatus()]; 
       }
-    }, this._partials()));
+    };
+    if (config.threads.groupSimilar) {
+      model.threads = this.groupSimilarThreads(analysis.threads);
+    }
+    this.target.append(Mustache.render(this.getTemplate('threads'), model, this._partials()));
+  };
+  
+  /**
+   * Returns an array of objects with {threads: [thread, ...], frames: []}
+   */
+  this.groupSimilarThreads = function(threads) {
+    // Map stacks to which threads have them
+    var stacksToThreads = {};
+    for (var i = 0; i < threads.length; i++) {
+        var thread = threads[i];
+        var stackString = thread.frames.join('\n');
+        if (!stacksToThreads.hasOwnProperty(stackString)) {
+            stacksToThreads[stackString] = [];
+        }
+        stacksToThreads[stackString].push(thread);
+    }
+
+    // List stacks by popularity
+    var stacks = [];
+    for (var stack in stacksToThreads) {
+        stacks.push(stack);
+    }
+    stacks.sort(function(a, b) {
+        if (a === b) {
+            return 0;
+        }
+
+        var scoreA = stacksToThreads[a].length;
+        if (a === '') {
+            scoreA = -123456;
+        }
+
+        var scoreB = stacksToThreads[b].length;
+        if (b === '') {
+            scoreB = -123456;
+        }
+
+        if (scoreB !== scoreA) {
+            return scoreB - scoreA;
+        }
+
+        // Use stack contents as secondary sort key. This is
+        // needed to get deterministic enough output for being
+        // able to run our unit tests in both Node.js and in
+        // Chrome.
+        if (a < b) {
+            return -1;
+        } else {
+            return 1;
+        }
+    });
+
+    // Iterate over stacks and for each stack, print first all
+    // threads that have it, and then the stack itself.
+    var threadsAndStacks = [];
+    for (var j = 0; j < stacks.length; j++) {
+        var currentStack = stacks[j];
+        var threads = stacksToThreads[currentStack];
+
+        threads.sort(function(a, b){
+            if (a.name > b.name) {
+                return 1;
+            }
+            if (a.name < b.name) {
+                return -1;
+            }
+            return 0;
+        });
+
+        threadsAndStacks.push({
+            threads: threads,
+            frames: threads[0].frames
+        });
+    }
+
+    return threadsAndStacks;
   };
   
   this.renderSynchronizers = function(analysis) {

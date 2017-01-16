@@ -15,6 +15,10 @@ limitations under the License.
 */
 "use strict";
 
+/* global $ */
+/* global Mustache */
+/* global Chart */
+
 var jtda = jtda || {};
 jtda.render = jtda.render || {};
 

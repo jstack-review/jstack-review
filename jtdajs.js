@@ -136,7 +136,7 @@ jtda.Analysis = function(id, config) {
                 this.threadsByStatus[status] = [thread];
             }
         }
-    }
+    };
 
     this._countRunningMethods = function() {
         for (var i = 0; i < this.threads.length; i++) {
@@ -194,17 +194,18 @@ jtda.Analysis = function(id, config) {
         for (var i = 0; i < this.threads.length; i++) {
             var thread = this.threads[i];
 
+            var synchronizer;
             if (thread.wantNotificationOn !== null) {
-                var synchronizer = this.synchronizerMap[thread.wantNotificationOn];
+                synchronizer = this.synchronizerMap[thread.wantNotificationOn];
                 synchronizer.notificationWaiters.push(thread);
             }
             if (thread.wantToAcquire !== null) {
-                var synchronizer = this.synchronizerMap[thread.wantToAcquire];
+                synchronizer = this.synchronizerMap[thread.wantToAcquire];
                 synchronizer.lockWaiters.push(thread);
             }
 
             for (var j = 0; j < thread.locksHeld.length; j++) {
-                var synchronizer = this.synchronizerMap[thread.locksHeld[j]];
+                synchronizer = this.synchronizerMap[thread.locksHeld[j]];
                 synchronizer.lockHolder = thread;
             }
         }
@@ -448,7 +449,7 @@ jtda.TheadStatus = function(thread) {
 
     this.toString = function() {
         return this.status;
-    }
+    };
 
     this.thread = thread;
     this.determineStatus();
@@ -649,7 +650,7 @@ jtda.util.StringCounter = function() {
 
     this._stringsToCounts = {};
     this.length = 0;
-}
+};
 
 jtda._internal = jtda._internal || {};
 jtda._internal.generatedIdCounter = 1;

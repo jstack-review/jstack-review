@@ -211,15 +211,15 @@
     </script>
     
     <script id="tmpl-analysis-navbar" type="x-tmpl-mustache">
-      <nav id="navbar_{{analysis_id}}" class="navbar navbar-default navbar-fixed-bottom">
+      <nav id="navbar_{{analysisId}}" class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid">
           <ul class="nav navbar-nav">
             <li><a href="#top" title="Top"><span class="glyphicon glyphicon-triangle-top"></span></a></li>
-            <li><a href="#input_{{analysis_id}}">Input</a></li>
-            <li><a href="#running_methods_{{analysis_id}}">Running Methods <span class="label label-default"></span></a></li>
-            <li><a href="#threads_{{analysis_id}}">Thread <span class="label label-default">{{analysis.threads.length}}</span></a></li>
-            <li><a href="#synchronizers_{{analysis_id}}">Synchronizers <span class="label label-default">{{analysis.synchronizers.length}}</span></a></li>
-            <li><a href="#garbage_{{analysis_id}}">Ignored Lines</a></li>
+            <li><a href="#input_{{analysisId}}">Input</a></li>
+            <li><a href="#running_methods_{{analysisId}}">Running Methods <span class="label label-default"></span></a></li>
+            <li><a href="#threads_{{analysisId}}">Thread <span class="label label-default">{{analysis.threads.length}}</span></a></li>
+            <li><a href="#synchronizers_{{analysisId}}">Synchronizers <span class="label label-default">{{analysis.synchronizers.length}}</span></a></li>
+            <li><a href="#garbage_{{analysisId}}">Ignored Lines</a></li>
           </ul>
         </div>
       </nav>
@@ -240,17 +240,17 @@
           </dl>
         </div>
         <div class="col-md-5">
-          <canvas id="thread_status_chart_{{analysis_id}}" width="300" height="100"></canvas>
+          <canvas id="thread_status_chart_{{analysisId}}" width="300" height="100"></canvas>
         </div>
         <div class="col-md-5">
-          <canvas id="sync_type_chart_{{analysis_id}}" width="300" height="100"></canvas>
+          <canvas id="sync_type_chart_{{analysisId}}" width="300" height="100"></canvas>
         </div>
       </div>
     </div>
     </script>
     
     <script id="tmpl-analysis-running-methods" type="x-tmpl-mustache">
-    <div class="container-fluid" id="running_methods_{{analysis_id}}">
+    <div class="container-fluid" id="running_methods_{{analysisId}}">
       <h2>Running Methods</h2>
       <table class="table table-striped">
       {{#methods}}
@@ -258,7 +258,7 @@
           <td><samp>{{string}}</samp></td>
           <td>
             {{#sources}}
-              <a href="#thread_{{analysis_id}}_{{tid}}">{{name}}</a> <br />
+              <a href="#thread_{{analysisId}}_{{tid}}">{{name}}</a> <br />
             {{/sources}}
           </td>
         </tr>
@@ -269,25 +269,25 @@
     
     <script id="tmpl-analysis-thread-summary" type="x-tmpl-mustache">
       <span class="thread-status-color" style="background-color: {{threadStatusColor}}" title="{{getStatus}}"></span>
-      <span class="thread-name"><a href="#thread_{{analysis_id}}_{{tid}}">{{name}}</a></span>
+      <span class="thread-name"><a href="#thread_{{analysisId}}_{{tid}}">{{name}}</a></span>
       <span class="thread-status">{{getStatus}}</span> 
       {{#wantNotificationOn}}
-      on <span class="thread-wait-on-sync">[<a href="#sync_{{analysis_id}}_{{wantNotificationOn}}">{{wantNotificationOn}}</a>]</span>
+      on <span class="thread-wait-on-sync">[<a href="#sync_{{analysisId}}_{{wantNotificationOn}}">{{wantNotificationOn}}</a>]</span>
       {{/wantNotificationOn}}
       {{#wantToAcquire}}
-      <span class="thread-wait-on-sync">[<a href="#sync_{{analysis_id}}_{{wantToAcquire}}">{{wantToAcquire}}</a>]</span>
+      <span class="thread-wait-on-sync">[<a href="#sync_{{analysisId}}_{{wantToAcquire}}">{{wantToAcquire}}</a>]</span>
       {{/wantToAcquire}}
       {{#locksHeld.length}}
         , holding [
         {{#locksHeld}}
-        <a href="#sync_{{analysis_id}}_{{.}}">{{.}}</a>
+        <a href="#sync_{{analysisId}}_{{.}}">{{.}}</a>
         {{/locksHeld}}
         ]
       {{/locksHeld.length}}
     </script>
     
     <script id="tmpl-analysis-threads" type="x-tmpl-mustache">
-    <div class="container-fluid" id="threads_{{analysis_id}}">
+    <div class="container-fluid" id="threads_{{analysisId}}">
       <h2>Threads</h2>
       
       {{#threads}}
@@ -298,12 +298,12 @@
         {{/threads.length}}
         <div class="panel-body">
           {{#threads}}
-          <div id="thread_{{analysis_id}}_{{tid}}" class="thread-header">
+          <div id="thread_{{analysisId}}_{{tid}}" class="thread-header">
             {{> thread-summary}}
           </div>
           {{/threads}}
           {{^threads}}
-          <div id="thread_{{analysis_id}}_{{tid}}" class="thread-header">
+          <div id="thread_{{analysisId}}_{{tid}}" class="thread-header">
             {{> thread-summary}}
           </div>
           {{/threads}}
@@ -324,12 +324,12 @@
     </script>
     
     <script id="tmpl-analysis-synchronizers" type="x-tmpl-mustache">
-    <div class="container-fluid" id="synchronizers_{{analysis_id}}">
+    <div class="container-fluid" id="synchronizers_{{analysisId}}">
       <h2>Synchronizers</h2>
       <table class="table table-striped">
       {{#synchronizers}}
       <tr class="synchronizer-entry">
-        <td id="sync_{{analysis_id}}_{{id}}">
+        <td id="sync_{{analysisId}}_{{id}}">
           <span class="synchronizer-id">{{id}}</span> <br />
           <span class="synchronizer-class" title="{{className}}"><samp>{{prettyClassName}}</code></samp> <br />
           
@@ -352,7 +352,7 @@
             {{#notificationWaiters}}
               <li>
                 <span class="thread-status-color" style="background-color: {{threadStatusColor}}" title="{{getStatus}}"></span>
-                <a href="#thread_{{analysis_id}}_{{tid}}">{{name}}</a>
+                <a href="#thread_{{analysisId}}_{{tid}}">{{name}}</a>
               </li>
             {{/notificationWaiters}}
             </ul>
@@ -364,7 +364,7 @@
             {{#lockWaiters}}
               <li>
                 <span class="thread-status-color" style="background-color: {{threadStatusColor}}" title="{{getStatus}}"></span>
-                <a href="#thread_{{analysis_id}}_{{tid}}">{{name}}</a>
+                <a href="#thread_{{analysisId}}_{{tid}}">{{name}}</a>
               </li>
             {{/lockWaiters}}
             </ul>
@@ -377,7 +377,7 @@
     </script>
     
     <script id="tmpl-analysis-garbage" type="x-tmpl-mustache">
-    <div class="container-fluid" id="garbage_{{analysis_id}}">
+    <div class="container-fluid" id="garbage_{{analysisId}}">
       <h2>Ignored Lines</h2>
     </div>
     </script>

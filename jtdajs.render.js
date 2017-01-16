@@ -57,7 +57,7 @@ jtda.render.Renderer = function(target, config) {
     this.render = function(analysis) {
         this.target.empty();
         this.target.append(Mustache.render(this.getTemplate('navbar'), {
-            analysis_id: analysis.id,
+            analysisId: analysis.id,
             analysis: analysis
         }, this._partials()));
 
@@ -70,7 +70,7 @@ jtda.render.Renderer = function(target, config) {
 
     this.renderOverview = function(analysis) {
         this.target.append(Mustache.render(this.getTemplate('overview'), {
-            analysis_id: analysis.id,
+            analysisId: analysis.id,
             analysis: analysis
         }, this._partials()));
 
@@ -121,7 +121,7 @@ jtda.render.Renderer = function(target, config) {
     this.getThreadStatusChartData = function(analysis) {
         var sorted = [];
         for (var status in analysis.threadsByStatus) {
-            sorted.push([status, analysis.threadsByStatus[status].length])
+            sorted.push([status, analysis.threadsByStatus[status].length]);
         }
         sorted.sort(function(a, b) {
             return b[1] - a[1];
@@ -149,7 +149,7 @@ jtda.render.Renderer = function(target, config) {
         for (var sync of analysis.synchronizers) {
             if (indexed[sync.className] === undefined) {
                 indexed[sync.className] = sorted.length;
-                sorted.push([sync.className, 1])
+                sorted.push([sync.className, 1]);
             } else {
                 var idx = indexed[sync.className];
                 sorted[idx][1] = ++sorted[idx][1];
@@ -193,7 +193,7 @@ jtda.render.Renderer = function(target, config) {
 
     this.renderRunningMethods = function(analysis) {
         this.target.append(Mustache.render(this.getTemplate('running-methods'), {
-            analysis_id: analysis.id,
+            analysisId: analysis.id,
             analysis: analysis,
             methods: function() {
                 return analysis.runningMethods.getStrings();
@@ -204,7 +204,7 @@ jtda.render.Renderer = function(target, config) {
     this.renderThreads = function(analysis) {
         var config = this.config;
         var model = {
-            analysis_id: analysis.id,
+            analysisId: analysis.id,
             analysis: analysis,
             threads: analysis.threads,
             threadStatusColor: function() {
@@ -295,7 +295,7 @@ jtda.render.Renderer = function(target, config) {
 
     this.renderSynchronizers = function(analysis) {
         this.target.append(Mustache.render(this.getTemplate('synchronizers'), {
-            analysis_id: analysis.id,
+            analysisId: analysis.id,
             analysis: analysis,
             synchronizers: function() {
                 return analysis.synchronizers;
@@ -311,7 +311,7 @@ jtda.render.Renderer = function(target, config) {
 
     this.renderGarbage = function(analysis) {
         this.target.append(Mustache.render(this.getTemplate('garbage'), {
-            analysis_id: analysis.id,
+            analysisId: analysis.id,
             analysis: analysis
         }, this._partials()));
     };

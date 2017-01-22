@@ -152,7 +152,8 @@ var jtda = jtda || {};
         this.getSynchronizerTypeChartData = function(analysis) {
             var indexed = {};
             var sorted = [];
-            for (var sync of analysis.synchronizers) {
+            for (var s = 0; s < analysis.synchronizers.length; ++s) {
+                var sync = analysis.synchronizers[s];
                 if (indexed[sync.className] === undefined) {
                     indexed[sync.className] = sorted.length;
                     sorted.push([sync.className, 1]);
@@ -180,8 +181,8 @@ var jtda = jtda || {};
             }
             if (sorted.length > maxLegend) {
                 var cnt = 0;
-                for (var i = maxLegend; i < sorted.length; ++i) {
-                    cnt += sorted[i][1];
+                for (var j = maxLegend; j < sorted.length; ++j) {
+                    cnt += sorted[j][1];
                 }
                 if (cnt > 0) {
                     labels.push('Others');
@@ -227,11 +228,11 @@ var jtda = jtda || {};
         /**
          * Returns an array of objects with {threads: [thread, ...], frames: []}
          */
-        this.groupSimilarThreads = function(threads) {
+        this.groupSimilarThreads = function(inputThreads) {
             // Map stacks to which threads have them
             var stacksToThreads = {};
-            for (var i = 0; i < threads.length; i++) {
-                var thread = threads[i];
+            for (var i = 0; i < inputThreads.length; i++) {
+                var thread = inputThreads[i];
                 var stackString = thread.frames.join('\n');
                 if (!stacksToThreads.hasOwnProperty(stackString)) {
                     stacksToThreads[stackString] = [];

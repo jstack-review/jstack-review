@@ -212,7 +212,8 @@ var jtda = jtda || {};
         };
 
         this._analyzeDeadlocks = function() {
-            for (var synchronizer of this.synchronizers) {
+            for (var i = 0; i < this.synchronizers.length; ++i) {
+                var synchronizer = this.synchronizers[i];
                 var status = this._determineDeadlockStatus(synchronizer);
                 if (status.severity === 0) {
                     continue;

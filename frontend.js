@@ -75,7 +75,7 @@ function executeAnalysis(dumpId, text) {
     }
     var target = $('#' + dumpId + '_dump div.results');
     target.empty();
-    if (analysis.threads.length == 0) {
+    if (analysis.threads.length === 0) {
         target.append(Mustache.render($('#tmpl-alert').html(), {level: 'danger', message: 'No threads found in the thread dump'})); 
     }
     else {

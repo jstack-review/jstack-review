@@ -44,6 +44,6 @@ gulp.task('htmllint', function() {
 gulp.task('csslint', function() {
     return gulp.src('*.css')
         .pipe(csslint())
-        .pipe(csslint.reporter())
-        .pipe(csslint.reporter('fail'));
+        .pipe(csslint.formatter())
+        .pipe(csslint.formatter('fail'));
 });

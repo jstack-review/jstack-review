@@ -7,12 +7,12 @@
 }
 
 ul.nav li > span.glyphicon-remove {
+  color: #bbb;
+  cursor: pointer;
   display: none;
   position: absolute;
-  cursor: pointer;
   right: 5px;
   top: 4px;
-  color: #bbb;
 }
 
 ul.nav li:hover > span.glyphicon-remove {
@@ -26,8 +26,8 @@ ul.nav li:hover > span.glyphicon-remove:hover {
 .thread-status-color {
   display: inline-block;
   height: 0.5em;
-  width: 0.5em;
   vertical-align: middle;
+  width: 0.5em;
 }
 
 .synchronizer-class {
@@ -40,8 +40,8 @@ ul.nav li:hover > span.glyphicon-remove:hover {
 }
 
 .thread-entry .thread-name a {
-  color: unset;
   border-bottom: 1px dotted;
+  color: unset;
 }
 
 .thread-entry .thread-name a:hover, .thread-entry .thread-name a:active, .thread-entry .thread-name a:focus {

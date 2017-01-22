@@ -70,9 +70,10 @@
     
     .thread-entry .thread-name a {
       color: unset;
+      border-bottom: 1px dotted;
     }
     
-    .thread-entry .thread-name a:hover {
+    .thread-entry .thread-name a:hover, .thread-entry .thread-name a:active, .thread-entry .thread-name a:focus {
       text-decoration: none;
     }
     
@@ -101,16 +102,16 @@
       $('#adddump').parent().before(Mustache.render($('#tmpl-tab').html(), model));
       $('#dumptabs>li[data-dumpid='+model.id+']>span').click(removeDump);
       $('#dumps').append(Mustache.render($('#tmpl-tab-panel').html(), model));
-      $('#dumps>div[data-dumpid='+model.id+'] form button').click(function() { executeAnalysis(model.id, $('#dumpInput_'+model.id).val()); });
+      $('#dumps>div[data-dumpid='+model.id+'] form button').click(function() { executeAnalysis(model.id, $('#'+model.id+'_dumpInput').val()); });
       $('#dumptabs>li[data-dumpid='+model.id+']>a').tab('show');
       
       // just to make developments easier
       var saveFlag = sessionStorage.getItem('input.save.'+model.id);
       if (saveFlag == 'true') {
-        $('#dumpInput_save_'+model.id).prop("checked", true);
-        $('#dumpInput_'+model.id).val(sessionStorage.getItem('input.'+model.id));
+        $('#'+model.id+'_dumpInput_save').prop("checked", true);
+        $('#'+model.id+'_dumpInput').val(sessionStorage.getItem('input.'+model.id));
       }
-      $('#dumpInput_save_'+model.id).change(function() {
+      $('#'+model.id+'_dumpInput_save').change(function() {
         var checked = $(this).prop("checked");
         sessionStorage.setItem('input.save.'+model.id, checked);
         if (!checked) {
@@ -118,7 +119,7 @@
         }
       });
       $('#dumpInput_'+model.id).change(function() {
-        var checked = $('#dumpInput_save_'+model.id).prop("checked");
+        var checked = $('#'+model.id+'_dumpInput_save').prop("checked");
         if (checked) {
           sessionStorage.setItem('input.'+model.id, $(this).val());
         }
@@ -145,7 +146,7 @@
       var analysis = dumpAnalysis[dumpId];
       analysis.analyze(text);
       console.debug(analysis);
-      new jtda.render.Renderer($('#dump_'+dumpId+' div.results'), renderConfig).render(analysis);
+      new jtda.render.Renderer($('#'+dumpId+'_dump div.results'), renderConfig).render(analysis);
     }
     
     $(document).ready(function(){
@@ -186,22 +187,22 @@
 
     <script id="tmpl-tab" type="x-tmpl-mustache">
     <li data-dumpid="{{id}}">
-      <a href="#dump_{{id}}" data-toggle="tab">{{name}}</a>
+      <a href="#{{id}}_dump" data-toggle="tab">{{name}}</a>
       <span class="glyphicon glyphicon-remove"></span>
     </li>
     </script>
     
     <script id="tmpl-tab-panel" type="x-tmpl-mustache">
-    <div id="dump_{{id}}" class="tab-pane" data-dumpid="{{id}}">
-      <div id="input_{{id}}" class="container-fluid">
+    <div id="{{id}}_dump" class="tab-pane" data-dumpid="{{id}}">
+      <div id="{{id}}_input" class="container-fluid">
         <h1>Analysis for {{name}}</h1>
         <form>
           <div class="form-group">
-            <label for="dumpInput_{{id}}">Thread Dump</label>
+            <label for="{{id}}_dumpInput">Thread Dump</label>
             <!-- TODO: different input method, textarea is slow when it has a lot of content -->
-            <textarea class="form-control" id="dumpInput_{{id}}" rows="5" placeholder="Paste your thread dump here"></textarea>
+            <textarea class="form-control" id="{{id}}_dumpInput" rows="5" placeholder="Paste your thread dump here"></textarea>
           </div>
-          <button type="button" class="btn btn-primary">Analyze</button> <label><input type="checkbox" id="dumpInput_save_{{id}}" value="1"> Remember input</label>
+          <button type="button" class="btn btn-primary">Analyze</button> <label><input type="checkbox" id="{{id}}_dumpInput_save" value="1"> Remember input</label>
         </form>
       </div>
       
@@ -211,15 +212,15 @@
     </script>
     
     <script id="tmpl-analysis-navbar" type="x-tmpl-mustache">
-      <nav id="navbar_{{analysisId}}" class="navbar navbar-default navbar-fixed-bottom">
+      <nav id="{{analysisId}}_navbar" class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid">
           <ul class="nav navbar-nav">
             <li><a href="#top" title="Top"><span class="glyphicon glyphicon-triangle-top"></span></a></li>
-            <li><a href="#input_{{analysisId}}">Input</a></li>
-            <li><a href="#running_methods_{{analysisId}}">Running Methods <span class="label label-default"></span></a></li>
-            <li><a href="#threads_{{analysisId}}">Thread <span class="label label-default">{{analysis.threads.length}}</span></a></li>
-            <li><a href="#synchronizers_{{analysisId}}">Synchronizers <span class="label label-default">{{analysis.synchronizers.length}}</span></a></li>
-            <li><a href="#garbage_{{analysisId}}">Ignored Lines</a></li>
+            <li><a href="#{{analysisId}}_input">Input</a></li>
+            <li><a href="#{{analysisId}}_running_methods">Running Methods <span class="label label-default"></span></a></li>
+            <li><a href="#{{analysisId}}_threads">Thread <span class="label label-default">{{analysis.threads.length}}</span></a></li>
+            <li><a href="#{{analysisId}}_synchronizers">Synchronizers <span class="label label-default">{{analysis.synchronizers.length}}</span></a></li>
+            <li><a href="#{{analysisId}}_garbage">Ignored Lines</a></li>
           </ul>
         </div>
       </nav>
@@ -240,17 +241,17 @@
           </dl>
         </div>
         <div class="col-md-5">
-          <canvas id="thread_status_chart_{{analysisId}}" width="300" height="100"></canvas>
+          <canvas id="{{analysisId}}_thread_status_chart" width="300" height="100"></canvas>
         </div>
         <div class="col-md-5">
-          <canvas id="sync_type_chart_{{analysisId}}" width="300" height="100"></canvas>
+          <canvas id="{{analysisId}}_sync_type_chart" width="300" height="100"></canvas>
         </div>
       </div>
     </div>
     </script>
     
     <script id="tmpl-analysis-running-methods" type="x-tmpl-mustache">
-    <div class="container-fluid" id="running_methods_{{analysisId}}">
+    <div class="container-fluid" id="{{analysisId}}_running_methods">
       <h2>Running Methods</h2>
       <table class="table table-striped">
       {{#methods}}
@@ -258,7 +259,7 @@
           <td><samp>{{string}}</samp></td>
           <td>
             {{#sources}}
-              <a href="#thread_{{analysisId}}_{{tid}}">{{name}}</a> <br />
+              <a href="#{{analysisId}}_thread_{{tid}}">{{name}}</a> <br />
             {{/sources}}
           </td>
         </tr>
@@ -269,25 +270,48 @@
     
     <script id="tmpl-analysis-thread-summary" type="x-tmpl-mustache">
       <span class="thread-status-color" style="background-color: {{threadStatusColor}}" title="{{getStatus}}"></span>
-      <span class="thread-name"><a href="#thread_{{analysisId}}_{{tid}}">{{name}}</a></span>
+      {{#showThreadDetails}}
+      <span class="thread-name"><a href="#{{analysisId}}_threaddetails_{{tid}}" data-toggle="collapse" aria-expanded="false" aria-controls="{{analysisId}}_threaddetails_{{tid}}">{{name}}</a></span>
+      {{/showThreadDetails}}
+      {{^showThreadDetails}}
+      <span class="thread-name"><a href="#{{analysisId}}_thread_{{tid}}">{{name}}</a></span>
+      {{/showThreadDetails}}
       <span class="thread-status">{{getStatus}}</span> 
       {{#wantNotificationOn}}
-      on <span class="thread-wait-on-sync">[<a href="#sync_{{analysisId}}_{{wantNotificationOn}}">{{wantNotificationOn}}</a>]</span>
+      on <span class="thread-wait-on-sync">[<a href="#{{analysisId}}_sync_{{wantNotificationOn}}">{{wantNotificationOn}}</a>]</span>
       {{/wantNotificationOn}}
       {{#wantToAcquire}}
-      <span class="thread-wait-on-sync">[<a href="#sync_{{analysisId}}_{{wantToAcquire}}">{{wantToAcquire}}</a>]</span>
+      <span class="thread-wait-on-sync">[<a href="#{{analysisId}}_sync_{{wantToAcquire}}">{{wantToAcquire}}</a>]</span>
       {{/wantToAcquire}}
       {{#locksHeld.length}}
         , holding [
         {{#locksHeld}}
-        <a href="#sync_{{analysisId}}_{{.}}">{{.}}</a>
+        <a href="#{{analysisId}}_sync_{{.}}">{{.}}</a>
         {{/locksHeld}}
         ]
       {{/locksHeld.length}}
+      {{#showThreadDetails}}
+      <div class="collapse well well-sm"" id="{{analysisId}}_threaddetails_{{tid}}">
+        <dl class="dl-horizontal">
+          <dt>Thread ID</dt>
+          <dd>{{tid}}</dd>
+          <dt>Status</dt>
+          <dd>{{getStatus}}</dd>
+          <dt>Group</dt>
+          <dd>{{group}}</dd>
+          <dt>Daemon</dt>
+          <dd>{{daemon}}</dd>
+          <dt>NID</dt>
+          <dd>{{nid}}</dd>
+          <dt>Priority</dt>
+          <dd>{{prio}}</dd>
+        </dl>
+      </div>
+      {{/showThreadDetails}}
     </script>
     
     <script id="tmpl-analysis-threads" type="x-tmpl-mustache">
-    <div class="container-fluid" id="threads_{{analysisId}}">
+    <div class="container-fluid" id="{{analysisId}}_threads">
       <h2>Threads</h2>
       
       {{#threads}}
@@ -298,12 +322,12 @@
         {{/threads.length}}
         <div class="panel-body">
           {{#threads}}
-          <div id="thread_{{analysisId}}_{{tid}}" class="thread-header">
+          <div id="{{analysisId}}_thread_{{tid}}" class="thread-header">
             {{> thread-summary}}
           </div>
           {{/threads}}
           {{^threads}}
-          <div id="thread_{{analysisId}}_{{tid}}" class="thread-header">
+          <div id="{{analysisId}}_thread_{{tid}}" class="thread-header">
             {{> thread-summary}}
           </div>
           {{/threads}}
@@ -324,12 +348,12 @@
     </script>
     
     <script id="tmpl-analysis-synchronizers" type="x-tmpl-mustache">
-    <div class="container-fluid" id="synchronizers_{{analysisId}}">
+    <div class="container-fluid" id="{{analysisId}}_synchronizers">
       <h2>Synchronizers</h2>
       <table class="table table-striped">
       {{#synchronizers}}
       <tr class="synchronizer-entry">
-        <td id="sync_{{analysisId}}_{{id}}">
+        <td id="{{analysisId}}_sync_{{id}}">
           <span class="synchronizer-id">{{id}}</span> <br />
           <span class="synchronizer-class" title="{{className}}"><samp>{{prettyClassName}}</code></samp> <br />
           
@@ -352,7 +376,7 @@
             {{#notificationWaiters}}
               <li>
                 <span class="thread-status-color" style="background-color: {{threadStatusColor}}" title="{{getStatus}}"></span>
-                <a href="#thread_{{analysisId}}_{{tid}}">{{name}}</a>
+                <a href="#{{analysisId}}_thread_{{tid}}">{{name}}</a>
               </li>
             {{/notificationWaiters}}
             </ul>
@@ -377,7 +401,7 @@
     </script>
     
     <script id="tmpl-analysis-garbage" type="x-tmpl-mustache">
-    <div class="container-fluid" id="garbage_{{analysisId}}">
+    <div class="container-fluid" id="{{analysisId}}_garbage">
       <h2>Ignored Lines</h2>
     </div>
     </script>

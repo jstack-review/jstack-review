@@ -78,7 +78,7 @@ jtda.render.Renderer = function(target, config) {
             analysis: analysis
         }, this._partials()));
 
-        new Chart('thread_status_chart_' + analysis.id, {
+        new Chart(analysis.id + '_thread_status_chart', {
             type: 'doughnut',
             data: this.getThreadStatusChartData(analysis),
             options: {
@@ -95,7 +95,7 @@ jtda.render.Renderer = function(target, config) {
             }
         });
 
-        new Chart('sync_type_chart_' + analysis.id, {
+        new Chart(analysis.id + '_sync_type_chart', {
             type: 'doughnut',
             data: this.getSynchronizerTypeChartData(analysis),
             options: {
@@ -213,7 +213,8 @@ jtda.render.Renderer = function(target, config) {
             threads: analysis.threads,
             threadStatusColor: function() {
                 return config.threadStatusColor[this.getStatus()];
-            }
+            },
+            showThreadDetails: true
         };
         if (config.threads.groupSimilar) {
             model.threads = this.groupSimilarThreads(analysis.threads);

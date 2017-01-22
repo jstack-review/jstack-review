@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <!--
    Copyright 2014 Spotify AB
+   Copyright 2016 MP Objects BV
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,74 +16,299 @@
    limitations under the License.
 -->
 <html lang="en">
-
   <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <title>Online Java Thread Dump Analyzer</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="stylesheet.css"/>
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <script src="https://code.jquery.com/jquery-1.12.4.min.js" type="text/javascript"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.bundle.min.js" integrity="sha256-RASNMNlmRtIreeznffYMDUxBXcMRjijEaaGF/gxT6vw=" crossorigin="anonymous"></script>
+    <script src="jtdajs.js" type="text/javascript"></script>
+    <script src="jtdajs.render.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="stylesheet.css">
+    <script src="frontend.js" type="text/javascript"></script>
   </head>
-  <body data-spy="scroll" data-target="#navbar"><script src="analyze.js" type="text/javascript"></script>
-
-    <nav id="navbar" class="navbar navbar-default navbar-fixed-bottom">
-      <div class="container-fluid">
-        <ul class="nav navbar-nav">
-          <li id="INPUT_NAV"><a href="#INPUT_DIV">Input</a></li>
-          <li id="RUNNING_NAV"><a href="#RUNNING_DIV">Top Running Methods <span class="label label-default"></span></a></li>
-          <li id="OUTPUT_NAV"><a href="#OUTPUT_DIV">Thread Overview <span class="label label-default"></span></a></li>
-          <li id="SYNCHRONIZERS_NAV"><a href="#SYNCHRONIZERS_DIV">Synchronizers <span class="label label-default"></span></a></li>
-          <li id="IGNORED_NAV"><a href="#IGNORED_DIV">Ignored Lines</a></li>
-        </ul>
-      </div>
-    </nav>
-
-    <div id="INPUT_DIV" class="container-fluid">
-    <h1>Online Java Thread Dump Analyzer</h1>
-
-    <p>Paste your thread dump here:</p>
-    <p>
-      <textarea cols="115" rows="10" id="TEXTAREA" autofocus></textarea>
-      <br/>
-      <button type="button" class="btn btn-primary" onclick="analyzeTextfield();">Analyze</button>
-      <button type="button" class="btn btn-default" onclick="clearTextfield();">Clear</button>
-    </p>
-    <p>This page is client-side only, and no data will leave your
-      computer when you click Analyze.</p>
+  <body>
+    <div class="alert alert-info alert-dismissible">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      This page is client-side only. No data will leave your computer when you click Analyze.
     </div>
 
-    <div id="RUNNING_DIV" class="container-fluid" style="display: none;">
-      <h2 id="RUNNING_HEADER">Top Running Methods</h2>
-      <table id="RUNNING" class="table table-striped"
-             summary="Top methods from all threads that are running">
-      </table>
-    </div>
+    <span id="top"></span>
+    <ul id="dumptabs" class="nav nav-tabs">
+      <li><a class="btn" id="adddump"><span class="glyphicon glyphicon-plus"></span></a></li>
+      <li><a class="btn" href="#about" data-toggle="tab"><span class="glyphicon glyphicon-info-sign"></span></a></li>
+    </ul>
     
-    <div id="OUTPUT_DIV" class="container-fluid" style="display: none;">
-      <div id="OUTPUT"></div>
+    <div id="dumps" class="tab-content">
+      <p></p>
+      <div id="about" class="tab-pane container">
+        <div class="jumbotron">
+        <h1>Online Java Thread Dump Analyzer</h1>
+        <p><a href="https://github.com/mpobjects/threaddump-analyzer">Source code on GitHub</a></p>
+        </div>
+        
+        <div>
+          <h2>License</h2>
+          <p>The Online Java Thread Dump Analyzer is licensed under version <a href="https://www.apache.org/licenses/LICENSE-2.0.html">2.0 of the Apache license</a>.</p>
+          <p>Copyright 2014 Spotify AB</p>
+          <p>Copyright 2016-2017 MP Objects BV</p>
+        </div>
+      </div>
     </div>
 
-    <div id="SYNCHRONIZERS_DIV" class="container-fluid" style="display: none;">
-      <h2 id="SYNCHRONIZERS_HEADER">Synchronizers</h2>
-      <table id="SYNCHRONIZERS" class="table table-striped"
-             summary="A list of all synchronizers in the thread dump">
+    <script id="tmpl-alert" type="x-tmpl-mustache">
+      <div class="container-fluid">
+        <div class="alert alert-{{level}}" role="alert">{{message}}</div>
+      </div>
+    </script>
+
+    <script id="tmpl-tab" type="x-tmpl-mustache">
+    <li data-dumpid="{{id}}">
+      <a href="#{{id}}_dump" data-toggle="tab">{{name}}</a>
+      <span class="glyphicon glyphicon-remove"></span>
+    </li>
+    </script>
+    
+    <script id="tmpl-tab-panel" type="x-tmpl-mustache">
+    <div id="{{id}}_dump" class="tab-pane" data-dumpid="{{id}}">
+      <div id="{{id}}_input" class="container-fluid">
+        <h1>Analysis for {{name}}</h1>
+        <form>
+          <div class="form-group">
+            <label for="{{id}}_dumpInput">Thread Dump</label>
+            <!-- TODO: different input method, textarea is slow when it has a lot of content -->
+            <textarea class="form-control" id="{{id}}_dumpInput" rows="5" placeholder="Paste your thread dump here"></textarea>
+          </div>
+          <button type="button" class="btn btn-primary">Analyze</button>
+        </form>
+      </div>
+      
+      <div class="results">
+      </div>
+    </div>
+    </script>
+    
+    <script id="tmpl-analysis-navbar" type="x-tmpl-mustache">
+      <nav id="{{analysisId}}_navbar" class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container-fluid">
+          <ul class="nav navbar-nav">
+            <li><a href="#top" title="Top"><span class="glyphicon glyphicon-triangle-top"></span></a></li>
+            <li><a href="#{{analysisId}}_input">Input</a></li>
+            <li><a href="#{{analysisId}}_overview">Overview</a></li>
+            <li><a href="#{{analysisId}}_running_methods">Running Methods <span class="label label-default"></span></a></li>
+            <li><a href="#{{analysisId}}_threads">Thread <span class="label label-default">{{analysis.threads.length}}</span></a></li>
+            <li><a href="#{{analysisId}}_synchronizers">Synchronizers
+              {{#analysis.deadlockStatus}} 
+              <span class="label label-{{notificationLevel}}">{{analysis.synchronizers.length}}</span>
+              {{/analysis.deadlockStatus}}
+            </a></li>
+            <li><a href="#{{analysisId}}_garbage">Ignored Lines</a></li>
+          </ul>
+        </div>
+      </nav>
+    </script>
+    
+    <script id="tmpl-analysis-overview" type="x-tmpl-mustache">
+    <div id="{{analysisId}}_overview" class="container-fluid">
+      <h2>Overview</h2>
+      <div class="row">
+        <div class="col-md-2">
+          <dl>
+            <dt>Threads</dt>
+            <dd>{{analysis.threads.length}}</dd>
+            <dt>Synchronizers</dt>
+            <dd>{{analysis.synchronizers.length}}</dd>
+            <dt>Deadlock status</dt>
+            <dd>
+              {{#analysis.deadlockStatus.severity}}
+              {{#analysis.deadlockStatus}}
+              <span class="label label-{{notificationLevel}} synchronizer-deadlock">{{.}}</span>
+              {{/analysis.deadlockStatus}}
+              {{/analysis.deadlockStatus.severity}}
+            </dd>
+          </dl>
+        </div>
+        <div class="col-md-5">
+          <canvas id="{{analysisId}}_thread_status_chart" width="300" height="100"></canvas>
+        </div>
+        <div class="col-md-5">
+          <canvas id="{{analysisId}}_sync_type_chart" width="300" height="100"></canvas>
+        </div>
+      </div>
+    </div>
+    </script>
+    
+    <script id="tmpl-analysis-running-methods" type="x-tmpl-mustache">
+    <div class="container-fluid" id="{{analysisId}}_running_methods">
+      <h2>Running Methods</h2>
+      <table class="table table-striped">
+      {{#methods}}
+        <tr>
+          <td><samp>{{string}}</samp></td>
+          <td>
+            {{#sources}}
+              <a href="#{{analysisId}}_thread_{{tid}}">{{name}}</a> <br />
+            {{/sources}}
+          </td>
+        </tr>
+      {{/methods}}
       </table>
     </div>
-
-    <div id="IGNORED_DIV" class="container-fluid" style="display: none;">      
-      <h2>Ignored Input Lines</h2>
-      <table id="IGNORED" class="table table-striped ignored"
-             summary="Lines that were ignored while parsing the thread dump">
+    </script>
+    
+    <script id="tmpl-analysis-thread-summary" type="x-tmpl-mustache">
+      <span class="thread-status-color" style="background-color: {{threadStatusColor}}" title="{{getStatus}}"></span>
+      {{#showThreadDetails}}
+      <span class="thread-name"><a href="#{{analysisId}}_threaddetails_{{tid}}" data-toggle="collapse" aria-expanded="false" aria-controls="{{analysisId}}_threaddetails_{{tid}}">{{name}}</a></span>
+      {{/showThreadDetails}}
+      {{^showThreadDetails}}
+      <span class="thread-name"><a href="#{{analysisId}}_thread_{{tid}}">{{name}}</a></span>
+      {{/showThreadDetails}}
+      <span class="thread-status">{{getStatus}}</span> 
+      {{#wantNotificationOn}}
+      on <span class="thread-wait-on-sync">[<a href="#{{analysisId}}_sync_{{wantNotificationOn}}">{{wantNotificationOn}}</a>]</span>
+      {{/wantNotificationOn}}
+      {{#wantToAcquire}}
+      <span class="thread-wait-on-sync">[<a href="#{{analysisId}}_sync_{{wantToAcquire}}">{{wantToAcquire}}</a>]</span>
+      {{/wantToAcquire}}
+      {{#locksHeld.length}}
+        , holding [
+        {{#locksHeld}}
+        <a href="#{{analysisId}}_sync_{{.}}">{{.}}</a>
+        {{/locksHeld}}
+        ]
+      {{/locksHeld.length}}
+      {{#showThreadDetails}}
+      <div class="collapse well well-sm"" id="{{analysisId}}_threaddetails_{{tid}}">
+        <dl class="dl-horizontal">
+          <dt>Thread ID</dt>
+          <dd>{{tid}}</dd>
+          <dt>Status</dt>
+          <dd>{{getStatus}}</dd>
+          <dt>Group</dt>
+          <dd>{{group}}</dd>
+          <dt>Daemon</dt>
+          <dd>{{daemon}}</dd>
+          <dt>NID</dt>
+          <dd>{{nid}}</dd>
+          <dt>Priority</dt>
+          <dd>{{prio}}</dd>
+        </dl>
+      </div>
+      {{/showThreadDetails}}
+    </script>
+    
+    <script id="tmpl-analysis-threads" type="x-tmpl-mustache">
+    <div class="container-fluid" id="{{analysisId}}_threads">
+      <h2>Threads</h2>
+      
+      {{#threads}}
+      <div class="thread-entry panel panel-default">
+        {{! It is either a group of threads, or just a single thread}}
+        {{#threads.length}}
+        <div class="panel-heading"><span class="badge">{{threads.length}}</span> thread(s) with {{#frames.length}}this{{/frames.length}}{{^frames}}no{{/frames}} stack</div>
+        {{/threads.length}}
+        <div class="panel-body">
+          {{#threads}}
+          <div id="{{analysisId}}_thread_{{tid}}" class="thread-header">
+            {{> thread-summary}}
+          </div>
+          {{/threads}}
+          {{^threads}}
+          <div id="{{analysisId}}_thread_{{tid}}" class="thread-header">
+            {{> thread-summary}}
+          </div>
+          {{/threads}}
+          <div class="row thread-stack">
+            <div class="col-md-offset-1 thread-stack">        
+              {{#frames}}
+                <samp>at {{.}}</samp><br />
+              {{/frames}}
+              {{^frames}}
+                <samp>&lt;Empty stack&gt;</samp><br />
+              {{/frames}}
+            </div>
+          </div>
+        </div>
+      </div>
+      {{/threads}}
+    </div>
+    </script>
+    
+    <script id="tmpl-analysis-synchronizers" type="x-tmpl-mustache">
+    <div class="container-fluid" id="{{analysisId}}_synchronizers">
+      <h2>Synchronizers</h2>
+      <table class="table table-striped">
+      {{#synchronizers}}
+      <tr class="synchronizer-entry">
+        <td id="{{analysisId}}_sync_{{id}}">
+          <span class="synchronizer-id">{{id}}</span> <br />
+          <span class="synchronizer-class" title="{{className}}"><samp>{{prettyClassName}}</samp></span> <br />
+          
+          {{#deadlockStatus.severity}}
+          {{#deadlockStatus}}
+          <span class="label label-{{notificationLevel}} synchronizer-deadlock">{{.}}</span>
+          {{/deadlockStatus}}
+          {{/deadlockStatus.severity}}          
+        </td>
+        <td>
+          {{#lockHolder}}
+            <p>Held by<br />           
+            {{> thread-summary}}
+            </p>
+          {{/lockHolder}}
+          
+          {{#notificationWaiters.length}}
+            <span>{{notificationWaiters.length}} thread(s) waiting for notifcation:</span>
+            <ul class="list-unstyled">
+            {{#notificationWaiters}}
+              <li>
+                <span class="thread-status-color" style="background-color: {{threadStatusColor}}" title="{{getStatus}}"></span>
+                <a href="#{{analysisId}}_thread_{{tid}}">{{name}}</a>
+              </li>
+            {{/notificationWaiters}}
+            </ul>
+          {{/notificationWaiters.length}}
+        
+          {{#lockWaiters.length}}
+            <span>{{lockWaiters.length}} thread(s) waiting to take lock</span>
+            <ul class="list-unstyled">
+            {{#lockWaiters}}
+              <li>
+                <span class="thread-status-color" style="background-color: {{threadStatusColor}}" title="{{getStatus}}"></span>
+                <a href="#thread_{{analysisId}}_{{tid}}">{{name}}</a>
+              </li>
+            {{/lockWaiters}}
+            </ul>
+          {{/lockWaiters.length}}
+        </td>
+      </tr>
+      {{/synchronizers}}
       </table>
     </div>
-
-    <hr>
-    <div class="container-fluid">
-    <p><a href="http://github.com/mpobjects/threaddump-analyzer">
-        Source code on Github</a></p>
-    <p><a href="http://github.com/spotify/threaddump-analyzer">
-        Based on Spotify's TDA</a></p>
+    </script>
+    
+    <script id="tmpl-analysis-garbage" type="x-tmpl-mustache">
+    <div class="container-fluid" id="{{analysisId}}_garbage">
+      <h2>Ignored Lines</h2>
+      {{#analysis.ignoredData}}
+        <table class="table table-striped">
+          <tr>
+            <th>Count</th>
+            <th>Line</th>
+          </tr>
+        {{#getStrings}}
+          <tr>
+            <td>{{count}}</td>
+            <td><samp>{{string}}</samp></td>
+          </tr>
+        {{/getStrings}}
+        </table>
+      {{/analysis.ignoredData}}
     </div>
+    </script>
+
   </body>
 </html>

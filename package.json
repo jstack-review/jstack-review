@@ -1,6 +1,6 @@
 {
   "name": "threaddump-analyzer",
-  "version": "0.0.0",
+  "version": "2.0.0",
   "description": "Java thread dump analyzer",
   "license": "Apache-2.0",
   "repository": {
@@ -11,7 +11,7 @@
     "url": "https://github.com/mpobjects/threaddump-analyzer/issues"
   },
   "scripts": {
-    "test": "gulp test jslint htmllint csslint"
+    "test": "gulp jslint htmllint csslint"
   },
   "keywords": [
     "java",

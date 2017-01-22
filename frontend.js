@@ -1,4 +1,11 @@
-var jtdaDebug = true;
+/* global $ */
+/* global jtda */
+/* global Mustache */
+/* global console */
+/* global sessionStorage */
+/* global document */
+
+var jtdaDebug = false;
 var dumpCounter = 0;
 var dumpAnalysis = {};
 var analysisConfig = new jtda.AnalysisConfig();
@@ -25,7 +32,7 @@ function addDump() {
     // just to make developments easier
     $('#'+model.id+'_input form').append('<label><input type="checkbox" id="'+model.id+'_dumpInput_save" value="1"> Remember input</label>');
     var saveFlag = sessionStorage.getItem('input.save.' + model.id);
-    if (saveFlag == 'true') {
+    if (saveFlag === 'true') {
         $('#' + model.id + '_dumpInput_save').prop("checked", true);
         $('#' + model.id + '_dumpInput').val(sessionStorage.getItem('input.' + model.id));
     }

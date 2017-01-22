@@ -2,7 +2,7 @@
   background-color: #fcf8e3;
 }
 
-div.container-fluid:target {
+.container-fluid:target {
   background-color: inherit;
 }
 
@@ -23,7 +23,7 @@ ul.nav li:hover > span.glyphicon-remove:hover {
   color: #d00;
 }
 
-span.thread-status-color {
+.thread-status-color {
   display: inline-block;
   height: 0.5em;
   width: 0.5em;

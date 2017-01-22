@@ -31,7 +31,7 @@ jtda.Analysis = function(id, config) {
         this._analyzeThreads(text);
         this._countRunningMethods();
         this._analyzeSynchronizers();
-        // TODO analyze the rest
+        this._analyzeDeadlocks();
     };
 
     this._analyzeThreads = function(text) {
@@ -103,7 +103,7 @@ jtda.Analysis = function(id, config) {
             }
         }
 
-        // TODO: this.ignoredData.addString(line);
+        this.ignoredData.addString(line);
     };
 
     /* Some threads are waiting for notification, but the thread dump
@@ -210,6 +210,64 @@ jtda.Analysis = function(id, config) {
             }
         }
     };
+    
+    this._analyzeDeadlocks = function() {      
+      for (var synchronizer of this.synchronizers) {
+        var status = this._determineDeadlockStatus(synchronizer);
+        if (status.severity == 0) {
+            continue;
+        }
+        if (this.deadlockStatus.severity < status.severity) {
+            // TODO: use compareTo which also takes into account other factors
+            this.deadlockStatus = status;
+        }
+        synchronizer.deadlockStatus = status;
+      }
+    };
+    
+    this._determineDeadlockStatus = function(sync) {
+      if (sync.lockHolder == null) {
+        if (sync.lockWaiters.length > 0) {
+          return new jtda.DeadlockStatus(jtda.DeadlockStatus.DEADLOCKED, []);
+        }
+        else if (sync.notificationWaiters > 0) {
+          return new jtda.DeadlockStatus(jtda.DeadlockStatus.LOW_RISK, []);
+        }
+        else {
+          return jtda.DeadlockStatus.NONE;
+        }
+      }
+      if (!sync.lockHolder.getStatus().isWaiting()) {
+        return jtda.DeadlockStatus.NONE;
+      }
+      if (sync.lockWaiters.length == 0 && sync.notificationWaiters == 0) {
+        // nobody is waiting for us
+        return jtda.DeadlockStatus.NONE;
+      }
+      // If there is a loop on "waiting to acquire" then there is a deadlock
+      // If a thread is "awaiting notification" then there might be a deadlock
+      var work = [];
+      work.push(sync.lockHolder);
+      while (work.length > 0) {
+        var thread = work.pop();
+        if (thread.wantNotificationOn !== null) {
+          return new jtda.DeadlockStatus(jtda.DeadlockStatus.HIGH_RISK, []);
+        }
+        if (thread.wantToAcquire !== null) {
+          if (visited[thread.wantToAcquire]) {
+            console.log('Deadlock '+sync);
+            return new jtda.DeadlockStatus(jtda.DeadlockStatus.DEADLOCKED, []);
+          }
+          visited[thread.wantToAcquire] = true;
+          var synchro = this.synchronizerMap[thread.wantToAcquire];
+          if (synchro.lockHolder !== null) {
+            work.push(synchro.lockHolder);
+          }
+        }
+      }
+      // ???
+      return new jtda.DeadlockStatus(jtda.DeadlockStatus.DEADLOCKED, []);
+    };
 
     /* (re)initialize the state of the analysis */
     this._init = function() {
@@ -218,8 +276,9 @@ jtda.Analysis = function(id, config) {
         this.threadsByStatus = {};
         this.synchronizers = [];
         this.synchronizerMap = {};
-        this.ignoredData = [];
+        this.ignoredData = new jtda.util.StringCounter();
         this.runningMethods = new jtda.util.StringCounter();
+        this.deadlockStatus = jtda.DeadlockStatus.NONE;
     };
 
     this.id = id;
@@ -532,6 +591,11 @@ jtda.Synchronizer = function(id, className) {
 };
 
 jtda.Synchronizer.compare = function(a, b) {
+    var deadlock = b.deadlockStatus.severity - b.deadlockStatus.severity;
+    if (deadlock !== 0) {
+        return deadlock;
+    }
+    
     var countDiff = b.getThreadCount() - a.getThreadCount();
     if (countDiff !== 0) {
         return countDiff;

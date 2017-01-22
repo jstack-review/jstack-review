@@ -529,7 +529,7 @@ var jtda = jtda || {};
         this.toString = function() {
             switch (this.severity) {
                 case jtda.DeadlockStatus.NO_RISK:
-                    return "";
+                    return "No deadlock";
                 case jtda.DeadlockStatus.LOW_RISK:
                     return "Deadlock suspect";
                 case jtda.DeadlockStatus.HIGH_RISK:

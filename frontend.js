@@ -4,8 +4,9 @@
 /* global console */
 /* global sessionStorage */
 /* global document */
+/* global location */
 
-var jtdaDebug = false;
+var jtdaDebug = 'file:' === location.protocol;
 var dumpCounter = 0;
 var dumpAnalysis = {};
 var analysisConfig = new jtda.AnalysisConfig();
@@ -43,7 +44,7 @@ function addDump() {
             sessionStorage.removeItem('input.' + model.id);
         }
     });
-    $('#dumpInput_' + model.id).change(function() {
+    $('#'+model.id+'_dumpInput').change(function() {
         var checked = $('#' + model.id + '_dumpInput_save').prop("checked");
         if (checked) {
             sessionStorage.setItem('input.' + model.id, $(this).val());

@@ -101,7 +101,7 @@
             <li><a href="#{{analysisId}}_threads">Thread <span class="label label-default">{{analysis.threads.length}}</span></a></li>
             <li><a href="#{{analysisId}}_synchronizers">Synchronizers
               {{#analysis.deadlockStatus}} 
-              <span class="label label-{{notificationLevel}}">{{analysis.synchronizers.length}}</span>
+              <span class="label label-default label-{{notificationLevel}}">{{analysis.synchronizers.length}}</span>
               {{/analysis.deadlockStatus}}
             </a></li>
             <li><a href="#{{analysisId}}_garbage">Ignored Lines</a></li>
@@ -122,11 +122,9 @@
             <dd>{{analysis.synchronizers.length}}</dd>
             <dt>Deadlock status</dt>
             <dd>
-              {{#analysis.deadlockStatus.severity}}
               {{#analysis.deadlockStatus}}
-              <span class="label label-{{notificationLevel}} synchronizer-deadlock">{{.}}</span>
+              <span class="label label-default label-{{notificationLevel}} synchronizer-deadlock">{{.}}</span>
               {{/analysis.deadlockStatus}}
-              {{/analysis.deadlockStatus.severity}}
             </dd>
           </dl>
         </div>

@@ -1,4 +1,4 @@
-# Java Thread Dump Analyzer
+# Java Thread Dump Analyzer [![Build Status](https://travis-ci.org/mpobjects/threaddump-analyzer.svg?branch=master)](https://travis-ci.org/mpobjects/threaddump-analyzer)
 
 This is a Java thread dump analyzer written in Javascript. Based on the 
 [original version by Spotify AB](https://github.com/spotify/threaddump-analyzer).

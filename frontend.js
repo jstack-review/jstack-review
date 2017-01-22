@@ -73,7 +73,14 @@ function executeAnalysis(dumpId, text) {
     if (jtdaDebug) {
         console.debug(analysis);
     }
-    new jtda.render.Renderer($('#' + dumpId + '_dump div.results'), renderConfig).render(analysis);
+    var target = $('#' + dumpId + '_dump div.results');
+    target.empty();
+    if (analysis.threads.length == 0) {
+        target.append(Mustache.render($('#tmpl-alert').html(), {level: 'danger', message: 'No threads found in the thread dump'})); 
+    }
+    else {
+        new jtda.render.Renderer(target, renderConfig).render(analysis);
+    }
 }
 
 $(document).ready(function() {

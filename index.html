@@ -58,6 +58,12 @@
       </div>
     </div>
 
+    <script id="tmpl-alert" type="x-tmpl-mustache">
+      <div class="container-fluid">
+        <div class="alert alert-{{level}}" role="alert">{{message}}</div>
+      </div>
+    </script>
+
     <script id="tmpl-tab" type="x-tmpl-mustache">
     <li data-dumpid="{{id}}">
       <a href="#{{id}}_dump" data-toggle="tab">{{name}}</a>

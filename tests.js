@@ -15,133 +15,205 @@ limitations under the License.
 */
 
 /* global QUnit */
-/* global Thread */
+/* global jtda */
 /* global _extract */
-/* global Analyzer */
 /* global document */
 /* global stringToId */
-/* global Synchronizer */
-/* global ThreadStatus */
-/* global StringCounter */
-/* global createLockUsersHtml */
-/* global synchronizerComparator */
-
-QUnit.test( "thread.getLinkedName()", function(assert) {
-    var header = '"thread name" prio=10 tid=0x00007f16a118e000 nid=0x6e5a runnable [0x00007f18b91d0000]';
-    assert.equal(new Thread(header).getLinkedName(),
-                 '<a class="internal" href="#thread-0x00007f16a118e000">thread name</a>');
-});
 
 QUnit.test( "thread header 1", function(assert) {
     var header = '"thread name" prio=10 tid=0x00007f16a118e000 nid=0x6e5a runnable [0x00007f18b91d0000]';
-    assert.equal(new Thread(header).name, 'thread name');
-    assert.equal(new Thread(header).tid, '0x00007f16a118e000');
-    assert.equal(new Thread(header).group, undefined);
+    var thread = new jtda.Thread(header);
+    assert.equal(thread.name, 'thread name');
+    assert.equal(thread.tid, '0x00007f16a118e000');
+    assert.equal(thread.group, undefined);
+    assert.equal(thread.prio, 10);
+    assert.equal(thread.nid, '0x6e5a');
+    assert.equal(thread.state, 'runnable');
+    assert.equal(thread.osPrio, undefined);
+    assert.equal(thread.daemon, false);
 });
 
 QUnit.test( "thread header 2", function(assert) {
     var header = '"ApplicationImpl pooled thread 1" prio=4 tid=11296d000 nid=0x118a84000 waiting on condition [118a83000]';
-    assert.equal(new Thread(header).name, 'ApplicationImpl pooled thread 1');
-    assert.equal(new Thread(header).tid, '11296d000');
-    assert.equal(new Thread(header).group, undefined);
+    var thread = new jtda.Thread(header);
+    assert.equal(thread.name, 'ApplicationImpl pooled thread 1');
+    assert.equal(thread.tid, '11296d000');
+    assert.equal(thread.group, undefined);
+    assert.equal(thread.prio, 4);
+    assert.equal(thread.nid, '0x118a84000');
+    assert.equal(thread.state, 'waiting on condition');
+    assert.equal(thread.osPrio, undefined);
+    assert.equal(thread.daemon, false);
 });
 
 QUnit.test( "thread header 3", function(assert) {
     var header = '"Gang worker#1 (Parallel GC Threads)" prio=9 tid=105002800 nid=0x10bc88000 runnable';
-    assert.equal(new Thread(header).name, 'Gang worker#1 (Parallel GC Threads)');
-    assert.equal(new Thread(header).tid, '105002800');
-    assert.equal(new Thread(header).group, undefined);
+    var thread = new jtda.Thread(header);
+    assert.equal(thread.name, 'Gang worker#1 (Parallel GC Threads)');
+    assert.equal(thread.tid, '105002800');
+    assert.equal(thread.group, undefined);
+    assert.equal(thread.prio, 9);
+    assert.equal(thread.nid, '0x10bc88000');
+    assert.equal(thread.state, 'runnable');
+    assert.equal(thread.osPrio, undefined);
+    assert.equal(thread.daemon, false);
 });
 
 QUnit.test( "thread header 4", function(assert) {
     var header = '"Attach Listener" #10 daemon prio=9 os_prio=31 tid=0x00007fddb280e000 nid=0x380b waiting on condition [0x0000000000000000]';
-    assert.equal(new Thread(header).name, 'Attach Listener');
-    assert.equal(new Thread(header).tid, '0x00007fddb280e000');
-    assert.equal(new Thread(header).group, undefined);
+    var thread = new jtda.Thread(header);
+    assert.equal(thread.name, 'Attach Listener');
+    assert.equal(thread.tid, '0x00007fddb280e000');
+    assert.equal(thread.group, undefined);
+    assert.equal(thread.prio, 9);
+    assert.equal(thread.nid, '0x380b');
+    assert.equal(thread.state, 'waiting on condition');
+    assert.equal(thread.osPrio, 31);
+    assert.equal(thread.daemon, true);
 });
 
 QUnit.test( "thread header 5", function(assert) {
     var header = '"Attach Listener" #10 daemon prio=9 os_prio=31 tid=0x00007fddb280e000 nid=0x380b waiting on condition';
-    assert.equal(new Thread(header).name, 'Attach Listener');
-    assert.equal(new Thread(header).tid, '0x00007fddb280e000');
-    assert.equal(new Thread(header).group, undefined);
+    var thread = new jtda.Thread(header);
+    assert.equal(thread.name, 'Attach Listener');
+    assert.equal(thread.tid, '0x00007fddb280e000');
+    assert.equal(thread.group, undefined);
+    assert.equal(thread.prio, 9);
+    assert.equal(thread.nid, '0x380b');
+    assert.equal(thread.state, 'waiting on condition');
+    assert.equal(thread.osPrio, 31);
+    assert.equal(thread.daemon, true);
 });
 
 QUnit.test( "thread header 6", function(assert) {
     var header = '"VM Thread" os_prio=31 tid=0x00007fddb2049800 nid=0x3103 runnable';
-    assert.equal(new Thread(header).name, 'VM Thread');
-    assert.equal(new Thread(header).tid, '0x00007fddb2049800');
-    assert.equal(new Thread(header).group, undefined);
+    var thread = new jtda.Thread(header);
+    assert.equal(thread.name, 'VM Thread');
+    assert.equal(thread.tid, '0x00007fddb2049800');
+    assert.equal(thread.group, undefined);
+    assert.equal(thread.nid, '0x3103');
+    assert.equal(thread.state, 'runnable');
+    assert.equal(thread.osPrio, 31);
+    assert.equal(thread.daemon, false);
 });
 
 QUnit.test( "thread header 7", function(assert) {
     var header = '"Queued build chains changes collector 8" daemon group="main" prio=5 tid=431,909 nid=431,909 waiting ';
-    assert.equal(new Thread(header).name, 'Queued build chains changes collector 8');
-    assert.equal(new Thread(header).tid, '431,909');
-    assert.equal(new Thread(header).group, 'main');
+    var thread = new jtda.Thread(header);
+    assert.equal(thread.name, 'Queued build chains changes collector 8');
+    assert.equal(thread.tid, '431,909');
+    assert.equal(thread.group, 'main');
+    assert.equal(thread.prio, 5);
+    assert.equal(thread.nid, '431,909');
+    assert.equal(thread.state, 'waiting');
+    assert.equal(thread.osPrio, undefined);
+    assert.equal(thread.daemon, true);
 });
 
 QUnit.test( "thread header 8", function(assert) {
     var header = '"Attach Listener" #10 prio=9 os_prio=31 tid=0x00007fddb280e000 nid=0x380b waiting on condition [0x0000000000000000]';
-    assert.equal(new Thread(header).name, 'Attach Listener');
-    assert.equal(new Thread(header).tid, '0x00007fddb280e000');
-    assert.equal(new Thread(header).group, undefined);
+    var thread = new jtda.Thread(header);
+    assert.equal(thread.name, 'Attach Listener');
+    assert.equal(thread.tid, '0x00007fddb280e000');
+    assert.equal(thread.group, undefined);
+    assert.equal(thread.prio, 9);
+    assert.equal(thread.nid, '0x380b');
+    assert.equal(thread.state, 'waiting on condition');
+    assert.equal(thread.osPrio, 31);
+    assert.equal(thread.daemon, false);
 });
 
 QUnit.test( "thread header 9", function(assert) {
     var header = '"Connect thread foo.net session" prio=5 tid=8,057,104 nid=8,057,104';
-    assert.equal(new Thread(header).name, 'Connect thread foo.net session');
-    assert.equal(new Thread(header).tid, '8,057,104');
-    assert.equal(new Thread(header).group, undefined);
+    var thread = new jtda.Thread(header);
+    assert.equal(thread.name, 'Connect thread foo.net session');
+    assert.equal(thread.tid, '8,057,104');
+    assert.equal(thread.group, undefined);
+    assert.equal(thread.prio, 5);
+    assert.equal(thread.nid, '8,057,104');
+    assert.equal(thread.state, '');
+    assert.equal(thread.osPrio, undefined);
+    assert.equal(thread.daemon, false);
 });
 
 QUnit.test( "thread header 10", function(assert) {
     var header = '"thread name" daemon prio=10 tid=0x00007f16a118e000 nid=0x6e5a runnable [0x00007f18b91d0000]';
-    assert.equal(new Thread(header).name, 'thread name');
-    assert.equal(new Thread(header).tid, '0x00007f16a118e000');
-    assert.equal(new Thread(header).group, undefined);
+    var thread = new jtda.Thread(header);
+    assert.equal(thread.name, 'thread name');
+    assert.equal(thread.tid, '0x00007f16a118e000');
+    assert.equal(thread.group, undefined);
+    assert.equal(thread.prio, 10);
+    assert.equal(thread.nid, '0x6e5a');
+    assert.equal(thread.state, 'runnable');
+    assert.equal(thread.osPrio, undefined);
+    assert.equal(thread.daemon, true);
 });
 
 QUnit.test( "thread header 11", function(assert) {
     var header = '"VM Periodic Task Thread" prio=10 tid=0x00007f1af00c9800 nid=0x3c2c waiting on condition ';
-    assert.equal(new Thread(header).name, 'VM Periodic Task Thread');
-    assert.equal(new Thread(header).tid, '0x00007f1af00c9800');
-    assert.equal(new Thread(header).group, undefined);
+    var thread = new jtda.Thread(header);
+    assert.equal(thread.name, 'VM Periodic Task Thread');
+    assert.equal(thread.tid, '0x00007f1af00c9800');
+    assert.equal(thread.group, undefined);
+    assert.equal(thread.prio, 10);
+    assert.equal(thread.nid, '0x3c2c');
+    assert.equal(thread.state, 'waiting on condition');
+    assert.equal(thread.osPrio, undefined);
+    assert.equal(thread.daemon, false);
 });
 
 QUnit.test( "thread header 12", function(assert) {
     var header = '"Store spotify-uuid Spool Thread" daemon prio=10 tid=0x00007f1a16aa0800 nid=0x3f5b sleeping[0x00007f199997a000]';
-    assert.equal(new Thread(header).name, 'Store spotify-uuid Spool Thread');
-    assert.equal(new Thread(header).tid, '0x00007f1a16aa0800');
-    assert.equal(new Thread(header).group, undefined);
+    var thread = new jtda.Thread(header);
+    assert.equal(thread.name, 'Store spotify-uuid Spool Thread');
+    assert.equal(thread.tid, '0x00007f1a16aa0800');
+    assert.equal(thread.group, undefined);
+    assert.equal(thread.prio, 10);
+    assert.equal(thread.nid, '0x3f5b');
+    assert.equal(thread.state, 'sleeping');
+    assert.equal(thread.osPrio, undefined);
+    assert.equal(thread.daemon, true);
 });
 
 QUnit.test( "thread header 13", function(assert) {
     var header = '"git@github.com:caoliang2598/ta-zelda-test.git#master"}; 09:09:58 Task started; VCS Periodical executor 39" prio=10 tid=0x00007f1728056000 nid=0x1347 sleeping[0x00007f169cdcb000]';
-    assert.equal(new Thread(header).name,
+    var thread = new jtda.Thread(header);
+    assert.equal(thread.name,
                  'git@github.com:caoliang2598/ta-zelda-test.git#master"}; 09:09:58 Task started; VCS Periodical executor 39');
-    assert.equal(new Thread(header).tid, '0x00007f1728056000');
-    assert.equal(new Thread(header).group, undefined);
+    assert.equal(thread.tid, '0x00007f1728056000');
+    assert.equal(thread.group, undefined);
+    assert.equal(thread.prio, 10);
+    assert.equal(thread.nid, '0x1347');
+    assert.equal(thread.state, 'sleeping');
+    assert.equal(thread.osPrio, undefined);
+    assert.equal(thread.daemon, false);
 });
 
 QUnit.test("thread header 14", function(assert){
     var header = '"http-bio-8810-exec-147" - Thread t@96965';
-    assert.equal(new Thread(header).name,'http-bio-8810-exec-147');
-    assert.equal(new Thread(header).tid, '96965');
-    assert.equal(new Thread(header).group, undefined);
+    var thread = new jtda.Thread(header);
+    assert.equal(thread.name,'http-bio-8810-exec-147');
+    assert.equal(thread.tid, '96965');
+    assert.equal(thread.group, undefined);
+    assert.equal(thread.prio, undefined);
+    assert.equal(thread.nid, undefined);
+    assert.equal(thread.state, '');
+    assert.equal(thread.osPrio, undefined);
+    assert.equal(thread.daemon, false);
 });
 
 QUnit.test("thread header 15", function(assert){
     // From: https://github.com/spotify/threaddump-analyzer/issues/12
     var header = '"ajp-bio-18009-exec-1189":';
+    var thread = new jtda.Thread(header);
+    
+    assert.equal(thread.name,'ajp-bio-18009-exec-1189');
 
-    assert.equal(new Thread(header).name,'ajp-bio-18009-exec-1189');
-
-    var tid = new Thread(header).tid;
+    var tid = thread.tid;
     assert.notEqual(tid, undefined);
     assert.equal(tid.indexOf('generated-id-'), 0);
 
-    assert.equal(new Thread(header).group, undefined);
+    assert.equal(thread.group, undefined);
 });
 
 // A thread should be considered running if it has a stack trace and
@@ -149,29 +221,29 @@ QUnit.test("thread header 15", function(assert){
 QUnit.test("thread.running", function(assert) {
     var thread;
 
-    thread = new Thread('"thread" prio=10 runnable');
+    thread = new jtda.Thread('"thread" prio=10 runnable');
     thread.addStackLine("	java.lang.Thread.State: RUNNABLE");
     thread.addStackLine(" at hej");
     assert.ok(thread.getStatus().isRunning());
 
     // We don't care about the free-text "not runnable" status
-    thread = new Thread('"thread" prio=10 not runnable');
+    thread = new jtda.Thread('"thread" prio=10 not runnable');
     thread.addStackLine("	java.lang.Thread.State: RUNNABLE");
     thread.addStackLine(" at hej");
     assert.ok(thread.getStatus().isRunning());
 
-    thread = new Thread('"thread" prio=10 runnable');
+    thread = new jtda.Thread('"thread" prio=10 runnable');
     thread.addStackLine("	java.lang.Thread.State: TERMINATED");
     thread.addStackLine(" at hej");
     assert.ok(!thread.getStatus().isRunning());
 
-    thread = new Thread('"thread" prio=10 not runnable');
+    thread = new jtda.Thread('"thread" prio=10 not runnable');
     thread.addStackLine("	java.lang.Thread.State: TERMINATED");
     thread.addStackLine(" at hej");
     assert.ok(!thread.getStatus().isRunning());
 
     // Thread without Thread.State
-    thread = new Thread('"thread" prio=10 runnable');
+    thread = new jtda.Thread('"thread" prio=10 runnable');
     thread.addStackLine(" at hej");
     assert.ok(!thread.getStatus().isRunning());
 });
@@ -179,55 +251,57 @@ QUnit.test("thread.running", function(assert) {
 QUnit.test( "multiline thread name", function(assert) {
     // It's the Analyzer that joins lines so we have to go through the Analyzer here
     var multilineHeader = '"line 1\nline 2" prio=10 tid=0x00007f16a118e000 nid=0x6e5a runnable [0x00007f18b91d0000]';
-    var analyzer = new Analyzer(multilineHeader);
+    var analyzer = new jtda.Analysis(0, {});
+    analyzer.analyze(multilineHeader);
     var threads = analyzer.threads;
 
     assert.equal(threads.length, 1);
-    var threadLines = threads[0].toString().split('\n');
-    assert.deepEqual(threadLines, [
-        '"line 1, line 2": runnable',
-        '	<empty stack>'
-    ]);
-
-    // Test the Analyzer's toString() method as well now that we have an Analyzer
-    var analysisLines = analyzer.toHtml().split('\n');
-    assert.deepEqual(analysisLines, [
-        "<h2>1 threads found</h2>",
-        "<div class=\"threadgroup\">",
-        "<div class=\"threadcount\"></div>",
-        '<div id="thread-0x00007f16a118e000"><span class="raw">"line 1, line 2": non-Java thread</span></div>',
-        "<div class=\"raw\">	&lt;empty stack&gt;</div>",
-        "</div>",
-        ""
-    ]);
+    assert.equal(threads[0].name, 'line 1, line 2');
+    assert.equal(threads[0].tid, '0x00007f16a118e000');
+    assert.equal(threads[0].group, undefined);
+    assert.equal(threads[0].prio, 10);
+    assert.equal(threads[0].nid, '0x6e5a');
+    assert.equal(threads[0].state, 'runnable');
+    assert.equal(threads[0].osPrio, undefined);
+    assert.equal(threads[0].daemon, false);
+    assert.equal(threads[0].frames.length, 0);
 });
 
 QUnit.test( "non-multiline thread name", function(assert) {
     // It's the Analyzer that joins lines so we have to go through the Analyzer here
     var nonMultilineHeader = '"line 1":\nat x.y.Z.service(Z.java:722)';
-    var analyzer = new Analyzer(nonMultilineHeader);
+    var analyzer = new jtda.Analysis(0, {});
+    analyzer.analyze(nonMultilineHeader);
     var threads = analyzer.threads;
 
     assert.equal(threads.length, 1);
-    var threadLines = threads[0].toString().split('\n');
-    assert.deepEqual(threadLines, [
-        '"line 1": ',
-        '	<empty stack>'
-    ]);
+    assert.equal(threads[0].name, 'line 1');
+    assert.equal(threads[0].tid.indexOf('generated-id-'), 0);
+    assert.equal(threads[0].group, undefined);
+    assert.equal(threads[0].prio, undefined);
+    assert.equal(threads[0].nid, undefined);
+    assert.equal(threads[0].state, '');
+    assert.equal(threads[0].osPrio, undefined);
+    assert.equal(threads[0].daemon, false);
+    assert.equal(threads[0].frames.length, 0);
 });
 
 QUnit.test( "analyze stackless thread", function(assert) {
     var threadDump = '"thread name" prio=10 tid=0x00007f16a118e000 nid=0x6e5a runnable [0x00007f18b91d0000]';
-    var analyzer = new Analyzer(threadDump);
+    var analyzer = new jtda.Analysis(0, {});
+    analyzer.analyze(threadDump);
     var threads = analyzer.threads;
+    
     assert.equal(threads.length, 1);
-    var thread = threads[0];
-
-    var analysisResult = analyzer._toThreadsAndStacks();
-    assert.deepEqual(analysisResult, [{
-        threads: [thread],
-        stackFrames: []
-    }]);
+    assert.equal(threads[0].name, 'thread name');
+    assert.equal(threads[0].tid, '0x00007f16a118e000');
+    assert.equal(threads[0].group, undefined);
+    assert.equal(threads[0].prio, 10);
+    assert.equal(threads[0].nid, '0x6e5a');
+    assert.equal(threads[0].state, 'runnable');
+    assert.equal(threads[0].osPrio, undefined);
+    assert.equal(threads[0].daemon, false);
+    assert.equal(threads[0].frames.length, 0);
 });
 
 QUnit.test( "analyze single thread", function(assert) {
@@ -235,16 +309,20 @@ QUnit.test( "analyze single thread", function(assert) {
         '"thread name" prio=10 tid=0x00007f16a118e000 nid=0x6e5a runnable [0x00007f18b91d0000]',
         '	at fluff'
     ].join('\n');
-    var analyzer = new Analyzer(threadDump);
+    var analyzer = new jtda.Analysis(0, {});
+    analyzer.analyze(threadDump);
     var threads = analyzer.threads;
+        
     assert.equal(threads.length, 1);
-    var thread = threads[0];
-
-    var analysisResult = analyzer._toThreadsAndStacks();
-    assert.deepEqual(analysisResult, [{
-        threads: [thread],
-        stackFrames: ["fluff"]
-    }]);
+    assert.equal(threads[0].name, 'thread name');
+    assert.equal(threads[0].tid, '0x00007f16a118e000');
+    assert.equal(threads[0].group, undefined);
+    assert.equal(threads[0].prio, 10);
+    assert.equal(threads[0].nid, '0x6e5a');
+    assert.equal(threads[0].state, 'runnable');
+    assert.equal(threads[0].osPrio, undefined);
+    assert.equal(threads[0].daemon, false);
+    assert.deepEqual(threads[0].frames, ['fluff']);
 });
 
 QUnit.test( "analyze thread waiting for notification", function(assert) {
@@ -261,7 +339,8 @@ QUnit.test( "analyze thread waiting for notification", function(assert) {
         '   Locked ownable synchronizers:',
         '	- None',
     ].join('\n');
-    var analyzer = new Analyzer(threadDump);
+    var analyzer = new jtda.Analysis(0, {});
+    analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
     var thread = threads[0];
@@ -276,11 +355,10 @@ QUnit.test( "analyze thread waiting for notification", function(assert) {
     assert.equal(thread.synchronizerClasses['47114712gris'], null);
 
     // Validate global lock analysis
-    assert.deepEqual(Object.keys(analyzer._synchronizerById), ['7c135ea90']);
-    assert.ok(analyzer._synchronizerById['7c135ea90'] !== null);
-    assert.ok(analyzer._synchronizerById['7c135ea90'] !== undefined);
-    assert.deepEqual(analyzer._synchronizers,
-                     [analyzer._synchronizerById['7c135ea90']]);
+    assert.deepEqual(Object.keys(analyzer.synchronizerMap), ['7c135ea90']);
+    assert.ok(analyzer.synchronizerMap['7c135ea90'] !== null);
+    assert.ok(analyzer.synchronizerMap['7c135ea90'] !== undefined);
+    assert.deepEqual(analyzer.synchronizers, [analyzer.synchronizerMap['7c135ea90']]);
 });
 
 QUnit.test( "analyze thread waiting for java.util.concurrent lock", function(assert) {
@@ -302,7 +380,8 @@ QUnit.test( "analyze thread waiting for java.util.concurrent lock", function(ass
         '	- None',
     ].join('\n');
 
-    var analyzer = new Analyzer(threadDump);
+    var analyzer = new jtda.Analysis(0, {});
+    analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
     var thread = threads[0];
@@ -330,7 +409,8 @@ QUnit.test( "analyze thread waiting for traditional lock", function(assert) {
         '	- None',
     ].join('\n');
 
-    var analyzer = new Analyzer(threadDump);
+    var analyzer = new jtda.Analysis(0, {});
+    analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
     var thread = threads[0];
@@ -361,7 +441,8 @@ QUnit.test(" analyze thread waiting for locks 2", function(assert){
         '   - None',
     ].join('\n');
 
-    var analyzer = new Analyzer(threadDump);
+    var analyzer = new jtda.Analysis(0, {});
+    analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
     var thread = threads[0];
@@ -403,7 +484,8 @@ QUnit.test( "analyze thread holding locks", function(assert) {
         '   Locked ownable synchronizers:',
         '	- <7c393f190> (a java.util.concurrent.locks.ReentrantLock$NonfairSync)',
     ].join('\n');
-    var analyzer = new Analyzer(threadDump);
+    var analyzer = new jtda.Analysis(0, {});
+    analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
     var thread = threads[0];
@@ -420,7 +502,7 @@ QUnit.test( "analyze thread holding locks", function(assert) {
     assert.equal(thread.synchronizerClasses['7c393f190'], 'java.util.concurrent.locks.ReentrantLock$NonfairSync');
     assert.equal(thread.synchronizerClasses['47114712gris'], null);
 
-    assert.equal(analyzer._synchronizerById['7c37f5b88'].lockHolder, thread);
+    assert.equal(analyzer.synchronizerMap['7c37f5b88'].lockHolder, thread);
 });
 
 QUnit.test( "analyze two threads with same stack", function(assert) {
@@ -433,7 +515,8 @@ QUnit.test( "analyze two threads with same stack", function(assert) {
         '	at fluff'
     ].join('\n');
 
-    var analyzer = new Analyzer(threadDump);
+    var analyzer = new jtda.Analysis(0, {});
+    analyzer.analyze(threadDump);
 
     var threads = analyzer.threads;
     assert.equal(threads.length, 2);
@@ -442,17 +525,18 @@ QUnit.test( "analyze two threads with same stack", function(assert) {
     var aardvark = threads[1];
     assert.equal(aardvark.name, "aardvark thread");
 
-    var analysisResult = analyzer._toThreadsAndStacks();
+    var renderer = new jtda.render.Renderer(undefined, {});
+    var analysisResult = renderer.groupSimilarThreads(analyzer.threads);
     assert.deepEqual(analysisResult, [{
         // Make sure the aardvark comes before the zebra
         threads: [aardvark, zebra],
-        stackFrames: ["fluff"]
+        frames: ["fluff"]
     }]);
 });
 
 QUnit.test( "thread stack", function(assert) {
     var header = '"Thread name" prio=10 tid=0x00007f1728056000 nid=0x1347 sleeping[0x00007f169cdcb000]';
-    var thread = new Thread(header);
+    var thread = new jtda.Thread(header);
     assert.ok(thread.addStackLine("	at java.security.AccessController.doPrivileged(Native Method)"));
     assert.ok(thread.addStackLine("	- eliminated <0x00000006b3ccb178> (a java.io.PipedInputStream)"));
     assert.ok(thread.addStackLine("	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:353)"));
@@ -461,10 +545,9 @@ QUnit.test( "thread stack", function(assert) {
     // When adding stack frames we should just ignore unsupported
     // lines, and the end result should contain only supported data.
     var threadLines = thread.toString().split('\n');
-    assert.deepEqual(threadLines, [
-        '"Thread name": sleeping',
-        "	at java.security.AccessController.doPrivileged(Native Method)",
-        "	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:353)"
+    assert.deepEqual(thread.frames, [
+        "java.security.AccessController.doPrivileged(Native Method)",
+        "java.net.SocksSocketImpl.connect(SocksSocketImpl.java:353)"
     ]);
 });
 
@@ -476,55 +559,46 @@ function unescapeHtml(escaped) {
 
 QUnit.test( "full dump analysis", function(assert) {
     var input = unescapeHtml(document.getElementById("sample-input").innerHTML);
-    var expectedAnalysis = document.getElementById("sample-analysis").innerHTML;
-    var analyzer = new Analyzer(input);
-    assert.deepEqual(analyzer.toHtml().split('\n'), expectedAnalysis.split('\n'));
-
-    var expectedIgnores = document.getElementById("sample-ignored").innerHTML;
-    assert.deepEqual(analyzer.toIgnoresString().split('\n'), expectedIgnores.split('\n'));
-
-    var expectedRunning = document.getElementById("sample-running").innerHTML;
-    assert.deepEqual(analyzer.toRunningString().split('\n'), expectedRunning.split('\n'));
+    var analyzer = new jtda.Analysis(0, {});
+    analyzer.analyze(input);
+    
+    assert.equal(analyzer.threads.length, 54);
+    assert.equal(analyzer.threadsByStatus[jtda.ThreadStatus.WAITING_NOTIFY].length, 29);
+    assert.equal(analyzer.threadsByStatus[jtda.ThreadStatus.NON_JAVA_THREAD].length, 18);
+    assert.equal(analyzer.threadsByStatus[jtda.ThreadStatus.RUNNING].length, 4);
+    assert.equal(analyzer.threadsByStatus[jtda.ThreadStatus.SLEEPING].length, 3);
+    
+    assert.equal(analyzer.synchronizers.length, 33);
+    
+    // TODO: validate other things
 });
 
 QUnit.test( "Top Methods from running threads", function(assert) {
     var input = unescapeHtml(document.getElementById("sample-input").innerHTML);
-    var analyzer = new Analyzer(input);
-    var running = analyzer.toRunningHtml();
-    var expectedRunning = [
-        '<tr id="java.net.PlainSocketImpl.socketAccept(Native%20Method)">',
-            '<td class="vertical-align">java.net.PlainSocketImpl.socketAccept(Native Method)</td>',
-            '<td class="raw">',
-                '<a class="internal" href="#thread-11c319800">RMI TCP Accept-0</a><br>',
-                '<a class="internal" href="#thread-105001800">Lock thread</a>',
-            '</td>',
-        '</tr>\n',
-        '<tr id="java.lang.UNIXProcess.waitForProcessExit(Native%20Method)">',
-            '<td class="vertical-align">java.lang.UNIXProcess.waitForProcessExit(Native Method)</td>',
-            '<td class="raw">',
-                '<a class="internal" href="#thread-11c048800">process reaper</a>',
-            '</td>',
-        '</tr>\n',
-        '<tr id="sun.nio.ch.KQueueArrayWrapper.kevent0(Native%20Method)">',
-            '<td class="vertical-align">sun.nio.ch.KQueueArrayWrapper.kevent0(Native Method)</td>',
-            '<td class="raw"><a class="internal" href="#thread-11c386000">ApplicationImpl pooled thread 9</a></td>',
-        '</tr>\n'
-    ].join('');
-    assert.equal(running, expectedRunning);
+    var analyzer = new jtda.Analysis(0, {});
+    analyzer.analyze(input);
+    var running = analyzer.runningMethods.getStrings();
+    assert.equal(running.length, 3);
+    assert.equal(running[0].string, 'java.net.PlainSocketImpl.socketAccept(Native Method)');
+    assert.equal(running[0].count, 2);
+    assert.equal(running[1].string, 'java.lang.UNIXProcess.waitForProcessExit(Native Method)');
+    assert.equal(running[1].count, 1);
+    assert.equal(running[2].string, 'sun.nio.ch.KQueueArrayWrapper.kevent0(Native Method)');
+    assert.equal(running[2].count, 1);    
 });
 
 QUnit.test("extract regex from string", function(assert) {
-    var extracted = _extract(/a(p)a/, "gris");
+    var extracted = jtda.util.extract(/a(p)a/, "gris");
     assert.equal(extracted.value, undefined);
     assert.equal(extracted.shorterString, "gris");
 
-    extracted = _extract(/a(p)a/, "hejapagris");
+    extracted = jtda.util.extract(/a(p)a/, "hejapagris");
     assert.equal(extracted.value, "p");
     assert.equal(extracted.shorterString, "hejgris");
 });
 
 QUnit.test("identical string counter", function(assert) {
-    var counter = new StringCounter();
+    var counter = new jtda.util.StringCounter();
     assert.deepEqual(counter.getStrings().length, 0);
     assert.equal(counter.toString(), "");
     assert.equal(counter.length, 0);
@@ -567,50 +641,15 @@ QUnit.test("identical string counter", function(assert) {
     assert.ok(!counter.hasString('gris'));
 });
 
-QUnit.test("string to id", function(assert) {
-    assert.equal(stringToId("\"<>'#"), "%22%3C%3E%27%23");
-});
-
-QUnit.test( "Analyzer.stackToHtml()", function(assert) {
-    var threadDump = [
-        '"running thread" prio=10 tid=0x00007f16a118e000 nid=0x6e5a runnable [0x00007f18b91d0000]',
-        '	java.lang.Thread.State: RUNNABLE',
-        '	at top_frame',
-        '	at second_frame',
-        '',
-        '"VM Thread" prio=9 tid=105047000 nid=0x111901000 runnable',
-    ].join('\n');
-    var analyzer = new Analyzer(threadDump);
-
-    assert.deepEqual(analyzer._stackToHtml(['top_frame', 'second_frame']).split('\n'), [
-        '<div class="raw">	at <a class="internal" href="#top_frame">top_frame</a></div>',
-        '<div class="raw">	at second_frame</div>',
-        '',
-    ]);
-
-    assert.deepEqual(analyzer._stackToHtml([]).split('\n'), [
-        '<div class="raw">	&lt;empty stack&gt;</div>',
-        '',
-    ]);
-});
-
-QUnit.test("Synchronizer class name", function(assert) {
-    assert.equal(new Synchronizer("x", "java.lang.Foo").getPrettyClassName(), "Foo");
-    assert.equal(new Synchronizer("x", "java.lang.Class for java.lang.Foo").getPrettyClassName(), "Foo.class");
-    assert.equal(new Synchronizer("x", "Foo").getPrettyClassName(), "Foo");
-    assert.equal(new Synchronizer("x", undefined).getPrettyClassName(), undefined);
-});
-
-QUnit.test("Synchronizer.toHtmlTableRow()", function(assert) {
-    assert.equal(new Synchronizer("1234", "g.w.Bush").toHtmlTableRow(),
-                 '<tr id="synchronizer-1234">' +
-                 '<td class="synchronizer"><div class="synchronizer">1234<br>Bush</div></td>' +
-                 '<td class="synchronizer"></td>' +
-                 '</tr>');
+QUnit.test("getPrettyClassName", function(assert) {
+    assert.equal(jtda.util.getPrettyClassName("java.lang.Foo"), "Foo");
+    assert.equal(jtda.util.getPrettyClassName("java.lang.Class for java.lang.Foo"), "Foo.class");
+    assert.equal(jtda.util.getPrettyClassName("Foo"), "Foo");
+    assert.equal(jtda.util.getPrettyClassName(undefined), undefined);
 });
 
 QUnit.test("thread status running", function(assert) {
-    var threadStatus = new ThreadStatus({
+    var threadStatus = new jtda.ThreadStatus({
         frames: ['frame'],
         wantNotificationOn: null,
         wantToAcquire: null,
@@ -619,11 +658,12 @@ QUnit.test("thread status running", function(assert) {
     });
 
     assert.ok(threadStatus.isRunning());
-    assert.equal(threadStatus.toHtml(), 'running');
+    assert.ok(!threadStatus.isWaiting());
+    assert.equal(threadStatus.toString(), 'running');
 });
 
 QUnit.test("thread status unset", function(assert) {
-    var threadStatus = new ThreadStatus({
+    var threadStatus = new jtda.ThreadStatus({
         frames: ['frame'],
         wantNotificationOn: null,
         wantToAcquire: null,
@@ -632,24 +672,12 @@ QUnit.test("thread status unset", function(assert) {
     });
 
     assert.ok(!threadStatus.isRunning());
-    assert.equal(threadStatus.toHtml(), 'non-Java thread');
-});
-
-QUnit.test("thread status unset, locks held", function(assert) {
-    var threadStatus = new ThreadStatus({
-        frames: ['frame'],
-        wantNotificationOn: null,
-        wantToAcquire: null,
-        locksHeld: ['aaa'],
-        threadState: null /* = missing from thread dump */,
-    });
-
-    assert.ok(!threadStatus.isRunning());
-    assert.equal(threadStatus.toHtml(), 'non-Java thread, holding [<a href="#synchronizer-aaa" class="internal">aaa</a>]');
+    assert.ok(!threadStatus.isWaiting());
+    assert.equal(threadStatus.toString(), 'non-Java thread');
 });
 
 QUnit.test("thread status sleeping", function(assert) {
-    var threadStatus = new ThreadStatus({
+    var threadStatus = new jtda.ThreadStatus({
         frames: ['frame'],
         wantNotificationOn: null,
         wantToAcquire: null,
@@ -658,11 +686,12 @@ QUnit.test("thread status sleeping", function(assert) {
     });
 
     assert.ok(!threadStatus.isRunning());
-    assert.equal(threadStatus.toHtml(), 'sleeping, holding [<a href="#synchronizer-aaa" class="internal">aaa</a>]');
+    assert.ok(!threadStatus.isWaiting());
+    assert.equal(threadStatus.toString(), 'sleeping');
 });
 
 QUnit.test("thread status waiting for lock", function(assert) {
-    var threadStatus = new ThreadStatus({
+    var threadStatus = new jtda.ThreadStatus({
         frames: ['frame'],
         wantNotificationOn: null,
         wantToAcquire: '1234',
@@ -671,13 +700,12 @@ QUnit.test("thread status waiting for lock", function(assert) {
     });
 
     assert.ok(!threadStatus.isRunning());
-    assert.equal(threadStatus.toHtml(),
-                 'waiting to acquire [<a href="#synchronizer-1234" class="internal">1234</a>], ' +
-                 'holding [<a href="#synchronizer-aaa" class="internal">aaa</a>, <a href="#synchronizer-bbb" class="internal">bbb</a>]');
+    assert.ok(threadStatus.isWaiting());
+    assert.equal(threadStatus.toString(), 'waiting to acquire');
 });
 
 QUnit.test("thread status waiting for notification", function(assert) {
-    var threadStatus = new ThreadStatus({
+    var threadStatus = new jtda.ThreadStatus({
         frames: ['frame'],
         wantNotificationOn: '1234',
         wantToAcquire: null,
@@ -686,12 +714,12 @@ QUnit.test("thread status waiting for notification", function(assert) {
     });
 
     assert.ok(!threadStatus.isRunning());
-    assert.equal(threadStatus.toHtml(),
-                 'awaiting notification on [<a href="#synchronizer-1234" class="internal">1234</a>]');
+    assert.ok(threadStatus.isWaiting());
+    assert.equal(threadStatus.toString(), 'awaiting notification');
 });
 
 QUnit.test("thread status not started", function(assert) {
-    var threadStatus = new ThreadStatus({
+    var threadStatus = new jtda.ThreadStatus({
         frames: ['frame'],
         wantNotificationOn: null,
         wantToAcquire: null,
@@ -700,11 +728,12 @@ QUnit.test("thread status not started", function(assert) {
     });
 
     assert.ok(!threadStatus.isRunning());
-    assert.equal(threadStatus.toHtml(), 'not started');
+    assert.ok(!threadStatus.isWaiting());
+    assert.equal(threadStatus.toString(), 'not started');
 });
 
 QUnit.test("thread status terminated", function(assert) {
-    var threadStatus = new ThreadStatus({
+    var threadStatus = new jtda.ThreadStatus({
         frames: ['frame'],
         wantNotificationOn: null,
         wantToAcquire: null,
@@ -713,7 +742,8 @@ QUnit.test("thread status terminated", function(assert) {
     });
 
     assert.ok(!threadStatus.isRunning());
-    assert.equal(threadStatus.toHtml(), 'terminated');
+    assert.ok(!threadStatus.isWaiting());
+    assert.equal(threadStatus.toString(), 'terminated');
 });
 
 QUnit.test( "analyze thread waiting for unspecified notification 1", function(assert) {
@@ -725,19 +755,16 @@ QUnit.test( "analyze thread waiting for unspecified notification 1", function(as
         '        - locked <0x0000000780b17bc8> (a java.lang.ref.ReferenceQueue$Lock)',
         '        at org.netbeans.lib.profiler.server.ProfilerRuntimeObjLiveness$ReferenceManagerThread.run(ProfilerRuntimeObjLiveness.java:54)'
     ].join('\n');
-    var analyzer = new Analyzer(threadDump);
+    var analyzer = new jtda.Analysis(0, {});
+    analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
     var thread = threads[0];
     var threadStatus = thread.getStatus();
 
     assert.ok(!threadStatus.isRunning());
-
-    // Since it's holding only one lock, that has to be the lock it's
-    // awaiting notification for. Make sure this is what we present in
-    // the UI.
-    assert.equal(threadStatus.toHtml(),
-                 'awaiting notification on [<a href="#synchronizer-0x0000000780b17bc8" class="internal">0x0000000780b17bc8</a>]');
+    assert.ok(threadStatus.isWaiting());
+    assert.equal(threadStatus.toString(), 'awaiting notification');
 });
 
 QUnit.test( "analyze thread waiting for unspecified notification 2", function(assert) {
@@ -752,19 +779,16 @@ QUnit.test( "analyze thread waiting for unspecified notification 2", function(as
         '        at org.hsqldb.lib.HsqlTimer$TaskRunner.run(Unknown Source)',
         '        at java.lang.Thread.run(Thread.java:745)'
     ].join('\n');
-    var analyzer = new Analyzer(threadDump);
+    var analyzer = new jtda.Analysis(0, {});
+    analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
     var thread = threads[0];
     var threadStatus = thread.getStatus();
 
     assert.ok(!threadStatus.isRunning());
-
-    // Since it's holding only one lock (that it has taken twice),
-    // that has to be the lock it's awaiting notification for. Make
-    // sure this is what we present in the UI.
-    assert.equal(threadStatus.toHtml(),
-                 'awaiting notification on [<a href="#synchronizer-0x00000007805debf8" class="internal">0x00000007805debf8</a>]');
+    assert.ok(threadStatus.isWaiting());
+    assert.equal(threadStatus.toString(), 'awaiting notification');
 });
 
 QUnit.test( "analyze thread waiting for unspecified notification 3", function(assert) {
@@ -776,19 +800,16 @@ QUnit.test( "analyze thread waiting for unspecified notification 3", function(as
         '        - locked <0x0000000780b17bc8> (a java.lang.ref.ReferenceQueue$Lock)',
         '        at org.netbeans.lib.profiler.server.ProfilerRuntimeObjLiveness$ReferenceManagerThread.run(ProfilerRuntimeObjLiveness.java:54)'
     ].join('\n');
-    var analyzer = new Analyzer(threadDump);
+    var analyzer = new jtda.Analysis(0, {});
+    analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
     var thread = threads[0];
     var threadStatus = thread.getStatus();
 
     assert.ok(!threadStatus.isRunning());
-
-    // Since it's holding only one lock, that has to be the lock it's
-    // awaiting notification for. Make sure this is what we present in
-    // the UI.
-    assert.equal(threadStatus.toHtml(),
-                 'awaiting notification on [<a href="#synchronizer-0x0000000780b17bc8" class="internal">0x0000000780b17bc8</a>]');
+    assert.ok(threadStatus.isWaiting());
+    assert.equal(threadStatus.toString(), 'awaiting notification');
 });
 
 QUnit.test( "analyze thread waiting for unspecified notification 4", function(assert) {
@@ -808,85 +829,36 @@ QUnit.test( "analyze thread waiting for unspecified notification 4", function(as
         '   Locked ownable synchronizers:',
         '	- <0x00000004f00094c0> (a java.util.concurrent.ThreadPoolExecutor$Worker)'
     ].join('\n');
-    var analyzer = new Analyzer(threadDump);
+    var analyzer = new jtda.Analysis(0, {});
+    analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
     var thread = threads[0];
     var threadStatus = thread.getStatus();
 
     assert.ok(!threadStatus.isRunning());
-
-    // Since it's holding only one synchronized(){}-style lock, that
-    // has to be the lock it's awaiting notification for. Make sure
-    // this is what we present in the UI.
-    assert.equal(threadStatus.toHtml(),
-                 'awaiting notification on ' +
-                 '[<a href="#synchronizer-0x000000057c46ee20" class="internal">0x000000057c46ee20</a>]' +
-                 ', holding ' +
-                 '[<a href="#synchronizer-0x00000004f00094c0" class="internal">0x00000004f00094c0</a>]');
+    assert.ok(threadStatus.isWaiting());
+    assert.equal(threadStatus.toString(), 'awaiting notification');
 });
 
 QUnit.test("thread status no stack trace", function(assert) {
     var threadDump =
         '"Attach Listener" daemon prio=10 tid=0x00007f1b5c001000 nid=0x1bd4 waiting on condition [0x0000000000000000]\n' +
         '   java.lang.Thread.State: RUNNABLE';
-    var analyzer = new Analyzer(threadDump);
+    var analyzer = new jtda.Analysis(0, {});
+    analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
     var thread = threads[0];
     var threadStatus = thread.getStatus();
 
     assert.ok(!threadStatus.isRunning());
-    assert.equal(threadStatus.toHtml(), 'non-Java thread');
-});
-
-QUnit.test("lock user html creator", function(assert) {
-    var thread1 = new Thread('"Thread1" prio=10 tid=1234 nid=0x6e5a runnable');
-    var thread2 = new Thread('"Thread2" prio=10 tid=1234 nid=0x6e5a runnable');
-    var thread3 = new Thread('"Thread3" prio=10 tid=1234 nid=0x6e5a runnable');
-    var thread4 = new Thread('"Thread4" prio=10 tid=1234 nid=0x6e5a runnable');
-    var thread5 = new Thread('"Thread5" prio=10 tid=1234 nid=0x6e5a runnable');
-
-    assert.equal(createLockUsersHtml('Threads waiting to take lock', []),
-                 '');
-
-    assert.equal(createLockUsersHtml('Threads waiting to take lock', [thread1]),
-                 '<div class="synchronizer">Threads waiting to take lock:<br>' +
-                 '<span class="raw">' +
-                 '  <a class="internal" href="#thread-1234">Thread1</a>' +
-                 '</span>' +
-                 '</div>');
-
-    assert.equal(createLockUsersHtml('Threads waiting to take lock', [thread3, thread1, thread4, thread2]),
-                 '<div class="synchronizer">Threads waiting to take lock:' +
-                 '<br><span class="raw">' +
-                 '  <a class="internal" href="#thread-1234">Thread1</a></span>' +
-                 '<br><span class="raw">' +
-                 '  <a class="internal" href="#thread-1234">Thread2</a></span>' +
-                 '<br><span class="raw">' +
-                 '  <a class="internal" href="#thread-1234">Thread3</a></span>' +
-                 '<br><span class="raw">' +
-                 '  <a class="internal" href="#thread-1234">Thread4</a></span>' +
-                 '</div>');
-
-    assert.equal(createLockUsersHtml('Threads waiting to take lock', [thread2, thread1, thread4, thread5, thread3]),
-                 '<div class="synchronizer">5 threads waiting to take lock:' +
-                 '<br><span class="raw">' +
-                 '  <a class="internal" href="#thread-1234">Thread1</a></span>' +
-                 '<br><span class="raw">' +
-                 '  <a class="internal" href="#thread-1234">Thread2</a></span>' +
-                 '<br><span class="raw">' +
-                 '  <a class="internal" href="#thread-1234">Thread3</a></span>' +
-                 '<br><span class="raw">' +
-                 '  <a class="internal" href="#thread-1234">Thread4</a></span>' +
-                 '<br><span class="raw">' +
-                 '  <a class="internal" href="#thread-1234">Thread5</a></span>' +
-                 '</div>');
+    assert.equal(threadStatus.toString(), 'non-Java thread');
 });
 
 QUnit.test("synchronizer thread count", function(assert) {
-    var thread = new Thread('"Thread" prio=10 tid=1234 nid=0x6e5a runnable');
-    var synchronizer = new Synchronizer("foo", "bar");
+    var thread = new jtda.Thread('"Thread" prio=10 tid=1234 nid=0x6e5a runnable');
+    var synchronizer = new jtda.Synchronizer("foo", "bar");
     synchronizer.notificationWaiters = [thread, thread, thread];
     synchronizer.lockWaiters = [thread, thread];
     synchronizer.lockHolder = thread;
@@ -895,21 +867,21 @@ QUnit.test("synchronizer thread count", function(assert) {
 });
 
 QUnit.test("synchronizer sort function", function(assert) {
-    var unused = new Synchronizer("id", "ClassName");
+    var unused = new jtda.Synchronizer("id", "ClassName");
 
-    assert.equal(synchronizerComparator(unused, unused), 0);
+    assert.equal(jtda.Synchronizer.compare(unused, unused), 0);
 
-    var thread = new Thread('"Thread" prio=10 tid=1234 nid=0x6e5a runnable');
-    var held = new Synchronizer("id", "ClassName");
+    var thread = new jtda.Thread('"Thread" prio=10 tid=1234 nid=0x6e5a runnable');
+    var held = new jtda.Synchronizer("id", "ClassName");
     held.lockHolder = thread;
-    assert.deepEqual([unused, held].sort(synchronizerComparator), [held, unused]);
+    assert.deepEqual([unused, held].sort(jtda.Synchronizer.compare), [held, unused]);
 
-    var zebra = new Synchronizer("id", "Zebra");
-    assert.deepEqual([zebra, unused].sort(synchronizerComparator), [unused, zebra]);
-    assert.deepEqual([zebra, unused, held].sort(synchronizerComparator),
+    var zebra = new jtda.Synchronizer("id", "Zebra");
+    assert.deepEqual([zebra, unused].sort(jtda.Synchronizer.compare), [unused, zebra]);
+    assert.deepEqual([zebra, unused, held].sort(jtda.Synchronizer.compare),
                      [held, unused, zebra]);
 
-    var biggerId = new Synchronizer("jd", "ClassName");
-    assert.deepEqual([zebra, biggerId, unused, held].sort(synchronizerComparator),
+    var biggerId = new jtda.Synchronizer("jd", "ClassName");
+    assert.deepEqual([zebra, biggerId, unused, held].sort(jtda.Synchronizer.compare),
                      [held, unused, biggerId, zebra]);
 });

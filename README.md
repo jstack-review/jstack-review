@@ -21,4 +21,5 @@ The Java Thread Dump Analyzer is licensed under [version 2.0 of the Apache licen
 * Fix unit tests
 * Expose configuration settings on the screen
 * Saving of settings for future use
+* Support all thread dumps from the [TDA tests](https://github.com/irockel/tda/tree/master/tda/test/none) 
 * ...

@@ -18,7 +18,7 @@ The Java Thread Dump Analyzer is licensed under [version 2.0 of the Apache licen
 * Drag-and-drop files
 * Hide textarea after analysis to make tab switching faster
 * Compare two threads
-* Fix unit tests
+* Improve/extend unit tests
 * Expose configuration settings on the screen
 * Saving of settings for future use
 * Support all thread dumps from the [TDA tests](https://github.com/irockel/tda/tree/master/tda/test/none) 

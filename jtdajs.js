@@ -384,7 +384,7 @@ var jtda = jtda || {};
 
         this.getStatus = function() {
             // TODO: do not recreate every time
-            return new jtda.TheadStatus(this);
+            return new jtda.ThreadStatus(this);
         };
 
         this.setWantNotificationOn = function(lockId) {
@@ -476,32 +476,32 @@ var jtda = jtda || {};
         this.classicalLocksHeld = [];
     };
 
-    jtda.TheadStatus = function(thread) {
+    jtda.ThreadStatus = function(thread) {
         this.isRunning = function() {
-            return this.status === jtda.TheadStatus.RUNNING;
+            return this.status === jtda.ThreadStatus.RUNNING;
         };
 
         this.isWaiting = function() {
-            return this.status === jtda.TheadStatus.WAITING_ACQUIRE || this.status === jtda.TheadStatus.WAITING_NOTIFY;
+            return this.status === jtda.ThreadStatus.WAITING_ACQUIRE || this.status === jtda.ThreadStatus.WAITING_NOTIFY;
         };
 
         this.determineStatus = function() {
             if (this.thread.wantNotificationOn !== null) {
-                this.status = jtda.TheadStatus.WAITING_NOTIFY;
+                this.status = jtda.ThreadStatus.WAITING_NOTIFY;
             } else if (this.thread.wantToAcquire !== null) {
-                this.status = jtda.TheadStatus.WAITING_ACQUIRE;
+                this.status = jtda.ThreadStatus.WAITING_ACQUIRE;
             } else if (this.thread.threadState === 'TIMED_WAITING (sleeping)') {
-                this.status = jtda.TheadStatus.SLEEPING;
+                this.status = jtda.ThreadStatus.SLEEPING;
             } else if (this.thread.threadState === 'NEW') {
-                this.status = jtda.TheadStatus.NEW;
+                this.status = jtda.ThreadStatus.NEW;
             } else if (this.thread.threadState === 'TERMINATED') {
-                this.status = jtda.TheadStatus.TERMINATED;
+                this.status = jtda.ThreadStatus.TERMINATED;
             } else if (this.thread.threadState === null || this.thread.frames.length === 0) {
-                this.status = jtda.TheadStatus.NON_JAVA_THREAD;
+                this.status = jtda.ThreadStatus.NON_JAVA_THREAD;
             } else if (this.thread.threadState === 'RUNNABLE') {
-                this.status = jtda.TheadStatus.RUNNING;
+                this.status = jtda.ThreadStatus.RUNNING;
             } else {
-                this.status = jtda.TheadStatus.UNKNOWN;
+                this.status = jtda.ThreadStatus.UNKNOWN;
             }
         };
 
@@ -513,14 +513,14 @@ var jtda = jtda || {};
         this.determineStatus();
     };
 
-    jtda.TheadStatus.UNKNOWN = "?unknown?";
-    jtda.TheadStatus.RUNNING = "running";
-    jtda.TheadStatus.NON_JAVA_THREAD = "non-Java thread";
-    jtda.TheadStatus.TERMINATED = "terminated";
-    jtda.TheadStatus.NEW = "not started";
-    jtda.TheadStatus.SLEEPING = "sleeping";
-    jtda.TheadStatus.WAITING_ACQUIRE = "waiting to acquire";
-    jtda.TheadStatus.WAITING_NOTIFY = "awaiting notification";
+    jtda.ThreadStatus.UNKNOWN = "?unknown?";
+    jtda.ThreadStatus.RUNNING = "running";
+    jtda.ThreadStatus.NON_JAVA_THREAD = "non-Java thread";
+    jtda.ThreadStatus.TERMINATED = "terminated";
+    jtda.ThreadStatus.NEW = "not started";
+    jtda.ThreadStatus.SLEEPING = "sleeping";
+    jtda.ThreadStatus.WAITING_ACQUIRE = "waiting to acquire";
+    jtda.ThreadStatus.WAITING_NOTIFY = "awaiting notification";
 
     jtda.DeadlockStatus = function(severity, trail) {
         this.severity = severity;

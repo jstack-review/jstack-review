@@ -30,14 +30,14 @@ var jtda = jtda || {};
         };
 
         this.threadStatusColor = {};
-        this.threadStatusColor[jtda.TheadStatus.UNKNOWN] = '#7f7f7f';
-        this.threadStatusColor[jtda.TheadStatus.RUNNING] = '#2ca02c';
-        this.threadStatusColor[jtda.TheadStatus.NON_JAVA_THREAD] = '#9467bd';
-        this.threadStatusColor[jtda.TheadStatus.TERMINATED] = '#8c564b';
-        this.threadStatusColor[jtda.TheadStatus.NEW] = '#17becf';
-        this.threadStatusColor[jtda.TheadStatus.SLEEPING] = '#1f77b4';
-        this.threadStatusColor[jtda.TheadStatus.WAITING_ACQUIRE] = '#ff7f0e';
-        this.threadStatusColor[jtda.TheadStatus.WAITING_NOTIFY] = '#d62728';
+        this.threadStatusColor[jtda.ThreadStatus.UNKNOWN] = '#7f7f7f';
+        this.threadStatusColor[jtda.ThreadStatus.RUNNING] = '#2ca02c';
+        this.threadStatusColor[jtda.ThreadStatus.NON_JAVA_THREAD] = '#9467bd';
+        this.threadStatusColor[jtda.ThreadStatus.TERMINATED] = '#8c564b';
+        this.threadStatusColor[jtda.ThreadStatus.NEW] = '#17becf';
+        this.threadStatusColor[jtda.ThreadStatus.SLEEPING] = '#1f77b4';
+        this.threadStatusColor[jtda.ThreadStatus.WAITING_ACQUIRE] = '#ff7f0e';
+        this.threadStatusColor[jtda.ThreadStatus.WAITING_NOTIFY] = '#d62728';
 
         this.synchronizerChart = {
             max: 7,

@@ -16,9 +16,7 @@ limitations under the License.
 
 /* global QUnit */
 /* global jtda */
-/* global _extract */
 /* global document */
-/* global stringToId */
 
 QUnit.test( "thread header 1", function(assert) {
     var header = '"thread name" prio=10 tid=0x00007f16a118e000 nid=0x6e5a runnable [0x00007f18b91d0000]';

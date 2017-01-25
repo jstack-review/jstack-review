@@ -28,23 +28,35 @@ var dumpAnalysis = {};
 var analysisConfig = new jtda.AnalysisConfig();
 var renderConfig = new jtda.render.RenderConfig();
 
-function addDump() {
+function addDump(focusTab) {
     ++dumpCounter;
     var model = {
         id: 'tda_' + dumpCounter,
-        name: 'Dump #' + dumpCounter
+        name: 'Dump #' + dumpCounter,
+        fileReader: FileReaderJS.enabled
     };
     dumpAnalysis[model.id] = new jtda.Analysis(model.id, analysisConfig);
+    
     $('#adddump').parent().before(Mustache.render($('#tmpl-tab').html(), model));
     $('#dumptabs>li[data-dumpid=' + model.id + ']>span').click(removeDump);
     $('#dumps').append(Mustache.render($('#tmpl-tab-panel').html(), model));
-    $('#dumps>div[data-dumpid=' + model.id + '] form button').click(function() {
-        executeAnalysis(model.id, $('#' + model.id + '_dumpInput').val());
+    $('#' + model.id + '_input form button').click(function() {
+        executeAnalysis(model.id);
     });
-    $('#dumptabs>li[data-dumpid=' + model.id + ']>a').tab('show');
+    $('#' + model.id + '_inputpeak button').click(function() {
+        $('#' + model.id + '_inputpeak').hide();
+        $('#' + model.id + '_input').show();
+    });
+    if (focusTab) {
+        $('#dumptabs>li[data-dumpid=' + model.id + ']>a').tab('show');
+    }
+
+    if (FileReaderJS.enabled) {
+        setupFileReader(model.id);
+    }
 
     if (!jtdaDebug) {
-        return;
+        return model.id;
     }
     // just to make developments easier
     $('#'+model.id+'_input form').append('<label><input type="checkbox" id="'+model.id+'_dumpInput_save" value="1"> Remember input</label>');
@@ -66,6 +78,34 @@ function addDump() {
             sessionStorage.setItem('input.' + model.id, $(this).val());
         }
     });
+    
+    return model.id;
+}
+
+function setupFileReader(dumpId) {
+    var dumpIds = [];
+    var opt = {
+        readAsDefault: 'Text',
+        on: {
+            load: function(e, file) {
+                var currentId = dumpIds.pop();
+                if (currentId === undefined) {
+                    return;
+                }
+                $('#' + currentId + '_dump h1:first small').html(file.name);
+                $('#' + currentId + '_dumpInput').val(e.target.result).change();
+                executeAnalysis(currentId);
+            },
+            groupstart: function(group) {
+                dumpIds = [dumpId];
+                for (var i = 1; i < group.files.length; ++i) {
+                    dumpIds.push(addDump(false));
+                }
+            }
+        }
+    };
+    $('#' + dumpId + '_dumpInput').fileReaderJS(opt);
+    $('#' + dumpId + '_dumpFile').fileReaderJS(opt);
 }
 
 function removeDump() {
@@ -84,7 +124,8 @@ function removeDump() {
     return false;
 }
 
-function executeAnalysis(dumpId, text) {
+function executeAnalysis(dumpId) {
+    var text = $('#' + dumpId + '_dumpInput').val();
     var analysis = dumpAnalysis[dumpId];
     analysis.analyze(text);
     if (jtdaDebug) {
@@ -96,6 +137,9 @@ function executeAnalysis(dumpId, text) {
         target.append(Mustache.render($('#tmpl-alert').html(), {level: 'danger', message: 'No threads found in the thread dump'})); 
     }
     else {
+        $('#' + dumpId + '_input').hide();
+        $('#' + dumpId + '_inputpeak').show();
+        $('#' + dumpId + '_inputpeak .sneakpeak').val(text.trim().split('\n').slice(0, 5).join('\n')+'\n[...]');
         new jtda.render.Renderer(target, renderConfig).render(analysis);
     }
 }
@@ -103,5 +147,5 @@ function executeAnalysis(dumpId, text) {
 $(document).ready(function() {
     $('#adddump').click(addDump);
     // create the first dump
-    addDump();
+    addDump(true);
 });

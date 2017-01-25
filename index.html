@@ -27,6 +27,7 @@
     <script src="jtdajs.js" type="text/javascript"></script>
     <script src="jtdajs.render.js" type="text/javascript"></script>
     <link rel="stylesheet" href="stylesheet.css">
+    <script src="filereader.js" type="text/javascript"></script>
     <script src="frontend.js" type="text/javascript"></script>
   </head>
   <body>
@@ -73,16 +74,30 @@
     
     <script id="tmpl-tab-panel" type="x-tmpl-mustache">
     <div id="{{id}}_dump" class="tab-pane" data-dumpid="{{id}}">
-      <div id="{{id}}_input" class="container-fluid">
-        <h1>Analysis for {{name}}</h1>
-        <form>
+      <div class="container-fluid">
+        <h1>Analysis for {{name}} <small></small></h1>
+        <div id="{{id}}_input">
+          <form>
+            <div class="form-group">
+              <label for="{{id}}_dumpInput">Thread Dump</label>
+              <textarea class="form-control" id="{{id}}_dumpInput" rows="5" placeholder="Paste your thread dump here"></textarea>
+              {{#fileReader}}
+              <label>Or select/drop files
+              <input type="file" multiple id="{{id}}_dumpFile" />
+              </label>
+              <p class="help-block">Dropping multiple files will open additional tabs.</p>
+              {{/fileReader}}
+            </div>
+            <button type="button" class="btn btn-primary">Analyze</button>
+          </form>
+        </div>
+        <div id="{{id}}_inputpeak" style="display: none;">
           <div class="form-group">
-            <label for="{{id}}_dumpInput">Thread Dump</label>
-            <!-- TODO: different input method, textarea is slow when it has a lot of content -->
-            <textarea class="form-control" id="{{id}}_dumpInput" rows="5" placeholder="Paste your thread dump here"></textarea>
+            <label>Thread Dump</label>
+            <textarea class="form-control sneakpeak" rows="5" disabled readonly></textarea>
           </div>
-          <button type="button" class="btn btn-primary">Analyze</button>
-        </form>
+          <button type="button" class="btn btn-primary">Reveal input</button>
+        </div>
       </div>
       
       <div class="results">
@@ -95,7 +110,7 @@
         <div class="container-fluid">
           <ul class="nav navbar-nav">
             <li><a href="#top" title="Top"><span class="glyphicon glyphicon-triangle-top"></span></a></li>
-            <li><a href="#{{analysisId}}_input">Input</a></li>
+            <li><a href="#{{analysisId}}_dump">Input</a></li>
             <li><a href="#{{analysisId}}_overview">Overview</a></li>
             <li><a href="#{{analysisId}}_running_methods">Running Methods <span class="label label-default"></span></a></li>
             <li><a href="#{{analysisId}}_threads">Thread <span class="label label-default">{{analysis.threads.length}}</span></a></li>

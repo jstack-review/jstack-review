@@ -76,3 +76,9 @@ ul.nav li:hover > span.glyphicon-remove:hover {
 .thread-stack samp {
   white-space: pre;
 }
+
+.drag {
+  border-color: #ccc;
+  border-color: rgba(82,168,236,.8);
+  box-shadow: 0 0 8px rgba(82,168,236,.6);
+}

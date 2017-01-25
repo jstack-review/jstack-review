@@ -18,7 +18,7 @@ limitations under the License.
   background-color: #fcf8e3;
 }
 
-.container-fluid:target {
+.container-fluid:target, .tab-pane:target {
   background-color: inherit;
 }
 

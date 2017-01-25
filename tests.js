@@ -885,3 +885,60 @@ QUnit.test("synchronizer sort function", function(assert) {
     assert.deepEqual([zebra, biggerId, unused, held].sort(jtda.Synchronizer.compare),
                      [held, unused, biggerId, zebra]);
 });
+
+QUnit.test("deadlock, waiters but no holders", function(assert) {
+    var analysis = new jtda.Analysis(0, {});
+    var sync = new jtda.Synchronizer('12345', 'foo');
+    sync.lockWaiters.push(new jtda.Thread('"Thread" prio=10 tid=1234 nid=0x6e5a waiting to lock [12345]'));
+    analysis.synchronizers.push(sync);
+    analysis._analyzeDeadlocks();
+    
+    assert.equal(analysis.deadlockStatus.severity, jtda.DeadlockStatus.DEADLOCKED);
+    assert.equal(sync.deadlockStatus.severity, jtda.DeadlockStatus.DEADLOCKED);
+    
+});
+
+QUnit.test("no deadlock, waiting for notification", function(assert) {
+    var analysis = new jtda.Analysis(0, {});
+    var sync = new jtda.Synchronizer('12345', 'foo');
+    sync.notificationWaiters.push(new jtda.Thread('"Thread" prio=10 tid=1234 nid=0x6e5a waiting to lock [12345]'));
+    analysis.synchronizers.push(sync);
+    analysis._analyzeDeadlocks();
+    
+    assert.deepEqual(sync.deadlockStatus, jtda.DeadlockStatus.NONE);    
+});
+
+QUnit.test("no deadlock, running thread", function(assert) {
+    var analysis = new jtda.Analysis(0, {});
+    var sync = new jtda.Synchronizer('12345', 'foo');
+    sync.lockHolder = new jtda.Thread('"Thread" prio=10 tid=1234 nid=0x6e5a running');
+    analysis.synchronizers.push(sync);
+    analysis._analyzeDeadlocks();
+    
+    assert.deepEqual(sync.deadlockStatus, jtda.DeadlockStatus.NONE);    
+});
+
+QUnit.test("no deadlock, no waiters", function(assert) {
+    var analysis = new jtda.Analysis(0, {});
+    var sync = new jtda.Synchronizer('12345', 'foo');
+    sync.lockHolder = new jtda.Thread('"Thread" prio=10 tid=1234 nid=0x6e5a waiting to lock [12345]');
+    analysis.synchronizers.push(sync);
+    analysis._analyzeDeadlocks();
+    
+    assert.deepEqual(sync.deadlockStatus, jtda.DeadlockStatus.NONE);    
+});
+
+QUnit.test("deadlock, waiting for self", function(assert) {
+    var analysis = new jtda.Analysis(0, {});
+    var sync = new jtda.Synchronizer('12345', 'foo');
+    sync.lockHolder = new jtda.Thread('"Thread" prio=10 tid=1234 nid=0x6e5a waiting to lock [12345]');
+    sync.lockHolder.wantToAcquire = '12345';
+    sync.lockWaiters.push(sync.lockHolder);
+    analysis.synchronizers.push(sync);
+    analysis.synchronizerMap[sync.id] = sync;
+    analysis._analyzeDeadlocks();
+    
+    assert.equal(sync.deadlockStatus.severity, jtda.DeadlockStatus.DEADLOCKED);    
+});
+
+

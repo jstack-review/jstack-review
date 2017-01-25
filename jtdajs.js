@@ -230,8 +230,6 @@ var jtda = jtda || {};
             if (sync.lockHolder === null) {
                 if (sync.lockWaiters.length > 0) {
                     return new jtda.DeadlockStatus(jtda.DeadlockStatus.DEADLOCKED, []);
-                } else if (sync.notificationWaiters > 0) {
-                    return new jtda.DeadlockStatus(jtda.DeadlockStatus.LOW_RISK, []);
                 } else {
                     return jtda.DeadlockStatus.NONE;
                 }
@@ -239,15 +237,16 @@ var jtda = jtda || {};
             if (!sync.lockHolder.getStatus().isWaiting()) {
                 return jtda.DeadlockStatus.NONE;
             }
-            if (sync.lockWaiters.length === 0 && sync.notificationWaiters === 0) {
+            if (sync.lockWaiters.length === 0 && sync.notificationWaiters.length === 0) {
                 // nobody is waiting for us
                 return jtda.DeadlockStatus.NONE;
             }
             // If there is a loop on "waiting to acquire" then there is a deadlock
             // If a thread is "awaiting notification" then there might be a deadlock
             var work = [];
-            var visited = [];
             work.push(sync.lockHolder);
+            var visited = {};
+            visited[sync.id] = true;
             while (work.length > 0) {
                 var thread = work.pop();
                 if (thread.wantNotificationOn !== null) {

@@ -156,18 +156,21 @@
     <script id="tmpl-analysis-running-methods" type="x-tmpl-mustache">
     <div class="container-fluid" id="{{analysisId}}_running_methods">
       <h2>Running Methods</h2>
-      <table class="table table-striped">
+      <dl>
       {{#methods}}
-        <tr>
-          <td><samp>{{string}}</samp></td>
-          <td>
-            {{#sources}}
-              <a href="#{{analysisId}}_thread_{{tid}}">{{name}}</a> <br />
-            {{/sources}}
-          </td>
-        </tr>
+        <dt><samp>{{string}}</samp></dt>
+        <dd>
+          <ul class="list-unstyled">
+          {{#sources}}
+            <li>
+              <span class="thread-status-color" style="background-color: {{threadStatusColor}}" title="{{getStatus}}"></span>
+              <a href="#{{analysisId}}_thread_{{tid}}">{{name}}</a>
+            </li>
+          {{/sources}}
+          <ul>
+        </dd>
       {{/methods}}
-      </table>
+      </dl>
     </div>
     </script>
     
@@ -188,9 +191,11 @@
       {{/wantToAcquire}}
       {{#locksHeld.length}}
         , holding [
-        {{#locksHeld}}
-        <a href="#{{analysisId}}_sync_{{.}}">{{.}}</a>
+        <ul class="list-csv">
+        {{#locksHeld}}        
+          <li><a href="#{{analysisId}}_sync_{{.}}">{{.}}</a></li>
         {{/locksHeld}}
+        </ul>
         ]
       {{/locksHeld.length}}
       {{#showThreadDetails}}

@@ -204,6 +204,9 @@ var jtda = jtda || {};
                 analysis: analysis,
                 methods: function() {
                     return analysis.runningMethods.getStrings();
+                },
+                threadStatusColor: function() {
+                    return config.threadStatusColor[this.getStatus()];
                 }
             }, this._partials()));
         };

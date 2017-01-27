@@ -82,3 +82,21 @@ ul.nav li:hover > span.glyphicon-remove:hover {
   border-color: rgba(82,168,236,.8);
   box-shadow: 0 0 8px rgba(82,168,236,.6);
 }
+
+ul.list-csv {
+  display: inline;
+  list-style: none;
+  padding: 0;
+}
+
+ul.list-csv li {
+  display: inline-block;  
+}
+
+ul.list-csv li:after {
+  content: ", "
+}
+
+ul.list-csv li:first-child:after {
+  content: ""
+}

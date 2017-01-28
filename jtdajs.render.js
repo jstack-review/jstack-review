@@ -285,15 +285,7 @@ var jtda = jtda || {};
                 var currentStack = stacks[j];
                 var threads = stacksToThreads[currentStack];
 
-                threads.sort(function(a, b) {
-                    if (a.name > b.name) {
-                        return 1;
-                    }
-                    if (a.name < b.name) {
-                        return -1;
-                    }
-                    return 0;
-                });
+                threads.sort(jtda.Thread.compare);
 
                 threadsAndStacks.push({
                     threads: threads,

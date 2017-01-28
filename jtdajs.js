@@ -147,11 +147,13 @@ var jtda = jtda || {};
                 var runningMethod = thread.frames[0].replace(/^\s+at\s+/, '');
                 this.runningMethods.addString(runningMethod, thread);
             }
+            this.runningMethods.sortSources(this.threadComparator);
         };
 
         this._analyzeSynchronizers = function() {
             this._mapSynchronizers();
             this._xrefSynchronizers();
+            this._sortSynchronizersRefs();
             // Sort the synchronizers by number of references
             this.synchronizers.sort(jtda.Synchronizer.compare);
         };
@@ -208,6 +210,14 @@ var jtda = jtda || {};
                     synchronizer = this.synchronizerMap[thread.locksHeld[j]];
                     synchronizer.lockHolder = thread;
                 }
+            }
+        };
+        
+        this._sortSynchronizersRefs = function() {
+            for (var i = 0; i < this.synchronizers.length; ++i) {
+                var synchronizer = this.synchronizers[i];
+                synchronizer.lockWaiters.sort(this.threadComparator);
+                synchronizer.notificationWaiters.sort(this.threadComparator);
             }
         };
 
@@ -281,6 +291,7 @@ var jtda = jtda || {};
 
         this.id = id;
         this.config = config;
+        this.threadComparator = jtda.Thread.compare;
         this._init();
     };
 
@@ -474,6 +485,14 @@ var jtda = jtda || {};
         // Only synchronized(){} style locks
         this.classicalLocksHeld = [];
     };
+    
+    jtda.Thread.compare = function(a, b) {
+        var res = a.name.localeCompare(b.name);
+        if (res !== 0) {
+            return res;
+        }
+        return a.tid.localeCompare(b.tid);
+    }
 
     jtda.ThreadStatus = function(thread) {
         this.isRunning = function() {
@@ -711,6 +730,15 @@ var jtda = jtda || {};
             }
             return string;
         };
+        
+        this.sortSources = function(compare) {
+            if (compare === undefined) {
+                return;
+            }
+            for (var string in this._stringsToCounts) {
+                this._stringsToCounts[string].sources.sort(compare);
+            }
+        }
 
         this._stringsToCounts = {};
         this.length = 0;

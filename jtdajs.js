@@ -492,7 +492,7 @@ var jtda = jtda || {};
             return res;
         }
         return a.tid.localeCompare(b.tid);
-    }
+    };
 
     jtda.ThreadStatus = function(thread) {
         this.isRunning = function() {
@@ -738,7 +738,7 @@ var jtda = jtda || {};
             for (var string in this._stringsToCounts) {
                 this._stringsToCounts[string].sources.sort(compare);
             }
-        }
+        };
 
         this._stringsToCounts = {};
         this.length = 0;

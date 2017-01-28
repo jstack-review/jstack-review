@@ -156,7 +156,7 @@
     <script id="tmpl-analysis-running-methods" type="x-tmpl-mustache">
     <div class="container-fluid" id="{{analysisId}}_running_methods">
       <h2>Running Methods</h2>
-      <dl>
+      <dl class="dl-striped">
       {{#methods}}
         <dt><samp>{{string}}</samp></dt>
         <dd>
@@ -184,10 +184,10 @@
       {{/showThreadDetails}}
       <span class="thread-status">{{getStatus}}</span> 
       {{#wantNotificationOn}}
-      on <span class="thread-wait-on-sync">[<a href="#{{analysisId}}_sync_{{wantNotificationOn}}">{{wantNotificationOn}}</a>]</span>
+      on <span class="thread-wait-on-sync">[ <a href="#{{analysisId}}_sync_{{wantNotificationOn}}">{{wantNotificationOn}}</a> ]</span>
       {{/wantNotificationOn}}
       {{#wantToAcquire}}
-      <span class="thread-wait-on-sync">[<a href="#{{analysisId}}_sync_{{wantToAcquire}}">{{wantToAcquire}}</a>]</span>
+      <span class="thread-wait-on-sync">[ <a href="#{{analysisId}}_sync_{{wantToAcquire}}">{{wantToAcquire}}</a> ]</span>
       {{/wantToAcquire}}
       {{#locksHeld.length}}
         , holding [
@@ -273,12 +273,14 @@
         </td>
         <td>
           {{#lockHolder}}
-            <p>Held by<br />           
+          <div class="synchronizer-lock-holder">
+            Held by<br />           
             {{> thread-summary}}
-            </p>
+           </div>            
           {{/lockHolder}}
           
           {{#notificationWaiters.length}}
+          <div class="synchronizer-notification-waiters">
             <span>{{notificationWaiters.length}} thread(s) waiting for notifcation:</span>
             <ul class="list-unstyled">
             {{#notificationWaiters}}
@@ -288,9 +290,11 @@
               </li>
             {{/notificationWaiters}}
             </ul>
+          </div>
           {{/notificationWaiters.length}}
         
           {{#lockWaiters.length}}
+          <div class="synchronizer-lock-waiters">
             <span>{{lockWaiters.length}} thread(s) waiting to take lock</span>
             <ul class="list-unstyled">
             {{#lockWaiters}}
@@ -300,6 +304,7 @@
               </li>
             {{/lockWaiters}}
             </ul>
+          <div class="synchronizer-lock-waiters">
           {{/lockWaiters.length}}
         </td>
       </tr>

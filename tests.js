@@ -940,4 +940,24 @@ QUnit.test("deadlock, waiting for self", function(assert) {
     assert.equal(sync.deadlockStatus.severity, jtda.DeadlockStatus.DEADLOCKED);    
 });
 
+QUnit.test("ThreadChanges", function(assert) {
+    assert.equal(new jtda.diff.ThreadChanges().isChanged(), false);
 
+    var tc = new jtda.diff.ThreadChanges();
+    tc.name = true;
+    assert.equal(tc.isChanged(), true);
+    tc.name = false;
+    assert.equal(tc.isChanged(), false);
+    
+    tc.frames = true;
+    assert.equal(tc.isChanged(), true);
+    
+    tc.wantNotificationOn = true;
+    assert.equal(tc.isChanged(), true);
+    
+    tc.wantToAcquire = true;
+    assert.equal(tc.isChanged(), true);
+    
+    tc.locksHeld = true;
+    assert.equal(tc.isChanged(), true);
+});

@@ -250,7 +250,7 @@ QUnit.test("thread.running", function(assert) {
 QUnit.test( "multiline thread name", function(assert) {
     // It's the Analyzer that joins lines so we have to go through the Analyzer here
     var multilineHeader = '"line 1\nline 2" prio=10 tid=0x00007f16a118e000 nid=0x6e5a runnable [0x00007f18b91d0000]';
-    var analyzer = new jtda.Analysis(0, {});
+    var analyzer = new jtda.Analysis(0, '', {});
     analyzer.analyze(multilineHeader);
     var threads = analyzer.threads;
 
@@ -269,7 +269,7 @@ QUnit.test( "multiline thread name", function(assert) {
 QUnit.test( "non-multiline thread name", function(assert) {
     // It's the Analyzer that joins lines so we have to go through the Analyzer here
     var nonMultilineHeader = '"line 1":\nat x.y.Z.service(Z.java:722)';
-    var analyzer = new jtda.Analysis(0, {});
+    var analyzer = new jtda.Analysis(0, '', {});
     analyzer.analyze(nonMultilineHeader);
     var threads = analyzer.threads;
 
@@ -287,7 +287,7 @@ QUnit.test( "non-multiline thread name", function(assert) {
 
 QUnit.test( "analyze stackless thread", function(assert) {
     var threadDump = '"thread name" prio=10 tid=0x00007f16a118e000 nid=0x6e5a runnable [0x00007f18b91d0000]';
-    var analyzer = new jtda.Analysis(0, {});
+    var analyzer = new jtda.Analysis(0, '', {});
     analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     
@@ -308,7 +308,7 @@ QUnit.test( "analyze single thread", function(assert) {
         '"thread name" prio=10 tid=0x00007f16a118e000 nid=0x6e5a runnable [0x00007f18b91d0000]',
         '	at fluff'
     ].join('\n');
-    var analyzer = new jtda.Analysis(0, {});
+    var analyzer = new jtda.Analysis(0, '', {});
     analyzer.analyze(threadDump);
     var threads = analyzer.threads;
         
@@ -338,7 +338,7 @@ QUnit.test( "analyze thread waiting for notification", function(assert) {
         '   Locked ownable synchronizers:',
         '	- None',
     ].join('\n');
-    var analyzer = new jtda.Analysis(0, {});
+    var analyzer = new jtda.Analysis(0, '', {});
     analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
@@ -379,7 +379,7 @@ QUnit.test( "analyze thread waiting for java.util.concurrent lock", function(ass
         '	- None',
     ].join('\n');
 
-    var analyzer = new jtda.Analysis(0, {});
+    var analyzer = new jtda.Analysis(0, '', {});
     analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
@@ -408,7 +408,7 @@ QUnit.test( "analyze thread waiting for traditional lock", function(assert) {
         '	- None',
     ].join('\n');
 
-    var analyzer = new jtda.Analysis(0, {});
+    var analyzer = new jtda.Analysis(0, '', {});
     analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
@@ -440,7 +440,7 @@ QUnit.test(" analyze thread waiting for locks 2", function(assert){
         '   - None',
     ].join('\n');
 
-    var analyzer = new jtda.Analysis(0, {});
+    var analyzer = new jtda.Analysis(0, '', {});
     analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
@@ -483,7 +483,7 @@ QUnit.test( "analyze thread holding locks", function(assert) {
         '   Locked ownable synchronizers:',
         '	- <7c393f190> (a java.util.concurrent.locks.ReentrantLock$NonfairSync)',
     ].join('\n');
-    var analyzer = new jtda.Analysis(0, {});
+    var analyzer = new jtda.Analysis(0, '', {});
     analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
@@ -514,7 +514,7 @@ QUnit.test( "analyze two threads with same stack", function(assert) {
         '	at fluff'
     ].join('\n');
 
-    var analyzer = new jtda.Analysis(0, {});
+    var analyzer = new jtda.Analysis(0, '', {});
     analyzer.analyze(threadDump);
 
     var threads = analyzer.threads;
@@ -558,7 +558,7 @@ function unescapeHtml(escaped) {
 
 QUnit.test( "full dump analysis", function(assert) {
     var input = unescapeHtml(document.getElementById("sample-input").innerHTML);
-    var analyzer = new jtda.Analysis(0, {});
+    var analyzer = new jtda.Analysis(0, '', {});
     analyzer.analyze(input);
     
     assert.equal(analyzer.threads.length, 54);
@@ -574,7 +574,7 @@ QUnit.test( "full dump analysis", function(assert) {
 
 QUnit.test( "Top Methods from running threads", function(assert) {
     var input = unescapeHtml(document.getElementById("sample-input").innerHTML);
-    var analyzer = new jtda.Analysis(0, {});
+    var analyzer = new jtda.Analysis(0, '', {});
     analyzer.analyze(input);
     var running = analyzer.runningMethods.getStrings();
     assert.equal(running.length, 3);
@@ -754,7 +754,7 @@ QUnit.test( "analyze thread waiting for unspecified notification 1", function(as
         '        - locked <0x0000000780b17bc8> (a java.lang.ref.ReferenceQueue$Lock)',
         '        at org.netbeans.lib.profiler.server.ProfilerRuntimeObjLiveness$ReferenceManagerThread.run(ProfilerRuntimeObjLiveness.java:54)'
     ].join('\n');
-    var analyzer = new jtda.Analysis(0, {});
+    var analyzer = new jtda.Analysis(0, '', {});
     analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
@@ -778,7 +778,7 @@ QUnit.test( "analyze thread waiting for unspecified notification 2", function(as
         '        at org.hsqldb.lib.HsqlTimer$TaskRunner.run(Unknown Source)',
         '        at java.lang.Thread.run(Thread.java:745)'
     ].join('\n');
-    var analyzer = new jtda.Analysis(0, {});
+    var analyzer = new jtda.Analysis(0, '', {});
     analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
@@ -799,7 +799,7 @@ QUnit.test( "analyze thread waiting for unspecified notification 3", function(as
         '        - locked <0x0000000780b17bc8> (a java.lang.ref.ReferenceQueue$Lock)',
         '        at org.netbeans.lib.profiler.server.ProfilerRuntimeObjLiveness$ReferenceManagerThread.run(ProfilerRuntimeObjLiveness.java:54)'
     ].join('\n');
-    var analyzer = new jtda.Analysis(0, {});
+    var analyzer = new jtda.Analysis(0, '', {});
     analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
@@ -828,7 +828,7 @@ QUnit.test( "analyze thread waiting for unspecified notification 4", function(as
         '   Locked ownable synchronizers:',
         '	- <0x00000004f00094c0> (a java.util.concurrent.ThreadPoolExecutor$Worker)'
     ].join('\n');
-    var analyzer = new jtda.Analysis(0, {});
+    var analyzer = new jtda.Analysis(0, '', {});
     analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
@@ -844,7 +844,7 @@ QUnit.test("thread status no stack trace", function(assert) {
     var threadDump =
         '"Attach Listener" daemon prio=10 tid=0x00007f1b5c001000 nid=0x1bd4 waiting on condition [0x0000000000000000]\n' +
         '   java.lang.Thread.State: RUNNABLE';
-    var analyzer = new jtda.Analysis(0, {});
+    var analyzer = new jtda.Analysis(0, '', {});
     analyzer.analyze(threadDump);
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
@@ -886,7 +886,7 @@ QUnit.test("synchronizer sort function", function(assert) {
 });
 
 QUnit.test("deadlock, waiters but no holders", function(assert) {
-    var analysis = new jtda.Analysis(0, {});
+    var analysis = new jtda.Analysis(0, '', {});
     var sync = new jtda.Synchronizer('12345', 'foo');
     sync.lockWaiters.push(new jtda.Thread('"Thread" prio=10 tid=1234 nid=0x6e5a waiting to lock [12345]'));
     analysis.synchronizers.push(sync);
@@ -898,7 +898,7 @@ QUnit.test("deadlock, waiters but no holders", function(assert) {
 });
 
 QUnit.test("no deadlock, waiting for notification", function(assert) {
-    var analysis = new jtda.Analysis(0, {});
+    var analysis = new jtda.Analysis(0, '', {});
     var sync = new jtda.Synchronizer('12345', 'foo');
     sync.notificationWaiters.push(new jtda.Thread('"Thread" prio=10 tid=1234 nid=0x6e5a waiting to lock [12345]'));
     analysis.synchronizers.push(sync);
@@ -908,7 +908,7 @@ QUnit.test("no deadlock, waiting for notification", function(assert) {
 });
 
 QUnit.test("no deadlock, running thread", function(assert) {
-    var analysis = new jtda.Analysis(0, {});
+    var analysis = new jtda.Analysis(0, '', {});
     var sync = new jtda.Synchronizer('12345', 'foo');
     sync.lockHolder = new jtda.Thread('"Thread" prio=10 tid=1234 nid=0x6e5a running');
     analysis.synchronizers.push(sync);
@@ -918,7 +918,7 @@ QUnit.test("no deadlock, running thread", function(assert) {
 });
 
 QUnit.test("no deadlock, no waiters", function(assert) {
-    var analysis = new jtda.Analysis(0, {});
+    var analysis = new jtda.Analysis(0, '', {});
     var sync = new jtda.Synchronizer('12345', 'foo');
     sync.lockHolder = new jtda.Thread('"Thread" prio=10 tid=1234 nid=0x6e5a waiting to lock [12345]');
     analysis.synchronizers.push(sync);
@@ -928,7 +928,7 @@ QUnit.test("no deadlock, no waiters", function(assert) {
 });
 
 QUnit.test("deadlock, waiting for self", function(assert) {
-    var analysis = new jtda.Analysis(0, {});
+    var analysis = new jtda.Analysis(0, '', {});
     var sync = new jtda.Synchronizer('12345', 'foo');
     sync.lockHolder = new jtda.Thread('"Thread" prio=10 tid=1234 nid=0x6e5a waiting to lock [12345]');
     sync.lockHolder.wantToAcquire = '12345';

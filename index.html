@@ -39,16 +39,16 @@
     <span id="top"></span>
     <ul id="dumptabs" class="nav nav-tabs">
       <li><a class="btn" id="adddump" title="New dump analysis"><span class="glyphicon glyphicon-plus"></span></a></li>
-      <!-- <li><a class="btn" id="comparedump" title="Compare dumps"><span class="glyphicon glyphicon-transfer"></span></a></li> -->
+      <li><a class="btn" id="comparetabbtn" href="#compare" data-toggle="tab" title="Compare dumps"><span class="glyphicon glyphicon-transfer"></span></a></li>
       <li><a class="btn" href="#about" data-toggle="tab"><span class="glyphicon glyphicon-info-sign"></span></a></li>
     </ul>
     
-    <div id="dumps" class="tab-content">
-      <p></p>
+    <div id="dumps" class="tab-content">      
       <div id="about" class="tab-pane container">
+        <p></p>
         <div class="jumbotron">
-        <h1>Online Java Thread Dump Analyzer</h1>
-        <p><a href="https://github.com/mpobjects/threaddump-analyzer">Source code on GitHub</a></p>
+          <h1>Online Java Thread Dump Analyzer</h1>
+          <p><a href="https://github.com/mpobjects/threaddump-analyzer">Source code on GitHub</a></p>
         </div>
         
         <div>
@@ -58,6 +58,26 @@
           <p>Copyright 2016-2017 MP Objects BV</p>
         </div>
       </div>
+      
+      <div id="compare" class="tab-pane container">
+        <h1>Compare thread dumps</h1>
+        <div id="comparenotenough" class="alert alert-danger" role="alert">
+          You need at least to analyse at least <strong>two</strong> thread dumps in order to compare.
+        </div>
+        <form id="compareform">
+          <div class="form-group">
+            <label>Older thread dump</label>
+            <select id="olderAnalysis" class="form-control" required></select>
+            <span class="help-block">Select the thread dump which was taken earlier in time.</span>
+          </div>
+          <div class="form-group">
+            <label>Newer thread dump</label>
+            <select id="newerAnalysis" class="form-control" required></select>
+            <span class="help-block">Select the thread dump which was taken later in time.</span>
+          </div>
+          <button type="submit" class="btn btn-primary">Compare</button>
+        </form>
+      </div>    
     </div>
 
     <script id="tmpl-alert" type="x-tmpl-mustache">
@@ -76,7 +96,7 @@
     <script id="tmpl-tab-panel" type="x-tmpl-mustache">
     <div id="{{id}}_dump" class="tab-pane" data-dumpid="{{id}}">
       <div class="container-fluid">
-        <h1>Analysis for {{name}} <small></small></h1>
+        <h1>Analysis for <span>{{name}} <small></small></span></h1>
         <div id="{{id}}_input">
           <form>
             <div class="form-group">
@@ -108,9 +128,11 @@
     
     <script id="tmpl-analysis-navbar" type="x-tmpl-mustache">
       <nav id="{{analysisId}}_navbar" class="navbar navbar-default navbar-fixed-bottom">
+        <div class="navbar-header">
+          <a href="#top" class="navbar-brand">{{analysis.name}}</a>
+        </div>
         <div class="container-fluid">
           <ul class="nav navbar-nav">
-            <li><a href="#top" title="Top"><span class="glyphicon glyphicon-triangle-top"></span></a></li>
             <li><a href="#{{analysisId}}_dump">Input</a></li>
             <li><a href="#{{analysisId}}_overview">Overview</a></li>
             <li><a href="#{{analysisId}}_running_methods">Running Methods <span class="label label-default"></span></a></li>
@@ -331,6 +353,26 @@
         {{/getStrings}}
         </table>
       {{/analysis.ignoredData}}
+    </div>
+    </script>
+    
+    <script id="tmpl-diff-tab" type="x-tmpl-mustache">
+    <li data-diffid="{{id}}">
+      <a href="#{{id}}_diff" data-toggle="tab"><span class="glyphicon glyphicon-transfer"></span> {{name}}</a>
+      <span class="glyphicon glyphicon-remove"></span>
+    </li>
+    </script>
+    
+    <script id="tmpl-diff-tab-panel" type="x-tmpl-mustache">
+    <div id="{{id}}_diff" class="tab-pane" data-diffid="{{id}}">
+      <div class="container-fluid">
+        <h1>Thread dump compare <small>{{name}}</small></h1>
+        <a href="#{{old.id}}_dump">{{old.name}}</a> 
+        vs
+        <a href="#{{new.id}}_dump">{{new.name}}</a>
+        <!-- .. -->
+      <div class="results">
+      </div>
     </div>
     </script>
 

@@ -24,9 +24,12 @@ limitations under the License.
 
 var jtdaDebug = 'file:' === location.protocol;
 var dumpCounter = 0;
+var diffCounter = 0;
 var dumpAnalysis = {};
 var analysisConfig = new jtda.AnalysisConfig();
 var renderConfig = new jtda.render.RenderConfig();
+// Keep in sync with code in addDump()
+var dumpIdRegEx = /^(tda_[0-9]+)/;
 
 function addDump(focusTab) {
     ++dumpCounter;
@@ -35,7 +38,7 @@ function addDump(focusTab) {
         name: 'Dump #' + dumpCounter,
         fileReader: FileReaderJS.enabled
     };
-    dumpAnalysis[model.id] = new jtda.Analysis(model.id, analysisConfig);
+    dumpAnalysis[model.id] = new jtda.Analysis(model.id, model.name, analysisConfig);
     
     $('#adddump').parent().before(Mustache.render($('#tmpl-tab').html(), model));
     $('#dumptabs>li[data-dumpid=' + model.id + ']>span').click(removeDump);
@@ -121,6 +124,9 @@ function removeDump() {
     tab.remove();
     $('#dumps>div[data-dumpid=' + dumpId + ']').remove();
     delete dumpAnalysis[dumpId];
+    if ($('#comparetabbtn').parent('li').hasClass('active')) {
+        populateCompareTab();
+    }
     return false;
 }
 
@@ -144,8 +150,129 @@ function executeAnalysis(dumpId) {
     }
 }
 
+/*
+ * Bound to onhashchange event to allow linking from different tabs
+ */
+function ensureActiveTab() {
+    if (location.hash === undefined) {
+        return;
+    }
+    var activeTab = $('#dumptabs>li.active').attr('data-dumpid');
+    var requestedTab = dumpIdRegEx.exec(location.hash.substring(1));
+    if (requestedTab === null) {
+        return;
+    }
+    requestedTab = requestedTab[1];
+    
+    if (requestedTab === undefined) {
+        return;
+    }
+    if (activeTab !== requestedTab) {
+        $('#dumptabs>li[data-dumpid="'+requestedTab+'"]>a').tab('show');
+        // scroll to the requested element
+        var elm = $(location.hash);
+        if (elm.length === 0) {
+            return true;
+        }
+        elm[0].scrollIntoView(true);
+    }
+    return;
+}
+
+function setupCompareUI() {
+    if (!jtdaDebug) {
+        //TODO not ready yet
+        $('#comparetabbtn').parent('li').hide();
+    }
+    $('#comparetabbtn').on('show.bs.tab', populateCompareTab);
+    $('#olderAnalysis').on('change', function() {
+        var newval = $(this).val();
+        $('#newerAnalysis option').show();
+        $('#newerAnalysis option[value="'+newval+'"]').hide();
+        if ($('#newerAnalysis').val() === newval) {
+            $('#newerAnalysis').val(null);
+        }
+    });
+    $('#compareform').submit(compareThreadDumps);
+}
+
+function getCompletedAnalysisIds() {
+    var dumpIds = Object.getOwnPropertyNames(dumpAnalysis);
+    var result = [];
+    for (var i = 0; i < dumpIds.length; ++i) {
+        if (dumpAnalysis[dumpIds[i]].threads.length > 0) {
+            result.push(dumpIds[i]);
+        }
+    }
+    return result;
+}
+
+function populateCompareTab() {
+    var dumpIds = getCompletedAnalysisIds();
+    if (dumpIds.length < 2) {
+        $('#compareform').hide();
+        $('#comparenotenough').show();
+        return;
+    }
+    $('#comparenotenough').hide();
+    $('#compareform').show();
+    
+    var oldDump = $('#olderAnalysis');
+    var newDump = $('#newerAnalysis');
+    oldDump.empty();
+    newDump.empty();
+    
+    var titles = {};
+    for (var i = 0; i < dumpIds.length; ++i) {
+        var header = $('#'+dumpIds[i]+'_dump h1>span').text();        
+        var option = '<option value="'+dumpIds[i]+'">'+header+'</option>';
+        oldDump.append(option);
+        newDump.append(option);
+    }
+    oldDump.change();
+}
+
+function compareThreadDumps() {
+    var oldId = $('#olderAnalysis').val();
+    var newId = $('#newerAnalysis').val();
+    var oldAnalysis = dumpAnalysis[oldId];
+    var newAnalysis = dumpAnalysis[newId];
+    ++diffCounter;
+    var model = {
+        id: 'diff_' + diffCounter,
+        name: 'Diff #' + diffCounter,
+        old: {
+            id: oldId,
+            name: $('#olderAnalysis option[value="'+oldId+'"]').text()
+        },
+        'new': {
+            id: newId,
+            name: $('#olderAnalysis option[value="'+newId+'"]').text()
+        }
+    };
+    $('#comparetabbtn').parent().before(Mustache.render($('#tmpl-diff-tab').html(), model));
+    $('#dumptabs>li[data-diffid=' + model.id + ']>span').click(removeDiff);
+    $('#dumps').append(Mustache.render($('#tmpl-diff-tab-panel').html(), model));
+    $('#dumptabs>li[data-diffid=' + model.id + ']>a').tab('show');
+    
+    // TODO: execute the analysis and print results
+}
+
+function removeDiff() {
+    var diffId = $(this).parent('li').attr('data-diffid');
+    var tab = $('#dumptabs>li[data-diffid=' + diffId + ']');
+    if (tab.hasClass('active')) {
+        $('#comparetabbtn').tab('show');
+    }
+    tab.remove();
+    $('#dumps>div[data-diffid=' + diffId + ']').remove();
+    return false;
+}
+
 $(document).ready(function() {
     $('#adddump').click(addDump);
-    // create the first dump
+    setupCompareUI();
+    $(window).on('hashchange', ensureActiveTab);
+    // create the first dump window
     addDump(true);
 });

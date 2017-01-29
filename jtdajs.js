@@ -23,7 +23,7 @@ var jtda = jtda || {};
         // for future usage
     };
 
-    jtda.Analysis = function(id, config) {
+    jtda.Analysis = function(id, name, config) {
 
         /* analyse the provided stack trace */
         this.analyze = function(text) {
@@ -290,6 +290,7 @@ var jtda = jtda || {};
         };
 
         this.id = id;
+        this.name = name;
         this.config = config;
         this.threadComparator = jtda.Thread.compare;
         this._init();

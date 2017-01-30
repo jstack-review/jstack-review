@@ -744,6 +744,15 @@ var jtda = jtda || {};
         this._stringsToCounts = {};
         this.length = 0;
     };
+    
+    jtda.util.arraysEqual = function (a, b) {
+        if (a.length != b.length) {
+            return false;
+        }
+        return a.every(function(e, idx) {
+            return e === b[idx];
+        });
+    };
 
     jtda._internal = jtda._internal || {};
     jtda._internal.generatedIdCounter = 1;

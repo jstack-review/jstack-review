@@ -961,3 +961,23 @@ QUnit.test("ThreadChanges", function(assert) {
     tc.locksHeld = true;
     assert.equal(tc.isChanged(), true);
 });
+
+QUnit.test("arraysEqual", function(assert) {
+    var a = [1,2,3];
+    var b = [1,2,3];
+    assert.equal(jtda.util.arraysEqual(a,b), true);
+    
+    b = [2,1,3];
+    assert.equal(jtda.util.arraysEqual(a,b), false);
+    
+    b = [1,2];
+    assert.equal(jtda.util.arraysEqual(a,b), false);
+    
+    a = ["one", "two", "three"];
+    b = ["one", "two", "three"];
+    assert.equal(jtda.util.arraysEqual(a,b), true);
+    
+    a = [1, 2, 3];
+    b = ["1", "2", "3"];
+    assert.equal(jtda.util.arraysEqual(a,b), false);
+});

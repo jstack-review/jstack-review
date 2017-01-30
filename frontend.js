@@ -255,6 +255,9 @@ function compareThreadDumps() {
     $('#dumps').append(Mustache.render($('#tmpl-diff-tab-panel').html(), model));
     $('#dumptabs>li[data-diffid=' + model.id + ']>a').tab('show');
     
+    var diff = new jtda.diff.Diff(oldAnalysis, newAnalysis);
+    diff.compare();
+    console.log(diff);
     // TODO: execute the analysis and print results
 }
 

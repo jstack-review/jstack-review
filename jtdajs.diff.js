@@ -36,7 +36,7 @@ var jtda = jtda || {};
             for (var i = 0; i < this.older.threads.length; ++i) {
                 var oldThread = this.older.threads[i];
                 seenOldTid[oldThread.tid] = true;
-                var newThread = this.newer.threadById[oldThread.tid];
+                var newThread = this.newer.threadMap[oldThread.tid];
                 if (newThread === undefined) {
                     this.goneThreads.push(oldThread);
                     continue;
@@ -49,13 +49,18 @@ var jtda = jtda || {};
                 if (seenOldTid[thread.tid] === true) {
                     continue;
                 }
-                this.newThread.push(thread);
+                this.newThreads.push(thread);
             }
         };
         
         this._compareThreads = function(oldThread, newThread) {
             var changes = new jtda.diff.ThreadChanges();
-            // TODO
+            changes.name = oldThread.name !== newThread.name;
+            changes.status = oldThread.getStatus().status !== newThread.getStatus().status;
+            changes.wantNotificationOn = oldThread.wantNotificationOn !== newThread.wantNotificationOn;
+            changes.wantToAcquire = oldThread.wantToAcquire !== newThread.wantToAcquire;
+            changes.locksHeld = oldThread.locksHeld !== newThread.locksHeld;
+            changes.frames = !jtda.util.arraysEqual(oldThread.frames, newThread.frames);
             if (changes.isChanged()) {
                 this.changedThreads.push(new jtda.diff.ThreadDiff(oldThread, newThread, changes));
             } else {
@@ -66,9 +71,9 @@ var jtda = jtda || {};
         this._init = function() {
             this.goneThreads = [];
             this.newThreads = [];
-            this.unchangedThreads = [];
             // array of jtda.diff.ThreadDiff instances
             this.changedThreads = [];
+            this.unchangedThreads = [];
         };
     
         this.older = olderDump;

@@ -20,7 +20,7 @@ var jtda = jtda || {};
 
     jtda.diff = jtda.diff || {};
     
-    jtda.diff.Diff = function(olderDump, newerDump) {
+    jtda.diff.Diff = function(meta, olderDump, newerDump) {
     
         this.compare = function() {
             this._init();
@@ -51,6 +51,9 @@ var jtda = jtda || {};
                 }
                 this.newThreads.push(thread);
             }
+            
+            this.goneThreads.sort(jtda.Thread.compare);
+            this.newThreads.sort(jtda.Thread.compare);
         };
         
         this._compareThreads = function(oldThread, newThread) {
@@ -76,6 +79,8 @@ var jtda = jtda || {};
             this.unchangedThreads = [];
         };
     
+        this.id = meta.id;
+        this.info = meta;
         this.older = olderDump;
         this.newer = newerDump;
         this._init();

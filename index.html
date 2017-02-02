@@ -27,6 +27,7 @@
     <script src="jtdajs.js" type="text/javascript"></script>
     <script src="jtdajs.render.js" type="text/javascript"></script>
     <script src="jtdajs.diff.js" type="text/javascript"></script>
+    <script src="jtdajs.diff.render.js" type="text/javascript"></script>
     <link rel="stylesheet" href="stylesheet.css">
     <script src="filereader.js" type="text/javascript"></script>
     <script src="frontend.js" type="text/javascript"></script>
@@ -210,7 +211,7 @@
     <script id="tmpl-analysis-thread-summary" type="x-tmpl-mustache">
       <span class="thread-status-color" style="background-color: {{threadStatusColor}}" title="{{getStatus}}"></span>
       {{#showThreadDetails}}
-      <span class="thread-name"><a href="#{{analysisId}}_threaddetails_{{tid}}" data-toggle="collapse" aria-expanded="false" aria-controls="{{analysisId}}_threaddetails_{{tid}}">{{name}}</a></span>
+      <span class="thread-name"><a href="#{{prefix}}{{analysisId}}_threaddetails_{{tid}}" data-toggle="collapse" aria-expanded="false" aria-controls="{{prefix}}{{analysisId}}_threaddetails_{{tid}}">{{name}}</a></span>
       {{/showThreadDetails}}
       {{^showThreadDetails}}
       <span class="thread-name"><a href="#{{analysisId}}_thread_{{tid}}">{{name}}</a></span>
@@ -232,7 +233,7 @@
         ]
       {{/locksHeld.length}}
       {{#showThreadDetails}}
-      <div class="collapse well well-sm" id="{{analysisId}}_threaddetails_{{tid}}">
+      <div class="collapse well well-sm" id="{{prefix}}{{analysisId}}_threaddetails_{{tid}}">
         <dl class="dl-horizontal">
           <dt>Thread ID</dt>
           <dd>{{tid}}</dd>
@@ -247,6 +248,17 @@
           <dt>Priority</dt>
           <dd>{{prio}}</dd>
         </dl>
+        
+        {{#showTopFrames}}
+          <div class="row thread-stack">
+            <div class="col-md-offset-1 thread-stack">        
+              {{#topFrames}}
+                <samp>at {{.}}</samp><br />
+              {{/topFrames}}
+              <a href="#{{analysisId}}_thread_{{tid}}">Full thread details</a>
+            </div>
+          </div>
+        {{/showTopFrames}}
       </div>
       {{/showThreadDetails}}
     </script>
@@ -377,12 +389,52 @@
     <div id="{{id}}_diff" class="tab-pane" data-diffid="{{id}}">
       <div class="container-fluid">
         <h1>Thread dump compare <small>{{name}}</small></h1>
-        <a href="#{{old.id}}_dump">{{old.name}}</a> 
-        vs
-        <a href="#{{new.id}}_dump">{{new.name}}</a>
-        <!-- .. -->
+        <dl>
+          <dt>Older thread dump</dt>
+          <dd><a href="#{{old.id}}_dump">{{old.name}}</a></dd> 
+          <dt>Newer thread dump</dt>
+          <dd><a href="#{{new.id}}_dump">{{new.name}}</a></dd>
+        </dl>
+      </div>
       <div class="results">
       </div>
+    </div>
+    </script>
+    
+    <script id="tmpl-diff-navbar" type="x-tmpl-mustache">
+      <nav id="{{diffId}}_navbar" class="navbar navbar-default navbar-fixed-bottom">
+        <div class="navbar-header">
+          <a href="#top" class="navbar-brand">{{diff.info.name}}</a>
+        </div>
+        <div class="container-fluid">
+          <ul class="nav navbar-nav">
+            {{#diff.newThreads.length}}
+            <li><a href="#{{diffId}}_new">New Threads <span class="label label-default">{{diff.newThreads.length}}</span></a></li>
+            {{/diff.newThreads.length}}
+            {{#diff.goneThreads.length}}
+            <li><a href="#{{diffId}}_gone">Gone Threads <span class="label label-default">{{diff.goneThreads.length}}</span></a></li>
+            {{/diff.goneThreads.length}}
+            {{#diff.changedThreads.length}}
+            <li><a href="#{{diffId}}_changed">Changed Threads <span class="label label-default">{{diff.changedThreads.length}}</span></a></li>
+            {{/diff.changedThreads.length}}
+          </ul>
+        </div>
+      </nav>
+    </script>
+    
+    <script id="tmpl-diff-thread-list" type="x-tmpl-mustache">
+    <div id="{{divId}}" class="container-fluid">
+      <h2>{{title}}</h2>
+      {{#threads}}
+      <div class="thread-header">
+        {{> ^analysis-thread-summary}}
+      </div>
+      {{/threads}}
+    </div>
+    </script>
+    
+    <script id="tmpl-diff-changed-threads" type="x-tmpl-mustache">
+    <div id="{{id}}_changed" class="container-fluid">
     </div>
     </script>
 

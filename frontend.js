@@ -255,10 +255,17 @@ function compareThreadDumps() {
     $('#dumps').append(Mustache.render($('#tmpl-diff-tab-panel').html(), model));
     $('#dumptabs>li[data-diffid=' + model.id + ']>a').tab('show');
     
-    var diff = new jtda.diff.Diff(oldAnalysis, newAnalysis);
+        // TODO: execute the analysis and print results
+    var diff = new jtda.diff.Diff(model, oldAnalysis, newAnalysis);
     diff.compare();
-    console.log(diff);
-    // TODO: execute the analysis and print results
+    if (jtdaDebug) {
+        console.log(diff);
+    }
+    var render = new jtda.diff.render.Render($('#'+model.id+'_diff div.results'), renderConfig);
+    render.render(diff);
+    
+    // prevent the actual submit action to continue
+    return false;
 }
 
 function removeDiff() {

@@ -49,6 +49,8 @@ var jtda = jtda || {};
                 diff: diff
             }, this._partials()));
             
+            this._renderOverview(diff);
+            
             if (diff.newThreads.length > 0) {
                 this._renderNewThreads(diff);
             }
@@ -58,6 +60,75 @@ var jtda = jtda || {};
             if (diff.changedThreads.length > 0) {
                 this._renderChangedThreads(diff);
             }
+            if (diff.unchangedThreads.length > 0) {
+                this._renderUnchangedThreads(diff);
+            }
+        };
+        
+        this._renderOverview = function(diff) {
+            this.target.append(Mustache.render(this.getTemplate('overview'), {
+                diffId: diff.id,
+                diff: diff
+            }, this._partials()));
+
+            new Chart(diff.id + '_thread_status_chart', {
+                type: 'bar',
+                data: this.getThreadStatusChartData(diff),
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    title: {
+                        display: true,
+                        position: "top",
+                        text: "Thread Status"
+                    }
+                }
+            });
+        };
+        
+        this.getThreadStatusChartData = function(diff) {
+            var labels = [];
+            var datasets = [{
+                label: diff.older.name,
+                data: [],
+                backgroundColor: []
+            }, {
+                label: diff.newer.name,
+                data: [],
+                backgroundColor: []
+            }];
+            var data = this.getThreadStatusCounts(diff);
+            for (var status in data) {
+                var dat = data[status];
+                if (dat[0] === 0 && dat[1] === 0) {
+                    continue;
+                }
+                labels.push(status);
+                datasets[0].data.push(dat[0]);
+                datasets[0].backgroundColor.push(this.config.threadStatusColorAlt[status]);
+                datasets[1].data.push(dat[1]);
+                datasets[1].backgroundColor.push(this.config.threadStatusColor[status]);
+            }
+            var res = {
+                labels: labels,
+                datasets: datasets
+            };
+            return res;
+        };
+        
+        this.getThreadStatusCounts = function(diff) {
+            var data = {};
+            for (var i = 0; i < jtda.ThreadStatus.ALL.length; ++i) {            
+                var status = jtda.ThreadStatus.ALL[i];
+                data[status] = [0,0];
+                if (diff.older.threadsByStatus[status] !== undefined) {
+                    data[status][0] = diff.older.threadsByStatus[status].length;
+                }
+                if (diff.newer.threadsByStatus[status] !== undefined) {
+                    data[status][1] = diff.newer.threadsByStatus[status].length;
+                }
+            }
+            return data;
         };
         
         this._threadListModel = function(diff, analysisId, title, threads) {
@@ -100,6 +171,9 @@ var jtda = jtda || {};
                 diffId: diff.id
             };
             this.target.append(Mustache.render(this.getTemplate('changed-threads'), model, this._partials()));
+        };
+        
+        this._renderUnchangedThreads = function(diff) {
         };
         
         this.target = target;

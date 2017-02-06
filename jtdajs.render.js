@@ -38,6 +38,16 @@ var jtda = jtda || {};
         this.threadStatusColor[jtda.ThreadStatus.SLEEPING] = '#1f77b4';
         this.threadStatusColor[jtda.ThreadStatus.WAITING_ACQUIRE] = '#ff7f0e';
         this.threadStatusColor[jtda.ThreadStatus.WAITING_NOTIFY] = '#d62728';
+        
+        this.threadStatusColorAlt = {};
+        this.threadStatusColorAlt[jtda.ThreadStatus.UNKNOWN] = '#c7c7c7';
+        this.threadStatusColorAlt[jtda.ThreadStatus.RUNNING] = '#98df8a';
+        this.threadStatusColorAlt[jtda.ThreadStatus.NON_JAVA_THREAD] = '#c5b0d5';
+        this.threadStatusColorAlt[jtda.ThreadStatus.TERMINATED] = '#c49c94';
+        this.threadStatusColorAlt[jtda.ThreadStatus.NEW] = '#9edae5';
+        this.threadStatusColorAlt[jtda.ThreadStatus.SLEEPING] = '#aec7e8';
+        this.threadStatusColorAlt[jtda.ThreadStatus.WAITING_ACQUIRE] = '#ffbb78';
+        this.threadStatusColorAlt[jtda.ThreadStatus.WAITING_NOTIFY] = '#ff9896';
 
         this.synchronizerChart = {
             max: 7,

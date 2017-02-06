@@ -75,7 +75,7 @@
         <div id="comparenotenough" class="alert alert-danger" role="alert">
           You need at least to analyse at least <strong>two</strong> thread dumps in order to compare.
         </div>
-        <form id="compareform">
+        <form id="compareform" action="#">
           <div class="form-group">
             <label>Older thread dump</label>
             <select id="olderAnalysis" class="form-control" required></select>
@@ -109,7 +109,7 @@
       <div class="container-fluid">
         <h1>Analysis for <span>{{name}} <small></small></span></h1>
         <div id="{{id}}_input">
-          <form>
+          <form action="#">
             <div class="form-group">
               <label for="{{id}}_dumpInput">Thread Dump</label>
               <textarea class="form-control" id="{{id}}_dumpInput" rows="5" placeholder="Paste your thread dump here"></textarea>
@@ -408,6 +408,7 @@
         </div>
         <div class="container-fluid">
           <ul class="nav navbar-nav">
+            <li><a href="#{{diffId}}_overview">Overview</a></li>
             {{#diff.newThreads.length}}
             <li><a href="#{{diffId}}_new">New Threads <span class="label label-default">{{diff.newThreads.length}}</span></a></li>
             {{/diff.newThreads.length}}
@@ -417,9 +418,19 @@
             {{#diff.changedThreads.length}}
             <li><a href="#{{diffId}}_changed">Changed Threads <span class="label label-default">{{diff.changedThreads.length}}</span></a></li>
             {{/diff.changedThreads.length}}
+            {{#diff.unchangedThreads.length}}
+            <li><a href="#{{diffId}}_unchanged">Unchanged Threads <span class="label label-default">{{diff.unchangedThreads.length}}</span></a></li>
+            {{/diff.unchangedThreads.length}}
           </ul>
         </div>
       </nav>
+    </script>
+    
+    <script id="tmpl-diff-overview" type="x-tmpl-mustache">
+    <div id="{{diffId}}_overview" class="container-fluid">
+      <h2>Overview</h2>
+      <canvas id="{{diffId}}_thread_status_chart" width="600" height="150"></canvas>
+    </div>
     </script>
     
     <script id="tmpl-diff-thread-list" type="x-tmpl-mustache">
@@ -434,7 +445,14 @@
     </script>
     
     <script id="tmpl-diff-changed-threads" type="x-tmpl-mustache">
-    <div id="{{id}}_changed" class="container-fluid">
+    <div id="{{diffId}}_changed" class="container-fluid">
+      <h2>Changed Threads</h2>
+    </div>
+    </script>
+    
+    <script id="tmpl-diff-unchanged-threads" type="x-tmpl-mustache">
+    <div id="{{diffId}}_unchanged" class="container-fluid">
+      <h2>Unchanged Threads</h2>
     </div>
     </script>
 

@@ -264,7 +264,6 @@ function compareThreadDumps() {
     var render = new jtda.diff.render.Render($('#'+model.id+'_diff div.results'), renderConfig);
     render.render(diff);
     
-    // prevent the actual submit action to continue
     return false;
 }
 

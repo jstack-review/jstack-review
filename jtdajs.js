@@ -540,6 +540,17 @@ var jtda = jtda || {};
     jtda.ThreadStatus.SLEEPING = "sleeping";
     jtda.ThreadStatus.WAITING_ACQUIRE = "waiting to acquire";
     jtda.ThreadStatus.WAITING_NOTIFY = "awaiting notification";
+    
+    jtda.ThreadStatus.ALL = [
+        jtda.ThreadStatus.RUNNING,
+        jtda.ThreadStatus.WAITING_NOTIFY,
+        jtda.ThreadStatus.WAITING_ACQUIRE,
+        jtda.ThreadStatus.SLEEPING,
+        jtda.ThreadStatus.NEW,
+        jtda.ThreadStatus.TERMINATED,
+        jtda.ThreadStatus.NON_JAVA_THREAD,
+        jtda.ThreadStatus.UNKNOWN
+    ];
 
     jtda.DeadlockStatus = function(severity, trail) {
         this.severity = severity;

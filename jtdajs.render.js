@@ -226,6 +226,16 @@ var jtda = jtda || {};
             var model = {
                 analysisId: analysis.id,
                 analysis: analysis,
+                threadsByStatus: this.threadsByStatusArray(analysis.threadsByStatus),
+                threadStatusColor: function() {
+                    return config.threadStatusColor[this.getStatus()];
+                },
+            };
+            //this.target.append(Mustache.render(this.getTemplate('threads-status-summary'), model, this._partials()));
+            
+            model = {
+                analysisId: analysis.id,
+                analysis: analysis,
                 threads: analysis.threads,
                 threadStatusColor: function() {
                     return config.threadStatusColor[this.getStatus()];
@@ -236,6 +246,29 @@ var jtda = jtda || {};
                 model.threads = this.groupSimilarThreads(analysis.threads);
             }
             this.target.append(Mustache.render(this.getTemplate('threads'), model, this._partials()));
+        };
+        
+        /**
+         * Convert the threadsByStatus object to an array with objects to be rendered
+         */
+        this.threadsByStatusArray = function(tbsObject) {
+            var id = 0;
+            var res = [];
+            for (var status in tbsObject) {
+                var threads = tbsObject[status].slice();
+                threads.sort(jtda.Thread.compare);
+                var elm = {
+                    statusId: (++id),
+                    status: status,
+                    statusColor: this.config.threadStatusColor[status],
+                    threads: threads
+                };
+                res.push(elm);
+            }
+            res.sort(function(a,b) {
+                return b.threads.length - a.threads.length;
+            });
+            return res;
         };
 
         /**

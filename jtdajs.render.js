@@ -231,7 +231,7 @@ var jtda = jtda || {};
                     return config.threadStatusColor[this.getStatus()];
                 },
             };
-            //this.target.append(Mustache.render(this.getTemplate('threads-status-summary'), model, this._partials()));
+            this.target.append(Mustache.render(this.getTemplate('threads-status-summary'), model, this._partials()));
             
             model = {
                 analysisId: analysis.id,

@@ -186,7 +186,7 @@ function ensureActiveTab() {
         requestedTab = location.hash.substring(1);
     }
     var targetTab = $('#dumptabs>li[data-tabtarget="'+requestedTab+'"]');
-    if (targetTab.length == 0) {
+    if (targetTab.length === 0) {
         return;
     }
     
@@ -314,7 +314,7 @@ function removeDiff() {
 
 $(document).ready(function() {
     $('#adddump').click(addDump);
-    $('#dumptabs>li[data-tabtarget]').on('show.bs.tab', updateTabHash)
+    $('#dumptabs>li[data-tabtarget]').on('show.bs.tab', updateTabHash);
     setupCompareUI();
     $(window).on('hashchange', ensureActiveTab);
     // create the first dump window

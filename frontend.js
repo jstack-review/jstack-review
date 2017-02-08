@@ -97,11 +97,13 @@ function setupFileReader(dumpId) {
                 if (currentId === undefined) {
                     return;
                 }
-                updatedDumpIds.push(currentId);
                 dumpAnalysis[currentId].filename = file.name;
                 $('#' + currentId + '_dump h1:first small').html(file.name);
                 $('#' + currentId + '_dumpInput').val(e.target.result).change();
                 executeAnalysis(currentId);
+                if (dumpAnalysis[currentId].threads.length > 0) {
+                    updatedDumpIds.push(currentId);
+                }
             },
             groupstart: function(group) {
                 dumpIds = [dumpId];

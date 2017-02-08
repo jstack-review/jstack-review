@@ -29,7 +29,7 @@ var dumpAnalysis = {};
 var analysisConfig = new jtda.AnalysisConfig();
 var renderConfig = new jtda.render.RenderConfig();
 // Keep in sync with code in addDump()
-var dumpIdRegEx = /^(tda_[0-9]+)/;
+var dumpIdRegEx = /^(((tda)|(diff))_[0-9]+)/;
 
 function addDump(focusTab) {
     ++dumpCounter;
@@ -50,6 +50,7 @@ function addDump(focusTab) {
         $('#' + model.id + '_inputpeak').hide();
         $('#' + model.id + '_input').show();
     });
+    $('#dumptabs>li[data-dumpid=' + model.id + ']>a').on('show.bs.tab', updateTabHash);
     if (focusTab) {
         $('#dumptabs>li[data-dumpid=' + model.id + ']>a').tab('show');
     }
@@ -87,22 +88,31 @@ function addDump(focusTab) {
 
 function setupFileReader(dumpId) {
     var dumpIds = [];
+    var updatedDumpIds = [];
     var opt = {
         readAsDefault: 'Text',
         on: {
             load: function(e, file) {
-                var currentId = dumpIds.pop();
+                var currentId = dumpIds.shift();
                 if (currentId === undefined) {
                     return;
                 }
+                updatedDumpIds.push(currentId);
+                dumpAnalysis[currentId].filename = file.name;
                 $('#' + currentId + '_dump h1:first small').html(file.name);
                 $('#' + currentId + '_dumpInput').val(e.target.result).change();
                 executeAnalysis(currentId);
             },
             groupstart: function(group) {
                 dumpIds = [dumpId];
+                updatedDumpIds = [];
                 for (var i = 1; i < group.files.length; ++i) {
                     dumpIds.push(addDump(false));
+                }
+            },
+            groupend: function(group) {
+                if (updatedDumpIds.length === 2) {
+                    compareThreadDumps(updatedDumpIds[0], updatedDumpIds[1]);
                 }
             }
         }
@@ -150,25 +160,38 @@ function executeAnalysis(dumpId) {
     }
 }
 
+var allowTabHashUpdate = true;
+
+function updateTabHash(event) {
+    if (allowTabHashUpdate) {
+        location.hash = $(event.target).attr('href');
+    }
+}
+
 /*
  * Bound to onhashchange event to allow linking from different tabs
  */
 function ensureActiveTab() {
     if (location.hash === undefined) {
         return;
-    }
-    var activeTab = $('#dumptabs>li.active').attr('data-dumpid');
+    }    
+    var activeTab = $('#dumptabs>li.active').attr('data-tabtarget');
     var requestedTab = dumpIdRegEx.exec(location.hash.substring(1));
-    if (requestedTab === null) {
+    if (requestedTab !== null) {
+        requestedTab = requestedTab[1];
+    }
+    else {
+        requestedTab = location.hash.substring(1);
+    }
+    var targetTab = $('#dumptabs>li[data-tabtarget="'+requestedTab+'"]');
+    if (targetTab.length == 0) {
         return;
     }
-    requestedTab = requestedTab[1];
     
-    if (requestedTab === undefined) {
-        return;
-    }
     if (activeTab !== requestedTab) {
-        $('#dumptabs>li[data-dumpid="'+requestedTab+'"]>a').tab('show');
+        allowTabHashUpdate = false;
+        $('a:first', targetTab).tab('show');
+        allowTabHashUpdate = true;
         // scroll to the requested element
         var elm = $(location.hash);
         if (elm.length === 0) {
@@ -193,7 +216,9 @@ function setupCompareUI() {
             $('#newerAnalysis').val(null);
         }
     });
-    $('#compareform').submit(compareThreadDumps);
+    $('#compareform').submit(function() {
+        compareThreadDumps($('#olderAnalysis').val(), $('#newerAnalysis').val());
+    });
 }
 
 function getCompletedAnalysisIds() {
@@ -224,7 +249,11 @@ function populateCompareTab() {
     
     var titles = {};
     for (var i = 0; i < dumpIds.length; ++i) {
-        var header = $('#'+dumpIds[i]+'_dump h1>span').text();        
+        var dumpId = dumpIds[i];
+        var header = dumpAnalysis[dumpId].name;
+        if (dumpAnalysis[dumpId].filename !== undefined) {
+            header += ': '+dumpAnalysis[dumpId].filename;
+        }        
         var option = '<option value="'+dumpIds[i]+'">'+header+'</option>';
         oldDump.append(option);
         newDump.append(option);
@@ -232,9 +261,10 @@ function populateCompareTab() {
     oldDump.change();
 }
 
-function compareThreadDumps() {
-    var oldId = $('#olderAnalysis').val();
-    var newId = $('#newerAnalysis').val();
+function compareThreadDumps(oldId, newId) {
+    if (!jtdaDebug) {
+        return;
+    }
     var oldAnalysis = dumpAnalysis[oldId];
     var newAnalysis = dumpAnalysis[newId];
     ++diffCounter;
@@ -243,19 +273,21 @@ function compareThreadDumps() {
         name: 'Diff #' + diffCounter,
         old: {
             id: oldId,
-            name: $('#olderAnalysis option[value="'+oldId+'"]').text()
+            name: oldAnalysis.name,
+            filename: oldAnalysis.filename,
         },
         'new': {
             id: newId,
-            name: $('#olderAnalysis option[value="'+newId+'"]').text()
+            name: newAnalysis.name,
+            filename: newAnalysis.filename,
         }
     };
     $('#comparetabbtn').parent().before(Mustache.render($('#tmpl-diff-tab').html(), model));
     $('#dumptabs>li[data-diffid=' + model.id + ']>span').click(removeDiff);
     $('#dumps').append(Mustache.render($('#tmpl-diff-tab-panel').html(), model));
-    $('#dumptabs>li[data-diffid=' + model.id + ']>a').tab('show');
+    $('#dumptabs>li[data-diffid=' + model.id + ']>a').on('show.bs.tab', updateTabHash).tab('show');
     
-        // TODO: execute the analysis and print results
+    // TODO: execute the analysis and print results
     var diff = new jtda.diff.Diff(model, oldAnalysis, newAnalysis);
     diff.compare();
     if (jtdaDebug) {
@@ -280,6 +312,7 @@ function removeDiff() {
 
 $(document).ready(function() {
     $('#adddump').click(addDump);
+    $('#dumptabs>li[data-tabtarget]').on('show.bs.tab', updateTabHash)
     setupCompareUI();
     $(window).on('hashchange', ensureActiveTab);
     // create the first dump window

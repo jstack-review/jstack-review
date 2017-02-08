@@ -291,6 +291,7 @@ var jtda = jtda || {};
 
         this.id = id;
         this.name = name;
+        this.filename = undefined;
         this.config = config;
         this.threadComparator = jtda.Thread.compare;
         this._init();

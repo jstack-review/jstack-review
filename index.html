@@ -41,8 +41,8 @@
     <span id="top"></span>
     <ul id="dumptabs" class="nav nav-tabs">
       <li><a class="btn" id="adddump" title="New dump analysis"><span class="glyphicon glyphicon-plus"></span></a></li>
-      <li><a class="btn" id="comparetabbtn" href="#compare" data-toggle="tab" title="Compare dumps"><span class="glyphicon glyphicon-transfer"></span></a></li>
-      <li><a class="btn" href="#about" data-toggle="tab"><span class="glyphicon glyphicon-info-sign"></span></a></li>
+      <li data-tabtarget="compare"><a class="btn" id="comparetabbtn" href="#compare" data-toggle="tab" title="Compare dumps"><span class="glyphicon glyphicon-transfer"></span></a></li>
+      <li data-tabtarget="about"><a class="btn" href="#about" data-toggle="tab"><span class="glyphicon glyphicon-info-sign"></span></a></li>
     </ul>
     
     <div id="dumps" class="tab-content">      
@@ -98,7 +98,7 @@
     </script>
 
     <script id="tmpl-tab" type="x-tmpl-mustache">
-    <li data-dumpid="{{id}}">
+    <li data-dumpid="{{id}}" data-tabtarget="{{id}}">
       <a href="#{{id}}_dump" data-toggle="tab">{{name}}</a>
       <span class="glyphicon glyphicon-remove"></span>
     </li>
@@ -273,7 +273,7 @@
         <div class="panel-heading" role="tab" id="{{analysisId}}_threads_status_{{statusId}}_head">
           <h4 class="panel-title text-capitalize">
             <span class="thread-status-color" style="background-color: {{statusColor}}"></span>
-            <a role="button" data-toggle="collapse" data-parent="#{{analysisId}}_threads_status" _href="#{{analysisId}}_threads_status_{{statusId}}" data-target="#{{analysisId}}_threads_status_{{statusId}}">
+            <a role="button" data-toggle="collapse" data-parent="#{{analysisId}}_threads_status" data-target="#{{analysisId}}_threads_status_{{statusId}}">
               {{status}} <span class="badge">{{threads.length}}</span>
             </a>
           </h4>
@@ -412,7 +412,7 @@
     </script>
     
     <script id="tmpl-diff-tab" type="x-tmpl-mustache">
-    <li data-diffid="{{id}}">
+    <li data-diffid="{{id}}" data-tabtarget="{{id}}">
       <a href="#{{id}}_diff" data-toggle="tab"><span class="glyphicon glyphicon-transfer"></span> {{name}}</a>
       <span class="glyphicon glyphicon-remove"></span>
     </li>
@@ -424,9 +424,9 @@
         <h1>Thread dump compare <small>{{name}}</small></h1>
         <dl>
           <dt>Older thread dump</dt>
-          <dd><a href="#{{old.id}}_dump">{{old.name}}</a></dd> 
+          <dd><a href="#{{old.id}}_dump">{{old.name}}{{#old.filename}}: {{old.filename}}{{/old.filename}}</a></dd> 
           <dt>Newer thread dump</dt>
-          <dd><a href="#{{new.id}}_dump">{{new.name}}</a></dd>
+          <dd><a href="#{{new.id}}_dump">{{new.name}}{{#new.filename}}: {{new.filename}}{{/new.filename}}</a></dd>
         </dl>
       </div>
       <div class="results">

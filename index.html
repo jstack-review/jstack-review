@@ -267,18 +267,16 @@
     <div class="container-fluid" id="{{analysisId}}_threads">
       <h2>Threads by status</h2>
       
-      <div class="panel-group" id="{{analysisId}}_threads_status" role="tablist">
+      <div class="panel-group" id="{{analysisId}}_status" role="tablist">
       {{#threadsByStatus}}
       <div class="panel panel-default">
-        <div class="panel-heading" role="tab" id="{{analysisId}}_threads_status_{{statusId}}_head">
-          <h4 class="panel-title text-capitalize">
+        <div class="panel-heading" role="tab" id="{{analysisId}}_status_{{statusId}}">
+          <h4 class="panel-title accordion-toggle text-capitalize collapsed" role="button" data-toggle="collapse" data-target="#{{analysisId}}_status_{{statusId}}t">
             <span class="thread-status-color" style="background-color: {{statusColor}}"></span>
-            <a role="button" data-toggle="collapse" data-parent="#{{analysisId}}_threads_status" data-target="#{{analysisId}}_threads_status_{{statusId}}">
-              {{status}} <span class="badge">{{threads.length}}</span>
-            </a>
-          </h4>
+            {{status}} <span class="badge">{{threads.length}}</span>
+          </h4>        
         </div>
-        <div class="panel-collapse collapse" role="tabpanel" id="{{analysisId}}_threads_status_{{statusId}}">
+        <div class="panel-collapse collapse" role="tabpanel" id="{{analysisId}}_status_{{statusId}}t">
           <div class="panel-body">
             <ul class="list-unstyled">
               {{#threads}}

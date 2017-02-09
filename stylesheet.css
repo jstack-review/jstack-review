@@ -106,5 +106,18 @@ ul.list-csv li:first-child:after {
 }
 
 .dl-striped > dt:nth-of-type(2n+1), .dl-striped > dd:nth-of-type(2n+1) {
-    background-color: #f9f9f9;
+  background-color: #f9f9f9;
+}
+
+.accordion-toggle::before {
+  color: silver;
+  content: "\e114";
+  float: left;
+  font-family: 'Glyphicons Halflings';
+  margin-left: -0.5em;
+  padding-right: 0.5em;
+}
+
+.accordion-toggle.collapsed::before {/* csslint allow: adjoining-classes */
+  content: "\e080";
 }

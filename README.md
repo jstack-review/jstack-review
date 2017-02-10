@@ -15,11 +15,9 @@ The Java Thread Dump Analyzer is licensed under [version 2.0 of the Apache licen
 ## TODO
 
 * [Stuff from the upstream TODO list?](https://github.com/spotify/threaddump-analyzer/blob/gh-pages/README.md)
-* Drag-and-drop files
-* Hide textarea after analysis to make tab switching faster
 * Compare two threads
 * Improve/extend unit tests
 * Expose configuration settings on the screen
-* Saving of settings for future use
+ * Saving of settings for future use
 * Support all thread dumps from the [TDA tests](https://github.com/irockel/tda/tree/master/tda/test/none) 
 * ...

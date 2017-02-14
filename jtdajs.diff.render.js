@@ -168,7 +168,9 @@ var jtda = jtda || {};
 
         this._renderChangedThreads = function(diff) {
             var model = {
-                diffId: diff.id
+                diff: diff,
+                diffId: diff.id,
+                threads: diff.changedThreads
             };
             this.target.append(Mustache.render(this.getTemplate('changed-threads'), model, this._partials()));
         };

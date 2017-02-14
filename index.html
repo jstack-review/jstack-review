@@ -478,7 +478,33 @@
     <script id="tmpl-diff-changed-threads" type="x-tmpl-mustache">
     <div id="{{diffId}}_changed" class="container-fluid">
       <h2>Changed Threads</h2>
+      {{#threads}}
+        {{> changed-thread}}
+      {{/threads}}
     </div>
+    </script>
+    
+    <script id="tmpl-diff-changed-thread" type="x-tmpl-mustache">
+      <div class="panel panel-default">
+        <div class="panel-heading" id="{{diffId}}_changedthread_{{older.tid}}">
+          <h4 class="panel-title">
+            Thread {{older.tid}}
+            {{^changed.name}}
+            : {{older.name}}
+            {{/changed.name}}
+          </h4>        
+        </div>
+        <div class="panel-body">
+          {{#changed.name}}
+          <dl class="dl-horizontal">
+            <dt>Old name</dt>
+            <dd class="text-danger">{{older.name}}</dd>
+            <dt>new name</dt>
+            <dd class="text-success">{{newer.name}}</dd>
+          </dl>
+          {{/changed.name}}
+        </div>
+      </div>
     </script>
     
     <script id="tmpl-diff-unchanged-threads" type="x-tmpl-mustache">

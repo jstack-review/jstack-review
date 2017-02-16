@@ -170,12 +170,24 @@ var jtda = jtda || {};
             var model = {
                 diff: diff,
                 diffId: diff.id,
-                threads: diff.changedThreads
+                threads: diff.changedThreads,
+                threadStatusColor: function() {
+                    return config.threadStatusColor[this.getStatus()];
+                },
+                isPropertiesChanges: function() {
+                    return this.changed !== undefined && this.changed.isProperties();
+                }
             };
             this.target.append(Mustache.render(this.getTemplate('changed-threads'), model, this._partials()));
         };
         
         this._renderUnchangedThreads = function(diff) {
+            var model = {
+                diff: diff,
+                diffId: diff.id,
+                threads: diff.unchangedThreads
+            }
+            this.target.append(Mustache.render(this.getTemplate('unchanged-threads'), model, this._partials()));
         };
         
         this.target = target;

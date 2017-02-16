@@ -93,11 +93,11 @@ ul.list-csv li {
   display: inline-block;  
 }
 
-ul.list-csv li:after {
+ul.list-csv li:before {
   content: ", "
 }
 
-ul.list-csv li:first-child:after {
+ul.list-csv li:first-child:before {
   content: ""
 }
 

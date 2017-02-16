@@ -495,14 +495,67 @@
           </h4>        
         </div>
         <div class="panel-body">
+          {{#isPropertiesChanges}}
+          <table class="table table-striped" style="width: auto;">
+          <tr>
+            <th></th>
+            <th class="danger">Older</th>
+            <th class="success">Newer</th>
+          </tr>
           {{#changed.name}}
-          <dl class="dl-horizontal">
-            <dt>Old name</dt>
-            <dd class="text-danger">{{older.name}}</dd>
-            <dt>new name</dt>
-            <dd class="text-success">{{newer.name}}</dd>
-          </dl>
+          <tr>
+            <th>Name</th>
+            <td class="danger">{{older.name}}</td>
+            <td class="success">{{newer.name}}</td>
+          </tr>
           {{/changed.name}}
+          {{#changed.status}}
+          <tr>          
+            <th>Status</th>
+            <td class="danger">{{#older}}{{> thread-status-full}}{{/older}}</td>
+            <td class="success">{{#newer}}{{> thread-status-full}}{{/newer}}</td>
+          </tr>
+          {{/changed.status}}
+          {{#changed.wantNotificationOn}}
+          <tr>
+            <th>Waiting notification on</th>
+            <td class="danger"><a href="#{{diff.older.id}}_sync_{{older.wantNotificationOn}}">{{older.wantNotificationOn}}</a></td>
+            <td class="success"><a href="#{{diff.newer.id}}_sync_{{newer.wantNotificationOn}}">{{newer.wantNotificationOn}}</a></td>
+          </tr>
+          {{/changed.wantNotificationOn}}
+          {{#changed.wantToAcquire}}
+          <tr>
+            <th>Want to acquire</th>
+            <td class="danger"><a href="#{{diff.older.id}}_sync_{{older.wantToAcquire}}">{{older.wantToAcquire}}</a></td>
+            <td class="success"><a href="#{{diff.newer.id}}_sync_{{newer.wantToAcquire}}">{{newer.wantToAcquire}}</a></td>
+          </tr>
+          {{/changed.wantToAcquire}}
+          {{#changed.locksHeld}}
+          <tr>
+            <th>Locks held</th>
+            <td class="danger">
+              <ul class="list-csv">
+              {{#older.locksHeld}}
+                <li><a href="#{{diff.older.id}}_sync_{{.}}">{{.}}</a></li>
+              {{/older.locksHeld}}
+              </ul>
+            </td>
+            <td class="success">
+              <ul class="list-csv">
+              {{#newer.locksHeld}}
+                <li><a href="#{{diff.newer.id}}_sync_{{.}}">{{.}}</a></li>
+              {{/newer.locksHeld}}
+              </ul>
+            </td>
+          </tr>
+          {{/changed.locksHeld}}
+          </table>
+          {{/isPropertiesChanges}}
+          
+          {{#changed.frames}}
+          <h4>Changed Stack</h4>
+          ...
+          {{/changed.frames}}
         </div>
       </div>
     </script>
@@ -510,8 +563,18 @@
     <script id="tmpl-diff-unchanged-threads" type="x-tmpl-mustache">
     <div id="{{diffId}}_unchanged" class="container-fluid">
       <h2>Unchanged Threads</h2>
+      {{#threads}}
+      {{#older}}
+      <div class="thread-header">
+        {{> ^analysis-thread-summary}}
+      </div>
+      {{/older}}
+      {{/threads}}
     </div>
     </script>
-
+    
+    <script id="tmpl-diff-thread-status-full" type="x-tmpl-mustache">
+      <span class="thread-status-color" style="background-color: {{threadStatusColor}}"></span> {{getStatus}}
+    </script>
   </body>
 </html>

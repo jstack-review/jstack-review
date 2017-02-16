@@ -62,7 +62,7 @@ var jtda = jtda || {};
             changes.status = oldThread.getStatus().status !== newThread.getStatus().status;
             changes.wantNotificationOn = oldThread.wantNotificationOn !== newThread.wantNotificationOn;
             changes.wantToAcquire = oldThread.wantToAcquire !== newThread.wantToAcquire;
-            changes.locksHeld = oldThread.locksHeld !== newThread.locksHeld;
+            changes.locksHeld = !jtda.util.arraysEqual(oldThread.locksHeld, newThread.locksHeld);
             changes.frames = !jtda.util.arraysEqual(oldThread.frames, newThread.frames);
             if (changes.isChanged()) {
                 this.changedThreads.push(new jtda.diff.ThreadDiff(oldThread, newThread, changes));
@@ -94,6 +94,18 @@ var jtda = jtda || {};
                 }                
             }
             return false;
+        };
+        
+        this.isProperties = function() {
+            for (var prop in this) {
+                if (prop === "frames") {
+                    continue;
+                }
+                if (this.hasOwnProperty(prop) && typeof this[prop] == "boolean" && this[prop] === true) {
+                    return true;
+                }                
+            }
+            return false; 
         };
     
         this.name = false;

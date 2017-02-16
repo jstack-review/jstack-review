@@ -186,7 +186,7 @@ var jtda = jtda || {};
                 diff: diff,
                 diffId: diff.id,
                 threads: diff.unchangedThreads
-            }
+            };
             this.target.append(Mustache.render(this.getTemplate('unchanged-threads'), model, this._partials()));
         };
         

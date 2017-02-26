@@ -20,11 +20,11 @@ var jtda = jtda || {};
 
     /* global $ */
     /* global Mustache */
-    
+
     jtda.diff.render = jtda.diff.render || {};
-    
+
     jtda.diff.render.Render = function(target, config) {
-    
+
         this.getTemplate = function(name) {
             if (name.charAt(0) === '^') {
                 return $('#tmpl-' + name.substring(1)).html();
@@ -41,16 +41,16 @@ var jtda = jtda || {};
                 return _this.getTemplate(name);
             };
         };
-        
+
         this.render = function(diff) {
             this.target.empty();
             this.target.append(Mustache.render(this.getTemplate('navbar'), {
                 diffId: diff.id,
                 diff: diff
             }, this._partials()));
-            
+
             this._renderOverview(diff);
-            
+
             if (diff.newThreads.length > 0) {
                 this._renderNewThreads(diff);
             }
@@ -64,7 +64,7 @@ var jtda = jtda || {};
                 this._renderUnchangedThreads(diff);
             }
         };
-        
+
         this._renderOverview = function(diff) {
             this.target.append(Mustache.render(this.getTemplate('overview'), {
                 diffId: diff.id,
@@ -85,7 +85,7 @@ var jtda = jtda || {};
                 }
             });
         };
-        
+
         this.getThreadStatusChartData = function(diff) {
             var labels = [];
             var datasets = [{
@@ -115,12 +115,12 @@ var jtda = jtda || {};
             };
             return res;
         };
-        
+
         this.getThreadStatusCounts = function(diff) {
             var data = {};
-            for (var i = 0; i < jtda.ThreadStatus.ALL.length; ++i) {            
+            for (var i = 0; i < jtda.ThreadStatus.ALL.length; ++i) {
                 var status = jtda.ThreadStatus.ALL[i];
-                data[status] = [0,0];
+                data[status] = [0, 0];
                 if (diff.older.threadsByStatus[status] !== undefined) {
                     data[status][0] = diff.older.threadsByStatus[status].length;
                 }
@@ -130,11 +130,11 @@ var jtda = jtda || {};
             }
             return data;
         };
-        
+
         this._threadListModel = function(diff, analysisId, title, threads) {
             return {
                 diffId: diff.id,
-                prefix: diff.id+'_',
+                prefix: diff.id + '_',
                 analysisId: analysisId,
                 title: title,
                 threads: threads,
@@ -144,7 +144,7 @@ var jtda = jtda || {};
                 showThreadDetails: true,
                 showTopFrames: true,
                 topFrames: function() {
-                    var max = 10;  //TODO: config
+                    var max = 10; //TODO: config
                     var res = this.frames.slice(0, max);
                     if (res.length === max) {
                         res.push('...');
@@ -153,20 +153,21 @@ var jtda = jtda || {};
                 }
             };
         };
-        
+
         this._renderNewThreads = function(diff) {
             var model = this._threadListModel(diff, diff.newer.id, 'New Threads', diff.newThreads);
-            model.divId = model.prefix+'new';
+            model.divId = model.prefix + 'new';
             this.target.append(Mustache.render(this.getTemplate('thread-list'), model, this._partials()));
         };
 
         this._renderGoneThreads = function(diff) {
             var model = this._threadListModel(diff, diff.older.id, 'Gone Threads', diff.goneThreads);
-            model.divId = model.prefix+'gone';
+            model.divId = model.prefix + 'gone';
             this.target.append(Mustache.render(this.getTemplate('thread-list'), model, this._partials()));
         };
 
         this._renderChangedThreads = function(diff) {
+            var _this = this;
             var model = {
                 diff: diff,
                 diffId: diff.id,
@@ -176,11 +177,59 @@ var jtda = jtda || {};
                 },
                 isPropertiesChanges: function() {
                     return this.changed !== undefined && this.changed.isProperties();
+                },
+                stackDiff: function() {
+                    return _this.stackDiff(this.older.frames.slice(), this.newer.frames.slice());
                 }
             };
             this.target.append(Mustache.render(this.getTemplate('changed-threads'), model, this._partials()));
         };
-        
+
+        this.stackDiff = function(oldStack, newStack) {
+            var i, n;
+            var out = diff(oldStack, newStack);
+            console.log(out);
+            var res = [];
+            if (out.n.length === 0) {
+                for (i = 0; i < out.o.length; i++) {
+                    res.push({
+                        del: true,
+                        line: out.o[i]
+                    });
+                }
+            } else {
+                if (out.n[0].text === null) {
+                    for (n = 0; n < out.o.length && out.o[n].text === undefined; n++) {
+                        res.push({
+                            del: true,
+                            line: out.o[n]
+                        });
+                    }
+                }
+
+                for (i = 0; i < out.n.length; i++) {
+                    if (out.n[i].text === undefined) {
+                        res.push({
+                            ins: true,
+                            line: out.n[i]
+                        });
+                    } else {
+                        res.push({
+                            line: out.n[i].text
+                        });
+                        for (n = out.n[i].row + 1; n < out.o.length && out.o[n].text === undefined; n++) {
+                            res.push({
+                                del: true,
+                                line: out.o[n]
+                            });
+                        }
+                    }
+                }
+            }
+
+            return res;
+        };
+
         this._renderUnchangedThreads = function(diff) {
             var model = {
                 diff: diff,
@@ -189,9 +238,85 @@ var jtda = jtda || {};
             };
             this.target.append(Mustache.render(this.getTemplate('unchanged-threads'), model, this._partials()));
         };
-        
+
         this.target = target;
         this.config = config;
     };
-    
+
+
+    /*
+     * Based on: http://ejohn.org/files/jsdiff.js
+     */
+    function diff(o, n) {
+        var ns = {};
+        var os = {};
+
+        for (var i = 0; i < n.length; i++) {
+            if (ns[n[i]] === undefined) {
+                ns[n[i]] = {
+                    rows: [],
+                    o: null
+                };
+            }
+            ns[n[i]].rows.push(i);
+        }
+
+        for (i = 0; i < o.length; i++) {
+            if (os[o[i]] === undefined) {
+                os[o[i]] = {
+                    rows: [],
+                    n: null
+                };
+            }
+            os[o[i]].rows.push(i);
+        }
+
+        for (i in ns) {
+            if (ns[i].rows.length === 1 && os[i] !== undefined && os[i].rows.length === 1) {
+                n[ns[i].rows[0]] = {
+                    text: n[ns[i].rows[0]],
+                    row: os[i].rows[0]
+                };
+                o[os[i].rows[0]] = {
+                    text: o[os[i].rows[0]],
+                    row: ns[i].rows[0]
+                };
+            }
+        }
+
+        for (i = 0; i < n.length - 1; i++) {
+            if (n[i].text !== undefined && n[i + 1].text === undefined && n[i].row + 1 < o.length && o[n[i].row + 1].text === undefined &&
+                n[i + 1] == o[n[i].row + 1]) {
+                n[i + 1] = {
+                    text: n[i + 1],
+                    row: n[i].row + 1
+                };
+                o[n[i].row + 1] = {
+                    text: o[n[i].row + 1],
+                    row: i + 1
+                };
+            }
+        }
+
+        for (i = n.length - 1; i > 0; i--) {
+            if (n[i].text !== undefined && n[i - 1].text === undefined && n[i].row > 0 && o[n[i].row - 1].text === undefined &&
+                n[i - 1] === o[n[i].row - 1]) {
+                n[i - 1] = {
+                    text: n[i - 1],
+                    row: n[i].row - 1
+                };
+                o[n[i].row - 1] = {
+                    text: o[n[i].row - 1],
+                    row: i - 1
+                };
+            }
+        }
+
+        return {
+            o: o,
+            n: n
+        };
+    }
+
+
 }());

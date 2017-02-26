@@ -554,7 +554,11 @@
           
           {{#changed.frames}}
           <h4>Changed Stack</h4>
-          ...
+          {{#stackDiff}}
+            <div class="{{#del}}bg-danger{{/del}}{{#ins}}bg-success{{/ins}}"><samp>
+            at {{line}}
+            <samp></div>
+          {{/stackDiff}}
           {{/changed.frames}}
         </div>
       </div>

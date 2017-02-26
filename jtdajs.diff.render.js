@@ -179,55 +179,10 @@ var jtda = jtda || {};
                     return this.changed !== undefined && this.changed.isProperties();
                 },
                 stackDiff: function() {
-                    return _this.stackDiff(this.older.frames.slice(), this.newer.frames.slice());
+                    return jtda.util.diff(this.older.frames, this.newer.frames);
                 }
             };
             this.target.append(Mustache.render(this.getTemplate('changed-threads'), model, this._partials()));
-        };
-
-        this.stackDiff = function(oldStack, newStack) {
-            var i, n;
-            var out = diff(oldStack, newStack);
-            console.log(out);
-            var res = [];
-            if (out.n.length === 0) {
-                for (i = 0; i < out.o.length; i++) {
-                    res.push({
-                        del: true,
-                        line: out.o[i]
-                    });
-                }
-            } else {
-                if (out.n[0].text === null) {
-                    for (n = 0; n < out.o.length && out.o[n].text === undefined; n++) {
-                        res.push({
-                            del: true,
-                            line: out.o[n]
-                        });
-                    }
-                }
-
-                for (i = 0; i < out.n.length; i++) {
-                    if (out.n[i].text === undefined) {
-                        res.push({
-                            ins: true,
-                            line: out.n[i]
-                        });
-                    } else {
-                        res.push({
-                            line: out.n[i].text
-                        });
-                        for (n = out.n[i].row + 1; n < out.o.length && out.o[n].text === undefined; n++) {
-                            res.push({
-                                del: true,
-                                line: out.o[n]
-                            });
-                        }
-                    }
-                }
-            }
-
-            return res;
         };
 
         this._renderUnchangedThreads = function(diff) {
@@ -243,11 +198,61 @@ var jtda = jtda || {};
         this.config = config;
     };
 
-
     /*
+     * Generates an array with differences between two provided arrays. Each 
+     * entry might contain a "ins", or "del", or nothing, to signal that the
+     * entry was added, removed, or the same.
+     * 
      * Based on: http://ejohn.org/files/jsdiff.js
      */
-    function diff(o, n) {
+    jtda.util.diff = function(oldStack, newStack) {
+        var i, n;
+        var out = jtda.util._diff(oldStack.slice(), newStack.slice());
+        var res = [];
+        if (out.n.length === 0) {
+            for (i = 0; i < out.o.length; i++) {
+                res.push({
+                    del: true,
+                    line: out.o[i]
+                });
+            }
+        } else {
+            if (out.n[0].text === undefined) {
+                for (n = 0; n < out.o.length && out.o[n].text === undefined; n++) {
+                    res.push({
+                        del: true,
+                        line: out.o[n]
+                    });
+                }
+            }
+            for (i = 0; i < out.n.length; i++) {
+                if (out.n[i].text === undefined) {
+                    res.push({
+                        ins: true,
+                        line: out.n[i]
+                    });
+                } else {
+                    res.push({
+                        line: out.n[i].text
+                    });
+                    for (n = out.n[i].row + 1; n < out.o.length && out.o[n].text === undefined; n++) {
+                        res.push({
+                            del: true,
+                            line: out.o[n]
+                        });
+                    }
+                }
+            }
+        }
+
+        return res;
+    };
+
+    /*
+     * Internal logic of the diff 
+     * Based on: http://ejohn.org/files/jsdiff.js
+     */
+    jtda.util._diff = function(o, n) {
         var ns = {};
         var os = {};
 

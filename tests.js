@@ -981,3 +981,35 @@ QUnit.test("arraysEqual", function(assert) {
     b = ["1", "2", "3"];
     assert.equal(jtda.util.arraysEqual(a,b), false);
 });
+
+QUnit.test("diff", function(assert) {
+    var a = ["1","2","3","4","5","6","7","8","9","0"];
+    var b = ["1","a","4","5","7","b","9","0"];
+    
+    var res = jtda.util.diff(a,b);
+    assert.equal(res.length, 12);
+    
+    assert.equal(res[0].ins, undefined);
+    assert.equal(res[0].del, undefined);
+    assert.equal(res[0].line, "1");
+    
+    assert.equal(res[11].ins, undefined);
+    assert.equal(res[11].del, undefined);
+    assert.equal(res[11].line, "0");
+    
+    assert.equal(res[1].ins, undefined);
+    assert.equal(res[1].del, true);
+    assert.equal(res[1].line, "2");
+    
+    assert.equal(res[2].ins, undefined);
+    assert.equal(res[2].del, true);
+    assert.equal(res[2].line, "3");
+    
+    assert.equal(res[3].ins, true);
+    assert.equal(res[3].del, undefined);
+    assert.equal(res[3].line, "a");
+    
+    assert.equal(res[4].ins, undefined);
+    assert.equal(res[4].del, undefined);
+    assert.equal(res[4].line, "4");
+});

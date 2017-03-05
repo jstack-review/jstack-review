@@ -15,7 +15,7 @@ The Java Thread Dump Analyzer is licensed under [version 2.0 of the Apache licen
 ## TODO
 
 * [Stuff from the upstream TODO list?](https://github.com/spotify/threaddump-analyzer/blob/gh-pages/README.md)
-* Compare two threads
+* ~~Compare two threads~~
 * Improve/extend unit tests
 * Expose configuration settings on the screen
  * Saving of settings for future use

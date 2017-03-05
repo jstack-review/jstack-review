@@ -205,10 +205,6 @@ function ensureActiveTab() {
 }
 
 function setupCompareUI() {
-    if (!jtdaDebug) {
-        //TODO not ready yet
-        $('#comparetabbtn').parent('li').hide();
-    }
     $('#comparetabbtn').on('show.bs.tab', populateCompareTab);
     $('#olderAnalysis').on('change', function() {
         var newval = $(this).val();
@@ -264,9 +260,6 @@ function populateCompareTab() {
 }
 
 function compareThreadDumps(oldId, newId) {
-    if (!jtdaDebug) {
-        return;
-    }
     var oldAnalysis = dumpAnalysis[oldId];
     var newAnalysis = dumpAnalysis[newId];
     ++diffCounter;
@@ -289,7 +282,6 @@ function compareThreadDumps(oldId, newId) {
     $('#dumps').append(Mustache.render($('#tmpl-diff-tab-panel').html(), model));
     $('#dumptabs>li[data-diffid=' + model.id + ']>a').on('show.bs.tab', updateTabHash).tab('show');
     
-    // TODO: execute the analysis and print results
     var diff = new jtda.diff.Diff(model, oldAnalysis, newAnalysis);
     diff.compare();
     if (jtdaDebug) {

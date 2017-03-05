@@ -495,12 +495,13 @@
           </h4>        
         </div>
         <div class="panel-body">
-          {{#isPropertiesChanges}}
           <table class="table table-striped" style="width: auto;">
           <tr>
+            {{#isPropertiesChanges}}
             <th></th>
-            <th class="danger">Older</th>
-            <th class="success">Newer</th>
+            {{/isPropertiesChanges}}
+            <th class="danger"><a href="#{{diff.older.id}}_thread_{{older.tid}}">Older</a></th>
+            <th class="success"><a href="#{{diff.newer.id}}_thread_{{newer.tid}}">Newer</a></th>
           </tr>
           {{#changed.name}}
           <tr>
@@ -550,7 +551,6 @@
           </tr>
           {{/changed.locksHeld}}
           </table>
-          {{/isPropertiesChanges}}
           
           {{#changed.frames}}
           <h4>Changed Stack</h4>

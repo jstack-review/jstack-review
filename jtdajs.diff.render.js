@@ -143,14 +143,7 @@ var jtda = jtda || {};
                 },
                 showThreadDetails: true,
                 showTopFrames: true,
-                topFrames: function() {
-                    var max = 10; //TODO: config
-                    var res = this.frames.slice(0, max);
-                    if (res.length === max) {
-                        res.push('...');
-                    }
-                    return res;
-                }
+                topFrames: this._topFrames
             };
         };
 
@@ -177,9 +170,6 @@ var jtda = jtda || {};
                 },
                 isPropertiesChanges: function() {
                     return this.changed !== undefined && this.changed.isProperties();
-                },
-                stackDiff: function() {
-                    return jtda.util.diff(this.older.frames, this.newer.frames);
                 }
             };
             this.target.append(Mustache.render(this.getTemplate('changed-threads'), model, this._partials()));
@@ -189,139 +179,30 @@ var jtda = jtda || {};
             var model = {
                 diff: diff,
                 diffId: diff.id,
-                threads: diff.unchangedThreads
+                prefix: diff.id + '_',
+                analysisId: diff.older.id,
+                threads: diff.unchangedThreads,
+                threadStatusColor: function() {
+                    return config.threadStatusColor[this.getStatus()];
+                },
+                showThreadDetails: true,
+                showTopFrames: true,
+                topFrames: this._topFrames
             };
             this.target.append(Mustache.render(this.getTemplate('unchanged-threads'), model, this._partials()));
+        };
+        
+        this._topFrames = function() {
+            var max = 10; //TODO: config
+            var res = this.frames.slice(0, max);
+            if (res.length === max) {
+                res.push('...');
+            }
+            return res;
         };
 
         this.target = target;
         this.config = config;
     };
-
-    /*
-     * Generates an array with differences between two provided arrays. Each 
-     * entry might contain a "ins", or "del", or nothing, to signal that the
-     * entry was added, removed, or the same.
-     * 
-     * Based on: http://ejohn.org/files/jsdiff.js
-     */
-    jtda.util.diff = function(oldStack, newStack) {
-        var i, n;
-        var out = jtda.util._diff(oldStack.slice(), newStack.slice());
-        var res = [];
-        if (out.n.length === 0) {
-            for (i = 0; i < out.o.length; i++) {
-                res.push({
-                    del: true,
-                    line: out.o[i]
-                });
-            }
-        } else {
-            if (out.n[0].text === undefined) {
-                for (n = 0; n < out.o.length && out.o[n].text === undefined; n++) {
-                    res.push({
-                        del: true,
-                        line: out.o[n]
-                    });
-                }
-            }
-            for (i = 0; i < out.n.length; i++) {
-                if (out.n[i].text === undefined) {
-                    res.push({
-                        ins: true,
-                        line: out.n[i]
-                    });
-                } else {
-                    res.push({
-                        line: out.n[i].text
-                    });
-                    for (n = out.n[i].row + 1; n < out.o.length && out.o[n].text === undefined; n++) {
-                        res.push({
-                            del: true,
-                            line: out.o[n]
-                        });
-                    }
-                }
-            }
-        }
-
-        return res;
-    };
-
-    /*
-     * Internal logic of the diff 
-     * Based on: http://ejohn.org/files/jsdiff.js
-     */
-    jtda.util._diff = function(o, n) {
-        var ns = {};
-        var os = {};
-
-        for (var i = 0; i < n.length; i++) {
-            if (ns[n[i]] === undefined) {
-                ns[n[i]] = {
-                    rows: [],
-                    o: null
-                };
-            }
-            ns[n[i]].rows.push(i);
-        }
-
-        for (i = 0; i < o.length; i++) {
-            if (os[o[i]] === undefined) {
-                os[o[i]] = {
-                    rows: [],
-                    n: null
-                };
-            }
-            os[o[i]].rows.push(i);
-        }
-
-        for (i in ns) {
-            if (ns[i].rows.length === 1 && os[i] !== undefined && os[i].rows.length === 1) {
-                n[ns[i].rows[0]] = {
-                    text: n[ns[i].rows[0]],
-                    row: os[i].rows[0]
-                };
-                o[os[i].rows[0]] = {
-                    text: o[os[i].rows[0]],
-                    row: ns[i].rows[0]
-                };
-            }
-        }
-
-        for (i = 0; i < n.length - 1; i++) {
-            if (n[i].text !== undefined && n[i + 1].text === undefined && n[i].row + 1 < o.length && o[n[i].row + 1].text === undefined &&
-                n[i + 1] == o[n[i].row + 1]) {
-                n[i + 1] = {
-                    text: n[i + 1],
-                    row: n[i].row + 1
-                };
-                o[n[i].row + 1] = {
-                    text: o[n[i].row + 1],
-                    row: i + 1
-                };
-            }
-        }
-
-        for (i = n.length - 1; i > 0; i--) {
-            if (n[i].text !== undefined && n[i - 1].text === undefined && n[i].row > 0 && o[n[i].row - 1].text === undefined &&
-                n[i - 1] === o[n[i].row - 1]) {
-                n[i - 1] = {
-                    text: n[i - 1],
-                    row: n[i].row - 1
-                };
-                o[n[i].row - 1] = {
-                    text: o[n[i].row - 1],
-                    row: i - 1
-                };
-            }
-        }
-
-        return {
-            o: o,
-            n: n
-        };
-    };
-
 
 }());

@@ -39,7 +39,7 @@ ul.nav li:hover > span.glyphicon-remove:hover {
   color: #d00;
 }
 
-#dumps {
+#dumps {/* csslint allow: ids */
   bottom: 50px;
   left: 0;
   overflow: auto;
@@ -48,12 +48,12 @@ ul.nav li:hover > span.glyphicon-remove:hover {
   top: 42px;
 }
 
-.alert + span + #dumptabs + #dumps {
+.alert + span + #dumptabs + #dumps {/* csslint allow: ids */
   top: 114px;
 }
 
-#dumptabs {
-  box-shadow: 0px 5px 5px 0px rgba(255,255,255,1);
+#dumptabs {/* csslint allow: ids */
+  box-shadow: 0 5px 5px 0 rgba(255,255,255,1);
   position: relative;
   z-index: 10;
 }

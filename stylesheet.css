@@ -39,6 +39,25 @@ ul.nav li:hover > span.glyphicon-remove:hover {
   color: #d00;
 }
 
+#dumps {
+  bottom: 50px;
+  left: 0;
+  overflow: auto;
+  position: absolute;
+  right: 0;
+  top: 42px;
+}
+
+.alert + span + #dumptabs + #dumps {
+  top: 114px;
+}
+
+#dumptabs {
+  box-shadow: 0px 5px 5px 0px rgba(255,255,255,1);
+  position: relative;
+  z-index: 10;
+}
+
 .thread-status-color {
   display: inline-block;
   height: 0.5em;

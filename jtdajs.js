@@ -244,6 +244,10 @@ var jtda = jtda || {};
                     return jtda.DeadlockStatus.NONE;
                 }
             }
+            if (sync.lockHolder.getStatus().status === jtda.ThreadStatus.WAITING_NOTIFY && sync.lockHolder.wantNotificationOn === null) {
+                // waiting, but no notification object??
+                return new jtda.DeadlockStatus(jtda.DeadlockStatus.HIGH_RISK, []);
+            }
             if (!sync.lockHolder.getStatus().isWaiting()) {
                 return jtda.DeadlockStatus.NONE;
             }
@@ -507,6 +511,8 @@ var jtda = jtda || {};
 
         this.determineStatus = function() {
             if (this.thread.wantNotificationOn !== null) {
+                this.status = jtda.ThreadStatus.WAITING_NOTIFY;
+            } else if (this.thread.threadState === 'WAITING (on object monitor)') {
                 this.status = jtda.ThreadStatus.WAITING_NOTIFY;
             } else if (this.thread.wantToAcquire !== null) {
                 this.status = jtda.ThreadStatus.WAITING_ACQUIRE;

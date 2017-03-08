@@ -1013,3 +1013,23 @@ QUnit.test("diff", function(assert) {
     assert.equal(res[4].del, undefined);
     assert.equal(res[4].line, "4");
 });
+
+
+QUnit.test("WAITING (on object monitor) without monitor?", function(assert){
+    var threadDump = '"PoolScavenger0" daemon prio=10 tid=0x00007f41a4042800 nid=0xfb66 in Object.wait() [0x00007f418a8e7000]\n'+
+    '   java.lang.Thread.State: WAITING (on object monitor)\n'+
+    '	at java.lang.Object.wait(Native Method)\n'+
+    '	at java.lang.Object.wait(Object.java:502)\n'+
+    '	at com.ibm.mq.PoolScavenger.run(PoolScavenger.java:154)\n'+
+    '	- locked <0x000000079c2850b8> (a java.lang.Object)\n'+
+    '	- locked <0x000000079c284fd8> (a com.ibm.mq.PoolScavenger)\n'+
+    '	at java.lang.Thread.run(Thread.java:701)';
+    
+    var analyzer = new jtda.Analysis(0, '', {});
+    analyzer.analyze(threadDump);
+    var threads = analyzer.threads;
+    assert.equal(threads.length, 1);
+    var thread = threads[0];
+    assert.equal(thread.getStatus().status, jtda.ThreadStatus.WAITING_NOTIFY)
+    assert.equal(thread.wantNotificationOn, null);        
+});

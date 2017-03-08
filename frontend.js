@@ -309,6 +309,29 @@ $(document).ready(function() {
     $('#dumptabs>li[data-tabtarget]').on('show.bs.tab', updateTabHash);
     setupCompareUI();
     $(window).on('hashchange', ensureActiveTab);
+        
     // create the first dump window
-    addDump(true);
+    var currentId = addDump(true);
+    
+    // Load data from query string
+    if (location.search !== '') {
+        var diag = $('#download-dialog');
+        var imp = location.search.substring(1);
+        // TODO: check for URL (or maybe base64 encoded?)
+        // TODO: notify that only https is supported when hosted on https
+        // TODO: rewrite known paste location urls to raw url. e.g. https://gist/foo/234234 -> https://gist/foo/234234/raw 
+        // TODO: handle redirects for those urls
+        // TODO: error reporting via alert dialogs
+        $('p samp', diag).html(imp);
+        diag.modal('show');
+        $.get({
+            url: imp,
+            success: function(data, status) {            
+                $('#' + currentId + '_dumpInput').val(data).change();
+                executeAnalysis(currentId);
+                diag.modal('hide');
+            },
+            dataType: 'text'
+        });
+    }    
 });

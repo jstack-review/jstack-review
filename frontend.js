@@ -304,6 +304,69 @@ function removeDiff() {
     return false;
 }
 
+function adjustUrl(url) {
+	// https://gist.github.com/foobar/quux
+	// https://gist.githubusercontent.com/foobar/quux/raw
+	var gist = /^http(s)?:\/\/gist\.github\.com\/(.*?)(\/raw)?$/i;
+	if (gist.test(url)) {
+		return url.replace(gist, 'https://gist.githubusercontent.com/$2/raw');
+	}
+	// http://pastebin.com/foobar
+	// https://pastebin.com/raw/foobar
+	var pastebin = /^http(s)?:\/\/pastebin.com\/([^\/]*?\/)?(.*)$/i;
+	if (pastebin.test(url)) {
+		return url.replace(pastebin, 'https://pastebin.com/raw/$3');
+	}
+	return url;
+}
+
+// TODO: handle redirects for those urls
+// TODO: error reporting via alert dialogs
+function importFromUrl(analysisId, url) {
+	if (!/^http(s)?:\/\//i.test(url)) {
+		console.log('No url: '+url);
+		return;
+	}
+	var diag = $('#download-dialog');
+	var urlField = $('p samp', diag);
+	url = adjustUrl(url);
+		
+	var performAnalysis = function(data) {
+		$('#' + analysisId + '_dumpInput').val(data).change();
+		executeAnalysis(analysisId);
+		diag.modal('hide');
+	};
+	
+	var redirCount = 0;
+	var retrieveData = function(url) {
+		urlField.html(url);
+		$.get({
+			url: url,
+			dataType: 'text',
+			success: function(data, status, xhr) {
+				if (xhr.status == 200) {
+					performAnalysis(data);
+				}
+				else if (xhr.status >= 300 && xhr.status < 400) {
+					++redirCount;
+					if (redirCount > 5) {
+						// TODO: error
+						return;
+					}
+					var newUrl = xhr.getResponseHeader('Location');
+					retrieveData(newUrl);
+				}
+			},
+			error: function(xhr, textStatus, errorThrown) {
+				console.log(arguments);
+				// TODO: error
+			}
+		});
+	};
+	retrieveData(url);
+	diag.modal('show');
+}
+
 $(document).ready(function() {
     $('#adddump').click(addDump);
     $('#dumptabs>li[data-tabtarget]').on('show.bs.tab', updateTabHash);
@@ -315,23 +378,6 @@ $(document).ready(function() {
     
     // Load data from query string
     if (location.search !== '') {
-        var diag = $('#download-dialog');
-        var imp = location.search.substring(1);
-        // TODO: check for URL (or maybe base64 encoded?)
-        // TODO: notify that only https is supported when hosted on https
-        // TODO: rewrite known paste location urls to raw url. e.g. https://gist/foo/234234 -> https://gist/foo/234234/raw 
-        // TODO: handle redirects for those urls
-        // TODO: error reporting via alert dialogs
-        $('p samp', diag).html(imp);
-        diag.modal('show');
-        $.get({
-            url: imp,
-            success: function(data, status) {            
-                $('#' + currentId + '_dumpInput').val(data).change();
-                executeAnalysis(currentId);
-                diag.modal('hide');
-            },
-            dataType: 'text'
-        });
+    	importFromUrl(currentId, location.search.substring(1)); 
     }    
 });

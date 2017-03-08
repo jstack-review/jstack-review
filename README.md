@@ -20,4 +20,6 @@ The Java Thread Dump Analyzer is licensed under [version 2.0 of the Apache licen
 * Expose configuration settings on the screen
  * Saving of settings for future use
 * Support all thread dumps from the [TDA tests](https://github.com/irockel/tda/tree/master/tda/test/none) 
+* Allow importing of a dump posted on gist/pastebin/... via url
+ * also by linking to https://.../threaddump-analyzer/index.html?import=url...
 * ...

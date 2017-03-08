@@ -1030,6 +1030,6 @@ QUnit.test("WAITING (on object monitor) without monitor?", function(assert){
     var threads = analyzer.threads;
     assert.equal(threads.length, 1);
     var thread = threads[0];
-    assert.equal(thread.getStatus().status, jtda.ThreadStatus.WAITING_NOTIFY)
+    assert.equal(thread.getStatus().status, jtda.ThreadStatus.WAITING_NOTIFY);
     assert.equal(thread.wantNotificationOn, null);        
 });

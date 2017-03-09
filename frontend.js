@@ -311,6 +311,13 @@ function adjustUrl(url) {
 	if (gist.test(url)) {
 		return url.replace(gist, 'https://gist.githubusercontent.com/$2/raw');
 	}
+	// https://github.com/irockel/tda/blob/master/tda/test/none/visualvmremote.log
+	// https://github.com/irockel/tda/raw/master/tda/test/none/visualvmremote.log
+	// https://raw.githubusercontent.com/irockel/tda/master/tda/test/none/visualvmremote.log
+	var github = /^http(s):\/\/github.com\/(.*?)\/(.*?)\/(.*?)\/(.*)$/i;
+	if (github.test(url)) {
+		return url.replace(github, 'https://raw.githubusercontent.com/$2/$3/$5');
+	}
 	// http://pastebin.com/foobar
 	// https://pastebin.com/raw/foobar
 	var pastebin = /^http(s)?:\/\/pastebin.com\/([^\/]*?\/)?(.*)$/i;

@@ -70,9 +70,6 @@ ul.nav li:hover > span.glyphicon-remove:hover {
   cursor: help;
 }
 
-.results {
-}
-
 .thread-entry .thread-name a {
   border-bottom: 1px dotted;
   color: unset;

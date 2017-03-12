@@ -216,6 +216,7 @@ function setupCompareUI() {
     });
     $('#compareform').submit(function() {
         compareThreadDumps($('#olderAnalysis').val(), $('#newerAnalysis').val());
+        return false;
     });
 }
 

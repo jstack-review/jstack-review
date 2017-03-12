@@ -39,7 +39,7 @@ ul.nav li:hover > span.glyphicon-remove:hover {
   color: #d00;
 }
 
-#dumps {/* csslint allow: ids */
+#dumps > .tab-pane {/* csslint allow: ids */
   bottom: 50px;
   left: 0;
   overflow: auto;
@@ -48,7 +48,7 @@ ul.nav li:hover > span.glyphicon-remove:hover {
   top: 42px;
 }
 
-.alert + span + #dumptabs + #dumps {/* csslint allow: ids */
+.alert + span + #dumptabs + #dumps > .tab-pane {/* csslint allow: ids */
   top: 114px;
 }
 

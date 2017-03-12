@@ -124,7 +124,7 @@
     
     <script id="tmpl-tab-panel" type="x-tmpl-mustache">
     <div id="{{id}}_dump" class="tab-pane" data-dumpid="{{id}}">
-      <div class="container-fluid">
+      <div id="{{id}}_top" class="container-fluid">
         <h1>Analysis for <span>{{name}} <small></small></span></h1>
         <div id="{{id}}_input">
           <form action="#">
@@ -158,11 +158,11 @@
     <script id="tmpl-analysis-navbar" type="x-tmpl-mustache">
       <nav id="{{analysisId}}_navbar" class="navbar navbar-default navbar-fixed-bottom">
         <div class="navbar-header">
-          <a href="#top" class="navbar-brand">{{analysis.name}}</a>
+          <a href="#{{analysisId}}_top" class="navbar-brand">{{analysis.name}}</a>
         </div>
         <div class="container-fluid">
           <ul class="nav navbar-nav">
-            <li><a href="#{{analysisId}}_dump">Input</a></li>
+            <li><a href="#{{analysisId}}_top">Input</a></li>
             <li><a href="#{{analysisId}}_overview">Overview</a></li>
             <li><a href="#{{analysisId}}_running_methods">Running Methods <span class="label label-default"></span></a></li>
             <li><a href="#{{analysisId}}_threads">Thread <span class="label label-default">{{analysis.threads.length}}</span></a></li>
@@ -436,7 +436,7 @@
     
     <script id="tmpl-diff-tab-panel" type="x-tmpl-mustache">
     <div id="{{id}}_diff" class="tab-pane" data-diffid="{{id}}">
-      <div class="container-fluid">
+      <div id="{{id}}_top" class="container-fluid">
         <h1>Thread dump compare <small>{{name}}</small></h1>
         <dl>
           <dt>Older thread dump</dt>
@@ -453,7 +453,7 @@
     <script id="tmpl-diff-navbar" type="x-tmpl-mustache">
       <nav id="{{diffId}}_navbar" class="navbar navbar-default navbar-fixed-bottom">
         <div class="navbar-header">
-          <a href="#top" class="navbar-brand">{{diff.info.name}}</a>
+          <a href="#{{diffId}}_top" class="navbar-brand">{{diff.info.name}}</a>
         </div>
         <div class="container-fluid">
           <ul class="nav navbar-nav">

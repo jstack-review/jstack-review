@@ -246,7 +246,7 @@ var jtda = jtda || {};
             }
             if (sync.lockHolder.getStatus().status === jtda.ThreadStatus.WAITING_NOTIFY && sync.lockHolder.wantNotificationOn === null) {
                 // waiting, but no notification object??
-                return new jtda.DeadlockStatus(jtda.DeadlockStatus.HIGH_RISK, []);
+                return new jtda.DeadlockStatus(jtda.DeadlockStatus.HIGH_RISK, [], 'Waiting for notification on unknown object.');
             }
             if (!sync.lockHolder.getStatus().isWaiting()) {
                 return jtda.DeadlockStatus.NONE;
@@ -559,8 +559,9 @@ var jtda = jtda || {};
         jtda.ThreadStatus.UNKNOWN
     ];
 
-    jtda.DeadlockStatus = function(severity, trail) {
+    jtda.DeadlockStatus = function(severity, trail, detail) {
         this.severity = severity;
+        this.detail = detail;
         this.trail = trail || [];
 
         this.toString = function() {

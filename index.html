@@ -361,7 +361,7 @@
           
           {{#deadlockStatus.severity}}
           {{#deadlockStatus}}
-          <span class="label label-{{notificationLevel}} synchronizer-deadlock">{{.}}</span>
+          <span class="label label-{{notificationLevel}} synchronizer-deadlock" title="{{detail}}">{{.}}</span>
           {{/deadlockStatus}}
           {{/deadlockStatus.severity}}          
         </td>

@@ -32,6 +32,8 @@ var jtda = jtda || {};
             this._countRunningMethods();
             this._analyzeSynchronizers();
             this._analyzeDeadlocks();
+            // must sort after deadlock detection
+            this.synchronizers.sort(jtda.Synchronizer.compare);
         };
 
         this._analyzeThreads = function(text) {
@@ -154,8 +156,6 @@ var jtda = jtda || {};
             this._mapSynchronizers();
             this._xrefSynchronizers();
             this._sortSynchronizersRefs();
-            // Sort the synchronizers by number of references
-            this.synchronizers.sort(jtda.Synchronizer.compare);
         };
 
         /**
@@ -627,7 +627,7 @@ var jtda = jtda || {};
     };
 
     jtda.Synchronizer.compare = function(a, b) {
-        var deadlock = b.deadlockStatus.severity - b.deadlockStatus.severity;
+        var deadlock = b.deadlockStatus.severity - a.deadlockStatus.severity;
         if (deadlock !== 0) {
             return deadlock;
         }

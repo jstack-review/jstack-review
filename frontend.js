@@ -30,7 +30,7 @@ var analysisConfig = new jtda.AnalysisConfig();
 var renderConfig = new jtda.render.RenderConfig();
 // Keep in sync with code in addDump()
 var dumpIdRegEx = /^(((tda)|(diff))_[0-9]+)/;
-var returnToHash = undefined;
+var afterInit = function(){};
 
 function addDump(focusTab) {
     ++dumpCounter;
@@ -345,9 +345,7 @@ function importFromUrl(analysisId, url) {
 		$('#' + analysisId + '_dumpInput').val(data).change();
 		executeAnalysis(analysisId);
 		diag.modal('hide');
-		if (returnToHash !== undefined) {
-			returnToHash();
-		};
+		afterInit();
 	};
 	
 	var redirCount = 0;
@@ -388,12 +386,12 @@ $(document).ready(function() {
     
     // save initial hash to possibly switch back
     if (location.hash !== undefined) {
-    	var rethash = location.hash
-    	returnToHash = function() {
+    	var rethash = location.hash;
+    	afterInit = function() {
     		if (rethash !== undefined && $(rethash).length > 0) {
     			location.hash = rethash; 
     		}
-    		returnToHash = undefined;
+    		afterInit = function(){};
 		};
     }
     
@@ -404,7 +402,7 @@ $(document).ready(function() {
     if (location.search !== '') {
     	importFromUrl(currentId, location.search.substring(1)); 
     }
-	else if (returnToHash !== undefined) {
-		returnToHash();
+	else {
+		afterInit();
 	}
 });

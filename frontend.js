@@ -30,6 +30,7 @@ var analysisConfig = new jtda.AnalysisConfig();
 var renderConfig = new jtda.render.RenderConfig();
 // Keep in sync with code in addDump()
 var dumpIdRegEx = /^(((tda)|(diff))_[0-9]+)/;
+var returnToHash = undefined;
 
 function addDump(focusTab) {
     ++dumpCounter;
@@ -321,6 +322,7 @@ function adjustUrl(url) {
 	}
 	// http://pastebin.com/foobar
 	// https://pastebin.com/raw/foobar
+	// Does not work due to CORS
 	var pastebin = /^http(s)?:\/\/pastebin.com\/([^\/]*?\/)?(.*)$/i;
 	if (pastebin.test(url)) {
 		return url.replace(pastebin, 'https://pastebin.com/raw/$3');
@@ -343,6 +345,9 @@ function importFromUrl(analysisId, url) {
 		$('#' + analysisId + '_dumpInput').val(data).change();
 		executeAnalysis(analysisId);
 		diag.modal('hide');
+		if (returnToHash !== undefined) {
+			returnToHash();
+		};
 	};
 	
 	var redirCount = 0;
@@ -377,15 +382,29 @@ function importFromUrl(analysisId, url) {
 
 $(document).ready(function() {
     $('#adddump').click(addDump);
-    $('#dumptabs>li[data-tabtarget]').on('show.bs.tab', updateTabHash);
     setupCompareUI();
+    $('#dumptabs>li[data-tabtarget]').on('show.bs.tab', updateTabHash);
     $(window).on('hashchange', ensureActiveTab);
-        
+    
+    // save initial hash to possibly switch back
+    if (location.hash !== undefined) {
+    	var rethash = location.hash
+    	returnToHash = function() {
+    		if (rethash !== undefined && $(rethash).length > 0) {
+    			location.hash = rethash; 
+    		}
+    		returnToHash = undefined;
+		};
+    }
+    
     // create the first dump window
     var currentId = addDump(true);
     
     // Load data from query string
     if (location.search !== '') {
     	importFromUrl(currentId, location.search.substring(1)); 
-    }    
+    }
+	else if (returnToHash !== undefined) {
+		returnToHash();
+	}
 });

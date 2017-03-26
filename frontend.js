@@ -330,8 +330,6 @@ function adjustUrl(url) {
 	return url;
 }
 
-// TODO: handle redirects for those urls
-// TODO: error reporting via alert dialogs
 function importFromUrl(analysisId, url) {
 	if (!/^http(s)?:\/\//i.test(url)) {
 		console.log('No url: '+url);
@@ -372,7 +370,6 @@ function importFromUrl(analysisId, url) {
 			error: function(xhr, textStatus, errorThrown) {
 				diag.modal('hide');
 				showAlert('Download Failed', ['Unable to download content from: '+url, errorThrown===''?'Cross-Origin Request possibly blocked.':errorThrown], 'danger');
-				console.log(arguments);
 			}
 		});
 	};
@@ -397,9 +394,9 @@ function showAlert(title, message, type) {
 function setupSettingsUI() {
 	$('#settingsClear').click(function() {
 		localStorage.clear();
-		showAlert('Settings Reset', ['All settings have been reset to their initial value.', 'Reload the page for the changes to take effect.'], 'success')
+		showAlert('Settings Reset', ['All settings have been reset to their initial value.', 'Reload the page for the changes to take effect.'], 'success');
 	});
-};
+}
 
 $(document).ready(function() {
 	setupSettingsUI();

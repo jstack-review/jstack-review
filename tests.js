@@ -527,6 +527,7 @@ QUnit.test( "analyze two threads with same stack", function(assert) {
     var renderer = new jtda.render.Renderer(undefined, {});
     var analysisResult = renderer.groupSimilarThreads(analyzer.threads);
     assert.deepEqual(analysisResult, [{
+    	groupId: 0,
         // Make sure the aardvark comes before the zebra
         threads: [aardvark, zebra],
         frames: ["fluff"]

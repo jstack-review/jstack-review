@@ -331,6 +331,7 @@ var jtda = jtda || {};
                 threads.sort(jtda.Thread.compare);
 
                 threadsAndStacks.push({
+                	groupId: threadsAndStacks.length, 
                     threads: threads,
                     frames: threads[0].frames
                 });

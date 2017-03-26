@@ -320,7 +320,10 @@
       <div class="thread-entry panel panel-default">
         {{! It is either a group of threads, or just a single thread}}
         {{#threads.length}}
-        <div class="panel-heading"><span class="badge">{{threads.length}}</span> thread(s) with {{#frames.length}}this{{/frames.length}}{{^frames}}no{{/frames}} stack</div>
+        <div class="panel-heading" id="{{analysisId}}_tg_{{groupId}}">
+          <span class="badge">{{threads.length}}</span> thread(s) with {{#frames.length}}this{{/frames.length}}{{^frames}}no{{/frames}} stack
+          <a class="deeplink" href="#{{analysisId}}_tg_{{groupId}}"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a></span>
+          </div>
         {{/threads.length}}
         <div class="panel-body">
           {{#threads}}

@@ -136,3 +136,11 @@ ul.list-csv li:first-child:before {
 .accordion-toggle.collapsed::before {/* csslint allow: adjoining-classes */
   content: "\e080";
 }
+
+* > .deeplink {
+  display: none;
+}
+
+*:hover > .deeplink {
+  display: inline;
+}

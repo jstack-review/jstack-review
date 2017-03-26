@@ -60,30 +60,6 @@ function addDump(focusTab) {
         setupFileReader(model.id);
     }
 
-    if (!jtdaDebug) {
-        return model.id;
-    }
-    // just to make developments easier
-    $('#'+model.id+'_input form').append('<label><input type="checkbox" id="'+model.id+'_dumpInput_save" value="1"> Remember input</label>');
-    var saveFlag = sessionStorage.getItem('input.save.' + model.id);
-    if (saveFlag === 'true') {
-        $('#' + model.id + '_dumpInput_save').prop("checked", true);
-        $('#' + model.id + '_dumpInput').val(sessionStorage.getItem('input.' + model.id));
-    }
-    $('#' + model.id + '_dumpInput_save').change(function() {
-        var checked = $(this).prop("checked");
-        sessionStorage.setItem('input.save.' + model.id, checked);
-        if (!checked) {
-            sessionStorage.removeItem('input.' + model.id);
-        }
-    });
-    $('#'+model.id+'_dumpInput').change(function() {
-        var checked = $('#' + model.id + '_dumpInput_save').prop("checked");
-        if (checked) {
-            sessionStorage.setItem('input.' + model.id, $(this).val());
-        }
-    });
-    
     return model.id;
 }
 

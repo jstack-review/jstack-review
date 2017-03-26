@@ -361,7 +361,8 @@ function importFromUrl(analysisId, url) {
 				else if (xhr.status >= 300 && xhr.status < 400) {
 					++redirCount;
 					if (redirCount > 5) {
-						// TODO: error
+						diag.modal('hide');
+						showAlert('Too Many Redirects', 'Unable to download content from: '+url, 'danger');
 						return;
 					}
 					var newUrl = xhr.getResponseHeader('Location');
@@ -369,8 +370,9 @@ function importFromUrl(analysisId, url) {
 				}
 			},
 			error: function(xhr, textStatus, errorThrown) {
+				diag.modal('hide');
+				showAlert('Download Failed', ['Unable to download content from: '+url, errorThrown===''?'Cross-Origin Request possibly blocked.':errorThrown], 'danger');
 				console.log(arguments);
-				// TODO: error
 			}
 		});
 	};
@@ -378,10 +380,42 @@ function importFromUrl(analysisId, url) {
 	diag.modal('show');
 }
 
+function showAlert(title, message, type) {
+	var dialogId = 'alertDialog';
+	var model = {
+		dialogId: dialogId,
+		title: title,
+		message: message,
+		type: type
+	};
+	$('body').append(Mustache.render($('#tmpl-alert-dialog').html(), model));
+	$('#alertDialog').modal('show').on('hidden.bs.modal', function() {
+		$(this).remove();
+	});
+}
+
+function setupSettingsUI() {
+	$('#settingsClear').click(function() {
+		localStorage.clear();
+		showAlert('Settings Reset', ['All settings have been reset to their initial value.', 'Reload the page for the changes to take effect.'], 'success')
+	});
+};
+
 $(document).ready(function() {
+	setupSettingsUI();
+	if (localStorage.getItem('clientSideNotice') === '1') {
+		$('#clientSideNotice').remove();
+	}
+	else {
+		$('#clientSideNotice button').click(function() {
+			localStorage.setItem('clientSideNotice', '1');
+		});
+	}
+	
     $('#adddump').click(addDump);
     setupCompareUI();
-    $('#dumptabs>li[data-tabtarget]').on('show.bs.tab', updateTabHash);
+    
+	$('#dumptabs>li[data-tabtarget]').on('show.bs.tab', updateTabHash);
     $(window).on('hashchange', ensureActiveTab);
     
     // save initial hash to possibly switch back

@@ -3,7 +3,7 @@
 This is a Java thread dump analyzer written in Javascript. Based on the 
 [original version by Spotify AB](https://github.com/spotify/threaddump-analyzer).
 
-**[Click here to get your Java thread dump analyzed.](https://mpobjects.github.io/threaddump-analyzer/)**
+**[Click here to get your Java thread dump analyzed.](https://jstack.review)**
 
 # License
 

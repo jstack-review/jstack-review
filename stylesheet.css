@@ -40,12 +40,16 @@ ul.nav li:hover > span.glyphicon-remove:hover {
 }
 
 #dumps > .tab-pane {/* csslint allow: ids */
-  bottom: 50px;
+  bottom: 0px;
   left: 0;
   overflow: auto;
   position: absolute;
   right: 0;
   top: 42px;
+}
+
+#dumps > .bottom-navbar {/* csslint allow: ids */
+  bottom: 50px;
 }
 
 .alert + span + #dumptabs + #dumps > .tab-pane {/* csslint allow: ids */

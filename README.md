@@ -24,4 +24,5 @@ The Java Thread Dump Analyzer is licensed under [version 2.0 of the Apache licen
    * Importing works for github/gist hosted content, e.g. https://mpobjects.github.io/threaddump-analyzer/?https://github.com/irockel/tda/blob/master/tda/test/none/java8dump.log
    * pastebin/pastee do not work due to CORS, are there other snippet hosting sites which do have an open CORS?
    * need to improve error reporting
+* define (configurable) package patterns to collapse stack traces after N lines when the stack trace is M lines long
 * ...

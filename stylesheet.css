@@ -145,7 +145,7 @@ ul.list-csv li:first-child:before {
   display: inline;
 }
 
-#about .jumbotron {
+#about .jumbotron {/* csslint allow: ids */
   background-image: url(logo.svg);
   background-origin: content-box;
   background-position: right center;

@@ -288,7 +288,7 @@
         <dl class="dl-horizontal">
           <dt>Thread ID</dt>
           <dd>{{tid}}
-            <a class="deeplink" href="#{{prefix}}{{analysisId}}_thread_{{tid}}"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a></span>
+            <a class="deeplink" href="#{{prefix}}{{analysisId}}_thread_{{tid}}"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a>
           </dd>
           <dt>Status</dt>
           <dd>{{getStatus}}</dd>
@@ -394,7 +394,7 @@
       {{#synchronizers}}
       <tr class="synchronizer-entry">
         <td id="{{analysisId}}_sync_{{id}}">
-          <span class="synchronizer-id">{{id}}</span> <br />
+          <span class="synchronizer-id">{{id}} <a class="deeplink" href="#{{analysisId}}_sync_{{id}}"><span class="glyphicon glyphicon-link" aria-hidden="true"></span></a></span><br />
           <span class="synchronizer-class" title="{{className}}"><samp>{{prettyClassName}}</samp></span> <br />
           
           {{#deadlockStatus.severity}}

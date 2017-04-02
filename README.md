@@ -1,4 +1,4 @@
-![jstack.review][logo]
+[![jstack.review][logo]](https://jstack.review)
 # Java Thread Dump Analyzer [![Build Status](https://travis-ci.org/mpobjects/threaddump-analyzer.svg)](https://travis-ci.org/mpobjects/threaddump-analyzer)
 
 **[Go to jstack.review to analyze your thread dumps.](https://jstack.review)**

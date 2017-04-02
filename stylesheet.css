@@ -144,3 +144,10 @@ ul.list-csv li:first-child:before {
 *:hover > .deeplink {
   display: inline;
 }
+
+#about .jumbotron {
+  background-image: url(logo.svg);
+  background-origin: content-box;
+  background-position: right center;
+  background-repeat: no-repeat;
+}

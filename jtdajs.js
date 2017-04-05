@@ -540,8 +540,14 @@ var jtda = jtda || {};
         		this.status = jtda.ThreadStatus.SLEEPING;
         	} else if (this.thread.state === 'WAITING') {
                 this.status = jtda.ThreadStatus.WAITING_NOTIFY;
+            } else if (this.thread.state === 'NEW') {
+                this.status = jtda.ThreadStatus.NEW;
+            } else if (this.thread.state === 'TERMINATED') {
+                this.status = jtda.ThreadStatus.TERMINATED;
+            } else if (this.thread.state === 'BLOCKED') {
+                this.status = jtda.ThreadStatus.WAITING_ACQUIRE;
         	} else {
-        		this.status = jtda.ThreadStatus.UNKNOWN;
+        		this.status = jtda.ThreadStatus.NON_JAVA_THREAD;
         	}
         };
 

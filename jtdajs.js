@@ -522,13 +522,27 @@ var jtda = jtda || {};
                 this.status = jtda.ThreadStatus.NEW;
             } else if (this.thread.threadState === 'TERMINATED') {
                 this.status = jtda.ThreadStatus.TERMINATED;
-            } else if (this.thread.threadState === null || this.thread.frames.length === 0) {
+            } else if (this.thread.frames.length === 0) {
                 this.status = jtda.ThreadStatus.NON_JAVA_THREAD;
             } else if (this.thread.threadState === 'RUNNABLE') {
                 this.status = jtda.ThreadStatus.RUNNING;
+            } else if (this.thread.threadState === null) {
+            	this.determineStatusStateless();
             } else {
                 this.status = jtda.ThreadStatus.UNKNOWN;
             }
+        };
+        
+        this.determineStatusStateless = function() {
+        	if (this.thread.state === 'RUNNABLE') {
+        		this.status = jtda.ThreadStatus.RUNNING;
+        	} else if (this.thread.state === 'TIMED_WAITING') {
+        		this.status = jtda.ThreadStatus.SLEEPING;
+        	} else if (this.thread.state === 'WAITING') {
+                this.status = jtda.ThreadStatus.WAITING_NOTIFY;
+        	} else {
+        		this.status = jtda.ThreadStatus.UNKNOWN;
+        	}
         };
 
         this.toString = function() {

@@ -1034,3 +1034,33 @@ QUnit.test("WAITING (on object monitor) without monitor?", function(assert){
     assert.equal(thread.getStatus().status, jtda.ThreadStatus.WAITING_NOTIFY);
     assert.equal(thread.wantNotificationOn, null);        
 });
+
+QUnit.test("heapdump thread dump", function(assert){
+    var threadDump = '"ActiveMQ VMTransport: vm://AMQBroker.rfsdms#57-7870" daemon prio=5 tid=1154499 TIMED_WAITING\n'+
+    '	at sun.misc.Unsafe.park(Native Method)\n'+
+    '	at java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:226)\n'+
+    '	at java.util.concurrent.SynchronousQueue$TransferStack.awaitFulfill(SynchronousQueue.java:453)\n'+
+    '	at java.util.concurrent.SynchronousQueue$TransferStack.transfer(SynchronousQueue.java:352)\n'+
+    '	   Local Variable: java.util.concurrent.SynchronousQueue$TransferStack$SNode#16\n'+
+    '	   Local Variable: java.util.concurrent.SynchronousQueue$TransferStack#89\n'+
+    '	at java.util.concurrent.SynchronousQueue.poll(SynchronousQueue.java:903)\n'+
+    '	   Local Variable: java.util.concurrent.SynchronousQueue#89\n'+
+    '	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1069)\n'+
+    '	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1131)\n'+
+    '	   Local Variable: java.util.concurrent.ThreadPoolExecutor#123\n'+
+    '	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)\n'+
+    '	   Local Variable: java.util.concurrent.ThreadPoolExecutor$Worker#5\n'+
+    '	at java.lang.Thread.run(Thread.java:701)';
+    
+    var analyzer = new jtda.Analysis(0, '', {});
+    analyzer.analyze(threadDump);
+    var threads = analyzer.threads;
+    assert.equal(threads.length, 1);
+    var thread = threads[0];
+    assert.equal(thread.tid, 1154499);
+    assert.equal(thread.prio, 5);
+    assert.equal(thread.frames.length, 9);
+    assert.equal(thread.daemon, true);
+    assert.equal(thread.state, 'TIMED_WAITING');
+    assert.equal(thread.getStatus().status, jtda.ThreadStatus.SLEEPING);
+});

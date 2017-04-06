@@ -121,6 +121,12 @@ function removeDump() {
 
 function executeAnalysis(dumpId) {
     var text = $('#' + dumpId + '_dumpInput').val();
+    
+    if (/\s*http(s)?:\/\/[^/]+\/.*\s*/.test(text)) {
+    	importFromUrl(dumpId, text.trim()); 
+    	return;
+    }
+    
     var analysis = dumpAnalysis[dumpId];
     analysis.analyze(text);
     if (jtdaDebug) {

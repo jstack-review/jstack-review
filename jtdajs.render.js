@@ -28,6 +28,23 @@ var jtda = jtda || {};
         this.threads = {
             groupSimilar: true
         };
+        
+        this.compactFrames = {
+        	enabled: false,
+        	/* frames must be at least this lng before compacting */
+        	minimum: 10,
+			/* do not compact the first lines */
+        	skip: 5,
+        	/* compact the lines when a pattern matches this often in a row */
+        	count: 5,
+        	/* patterns to compact */
+        	patterns: [
+        		'java.*.',
+        		'javax.*.',
+        		'org.apache.*.',
+        		'org.springframework.*.',
+			]
+        };
 
         this.threadStatusColor = {};
         this.threadStatusColor[jtda.ThreadStatus.UNKNOWN] = '#7f7f7f';
@@ -222,7 +239,9 @@ var jtda = jtda || {};
         };
 
         this.renderThreads = function(analysis) {
+        	var _this = this;
             var config = this.config;
+            
             var model = {
                 analysisId: analysis.id,
                 analysis: analysis,
@@ -240,7 +259,10 @@ var jtda = jtda || {};
                 threadStatusColor: function() {
                     return config.threadStatusColor[this.getStatus()];
                 },
-                showThreadDetails: true
+                showThreadDetails: true,
+                stackframes: function() {
+                	return _this.compactFrames(this.frames);
+                }
             };
             if (config.threads.groupSimilar) {
                 model.threads = this.groupSimilarThreads(analysis.threads);
@@ -339,6 +361,96 @@ var jtda = jtda || {};
 
             return threadsAndStacks;
         };
+        
+        this.compactFrames = function(frames) {
+        	var cfg = this.config.compactFrames;
+        	if (!cfg.enabled || cfg.patterns.length === 0 || frames.length <= cfg.minimum) {
+        		return frames;
+        	}
+        	var res = [];
+        	if (cfg.skip > 0) {
+        		res = frames.slice(0, cfg.skip);
+        	}
+        	if (this.compiledPatterns === undefined) {
+        		this.compiledPatterns = this.compilePatterns(cfg.patterns);
+        	}
+        	for (var i = cfg.skip; i < frames.length; i++) {
+        		var pattern = this.getMatchingPattern(frames[i], this.compiledPatterns);
+        		if (pattern === false) {
+        			res.push(frames[i]);
+        			continue;
+        		}
+        		var compact = {
+        			first: frames[i],
+        			rest: [],
+        			id: this.compactFrameCounter++
+				};
+        		i++;
+        		while (i < frames.length && pattern.test(frames[i])) {
+        			compact.rest.push(frames[i]);
+        			i++;
+        		}
+        		i--;
+        		if (compact.rest.length+1 < cfg.count) {
+        			res.push(compact.first);
+        			Array.prototype.push.apply(res, compact.rest);
+        		}
+        		else {
+        			res.push(compact);
+        		}
+        	}
+        	return res;
+        };
+        
+        this.getMatchingPattern = function(line, patterns) {
+        	for (var i = 0; i < patterns.length; i++) {
+        		var pat = patterns[i];
+        		var res = pat.re.exec(line);
+        		if (res === null) {
+        			continue;
+        		}
+        		return this.compilePattern(pat.src, res);
+        	}
+        	return false;
+        };
+        
+        /**
+         * Compile the simple patterns to regular expressions;
+         */
+        this.compilePatterns = function(patterns) {
+        	var res = [];
+        	for (var i = 0; i < patterns.length; i++) {
+        		res.push({
+        			re: this.compilePattern(patterns[i]),
+        			src: patterns[i]
+				});
+        	}
+        	return res;
+        };
+        
+        /**
+         * Compiles a single pattern into a RegEx
+         */
+        this.compilePattern = function(pattern, groupVals) {
+        	pattern = pattern.replace(/\*/g, '\0');
+        	pattern = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        	if (groupVals !== undefined) {
+        		var idx = 0;
+        		pattern = pattern.replace(/\0/g, function() {
+        			idx++;
+        			if (idx < groupVals.length) {
+        				return groupVals[idx].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        			}
+        			else {
+        				return '([^.]+)';
+        			}
+				});	
+        	}
+        	else {
+        		pattern = pattern.replace(/\0/g, '([^.]+)');
+        	}
+        	return new RegExp('^'+pattern);
+        };
 
         this.renderSynchronizers = function(analysis) {
             this.target.append(Mustache.render(this.getTemplate('synchronizers'), {
@@ -365,6 +477,8 @@ var jtda = jtda || {};
 
         this.target = target;
         this.config = config;
+        
+        this.compactFrameCounter = 0;
     };
 
 }());

@@ -1064,3 +1064,90 @@ QUnit.test("heapdump thread dump", function(assert){
     assert.equal(thread.state, 'TIMED_WAITING');
     assert.equal(thread.getStatus().status, jtda.ThreadStatus.SLEEPING);
 });
+
+QUnit.test("Renderer.compilePattern", function(assert){
+	var renderer = new jtda.render.Renderer(null, new jtda.render.RenderConfig() );
+
+	var result = renderer.compilePattern('java.util.');	
+	assert.ok(result.test('java.util.foo.bar'));
+	assert.notOk(result.test('java.lang.quux'));
+	assert.notOk(result.test('this is not java.util.foo'));
+	
+	result = renderer.compilePattern('java.*.');	
+	assert.ok(result.test('java.util.foo.bar'));
+	assert.ok(result.test('java.lang.quux'));
+	assert.notOk(result.test('javax.something.bar'));
+	
+	result = renderer.compilePattern('java.*.', ['dummy', 'util']);
+	assert.ok(result.test('java.util.foo.bar'));
+	assert.notOk(result.test('java.lang.quux'));
+	
+	result = renderer.compilePattern('java.*.*', ['dummy', 'util', 'foo']);	
+	assert.ok(result.test('java.util.foo.bar'));
+	assert.notOk(result.test('java.util.quux'));
+});
+
+QUnit.test("Renderer.getMatchingPattern", function(assert){
+	var renderer = new jtda.render.Renderer(null, new jtda.render.RenderConfig() );
+	
+	var patterns = renderer.compilePatterns([
+		'java.*.',
+		'javax.*.'
+	]);
+	
+	var result = renderer.getMatchingPattern('java.util.test', patterns);
+	assert.notEqual(result, false);
+	assert.ok(result.test('java.util.test.something'));
+	
+	result = renderer.getMatchingPattern('javax.foo.bar', patterns);
+	assert.notEqual(result, false);
+	assert.ok(result.test('javax.foo.bar.quux'));
+	
+	result = renderer.getMatchingPattern('no.such.pattern', patterns);
+	assert.notOk(result);
+});
+
+QUnit.test("Renderer.compactFrames", function(assert){
+	var renderer = new jtda.render.Renderer(null, new jtda.render.RenderConfig() );
+	renderer.config.compactFrames.enabled = true;
+	renderer.config.compactFrames.minimum = 0;
+	renderer.config.compactFrames.skip = 2;
+	renderer.config.compactFrames.count = 2;
+	renderer.config.compactFrames.patterns = [
+		'org.apache.*.',
+		'org.springframework.',
+		'org.jboss.*.'
+	];
+	
+	var frames = [
+		'org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:202)',
+		'org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:173)',
+		'org.springframework.orm.hibernate3.support.OpenSessionInViewFilter.doFilterInternal(OpenSessionInViewFilter.java:230)',
+		'org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:106)',
+		'org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:202)',
+		'org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:173)',
+		'org.jboss.web.tomcat.filters.ReplyHeaderFilter.doFilter(ReplyHeaderFilter.java:96)',
+		'org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:202)',
+		'org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:173)',
+		'org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:213)',
+		'org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:178)',
+		'org.jboss.web.tomcat.security.SecurityAssociationValve.invoke(SecurityAssociationValve.java:175)',
+		'org.jboss.web.tomcat.security.JaccContextValve.invoke(JaccContextValve.java:74)',
+		'org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:126)',
+		'org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:105)',
+		'org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:107)',
+		'org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:148)',
+		'org.apache.jk.server.JkCoyoteHandler.invoke(JkCoyoteHandler.java:199)',
+		'org.apache.jk.common.HandlerRequest.invoke(HandlerRequest.java:282)',
+		'org.apache.jk.common.ChannelSocket.invoke(ChannelSocket.java:767)',
+		'org.apache.jk.common.ChannelSocket.processConnection(ChannelSocket.java:697)',
+		'org.apache.jk.common.ChannelSocket$SocketConnection.runIt(ChannelSocket.java:889)',
+		'org.apache.tomcat.util.threads.ThreadPool$ControlRunnable.run(ThreadPool.java:684)',
+		'java.lang.Thread.run(Thread.java:701)'
+	];
+	var res = renderer.compactFrames(frames);
+	assert.equal(res.length, 11);
+	assert.equal(res[2].rest.length, 1);
+	assert.equal(res[7].rest.length, 3);
+	assert.equal(res[8].rest.length, 4);
+});

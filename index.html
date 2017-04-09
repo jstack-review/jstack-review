@@ -379,9 +379,22 @@
           {{/threads}}
           <div class="row thread-stack">
             <div class="col-md-offset-1 thread-stack">        
-              {{#frames}}
-                <samp>at {{.}}</samp><br />
-              {{/frames}}
+              {{#stackframes}}
+                {{#first}}
+                  <div class="frame-collapse">
+                  <a role="button" data-toggle="collapse" data-target="#{{analysisId}}_clpsfrms_{{id}}"><span class="glyphicon glyphicon-option-vertical"></span></a>
+                  <samp>at {{first}}</samp><br />
+                  <div class="collapse" id="{{analysisId}}_clpsfrms_{{id}}">
+                    {{#rest}}
+                      <samp>at {{.}}</samp><br />
+                    {{/rest}}
+                  </div>
+                  </div>
+                {{/first}}
+                {{^first}}
+                  <samp>at {{.}}</samp><br />
+                {{/first}}
+              {{/stackframes}}
               {{^frames}}
                 <samp>&lt;Empty stack&gt;</samp><br />
               {{/frames}}

@@ -155,3 +155,14 @@ ul.list-csv li:first-child:before {
   background-position: right center;
   background-repeat: no-repeat;
 }
+
+.frame-collapse > a {
+  float: left;
+  margin-left: -1.5em;
+}
+
+.frame-collapse {
+  border-left: 1px solid silver;
+  margin-left: -3px;
+  padding-left: 2px;
+}

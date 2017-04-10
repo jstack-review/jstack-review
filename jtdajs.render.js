@@ -30,7 +30,7 @@ var jtda = jtda || {};
         };
         
         this.compactFrames = {
-        	enabled: false,
+        	enabled: true,
         	/* frames must be at least this lng before compacting */
         	minimum: 10,
 			/* do not compact the first lines */

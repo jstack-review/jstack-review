@@ -177,14 +177,13 @@ function ensureActiveTab() {
         allowTabHashUpdate = false;
         $('a:first', targetTab).tab('show');
         allowTabHashUpdate = true;
-        // scroll to the requested element
-        var elm = $(location.hash);
-        if (elm.length === 0) {
-            return true;
-        }
-        elm[0].scrollIntoView(true);
     }
-    return;
+    // scroll to the requested element
+    var elm = $(location.hash);
+    if (elm.length === 0) {
+        return;
+    }
+    elm[0].scrollIntoView(true);
 }
 
 function setupCompareUI() {

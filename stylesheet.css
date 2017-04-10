@@ -156,13 +156,40 @@ ul.list-csv li:first-child:before {
   background-repeat: no-repeat;
 }
 
+.frame-collapse > a.collapsed {
+  display: block;
+  float: none;
+  height: 16px;
+  margin: -3px 0 -3px -3px;
+  padding-left: 3px;
+}
+
+.frame-collapse > a.collapsed:hover {
+  background: #f5f5f5;
+}
+
 .frame-collapse > a {
   float: left;
   margin-left: -1.5em;
 }
 
-.frame-collapse {
-  border-left: 1px solid silver;
-  margin-left: -3px;
-  padding-left: 2px;
+.frame-collapse > a .glyphicon-option-horizontal {
+  display: none;
 }
+
+.frame-collapse > a.collapsed .glyphicon-option-horizontal {
+  display: inline-block;
+}
+
+.frame-collapse > a .glyphicon-option-vertical {
+  display: inline-block;
+}
+
+.frame-collapse > a.collapsed .glyphicon-option-vertical {
+  display: none;
+}
+
+.frame-collapse > a:hover + .collapse {
+  background: #f5f5f5;
+}
+

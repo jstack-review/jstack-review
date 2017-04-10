@@ -382,8 +382,11 @@
               {{#stackframes}}
                 {{#first}}
                   <div class="frame-collapse">
-                  <a role="button" data-toggle="collapse" data-target="#{{analysisId}}_clpsfrms_{{id}}"><span class="glyphicon glyphicon-option-vertical"></span></a>
                   <samp>at {{first}}</samp><br />
+                  <a class="collapsed" role="button" data-toggle="collapse" data-target="#{{analysisId}}_clpsfrms_{{id}}">
+                    <span class="glyphicon glyphicon-option-vertical" title="Collapse"></span>
+                    <span class="glyphicon glyphicon-option-horizontal" title="Expand"></span>
+                  </a>
                   <div class="collapse" id="{{analysisId}}_clpsfrms_{{id}}">
                     {{#rest}}
                       <samp>at {{.}}</samp><br />

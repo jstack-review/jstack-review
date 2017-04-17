@@ -86,33 +86,31 @@
       
       <div id="settings" class="tab-pane container">
         <form>
-        
         <div>
           <h1>Settings</h1>
-          <button type="button" class="btn btn-primary" id="saveClear">Save Settings</button>
-          <button type="button" class="btn btn-default" id="__settingsClear">Reset Settings</button>
+          <button type="button" class="btn btn-danger" id="__settingsClear">Reset Settings</button>
         </div>
         
-        <div>
+        <div data-settings="renderConfig">
           <h2>Collapsed Strack Frames</h2>
           <div class="checkbox">
-            <label><input type="checkbox" id="compactFrames.enabled"> Enabled</label>
-          </div>          
+            <label><input type="checkbox" data-settings id="compactFrames.enabled" value="true"> Enabled</label>
+          </div>
           <div class="form-group">
             <label for="compactFrames.minimum">Minimum Stack Size</label>
-            <input type="number" min="0" step="1" class="form-control" id="compactFrames.minimum">
+            <input type="number" min="0" step="1" class="form-control" data-settings id="compactFrames.minimum">
           </div>
           <div class="form-group">
             <label for="compactFrames.skip">Skip First Frames</label>
-            <input type="number" min="0" step="1" class="form-control" id="compactFrames.skip">
+            <input type="number" min="0" step="1" class="form-control" data-settings id="compactFrames.skip">
           </div>
           <div class="form-group">
             <label for="compactFrames.count">Group Size</label>
-            <input type="number" min="0" step="1" class="form-control" id="compactFrames.count">
+            <input type="number" min="0" step="1" class="form-control" data-settings id="compactFrames.count">
           </div>
           <div class="form-group">
-            <label for="compactFrames.patterns">Patterns</label>
-            <textarea class="form-control" id="compactFrames.patterns" rows="5"></textarea>
+            <label for="compactFrames.patterns[]">Patterns</label>
+            <textarea class="form-control" data-settings id="compactFrames.patterns[]" rows="5"></textarea>
           </div>
         </div>
         

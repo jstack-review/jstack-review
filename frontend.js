@@ -372,10 +372,106 @@ function showAlert(title, message, type) {
 	});
 }
 
+function castValue(type, value) {
+	if (type === "boolean") {
+		return value === "true";
+	}
+	else if (type === "number") {
+		return Number.parseInt(value);
+	}
+	else {
+		return value;
+	}
+}
+
+function getSetting(settingObjId, settingId) {
+	var settings = window[settingObjId];
+	if (settings === undefined) {
+		return undefined;
+	}
+	var path = settingId.split('.');
+	var savedValue = localStorage.getItem(settingObjId+'#'+settingId);
+	while ((p = path.shift())) {
+		var isArray = p.endsWith('[]');
+		if (isArray) {
+			p = p.substr(0, p.length - 2);
+		}
+		if (settings[p] === undefined) {
+			// non-existing value
+		}
+		else if (!isArray && typeof settings[p] == "object") {
+			settings = settings[p]; 
+		}
+		else {
+			if (isArray) {
+				if (savedValue !== null) {					
+					settings[p] = savedValue.split('\n');
+				}
+				return settings[p].join('\n');
+			}
+			else {
+				if (savedValue !== null) {
+					settings[p] = castValue(typeof settings[p], savedValue);
+				}
+				return settings[p];
+			}
+		} 
+	}
+	return undefined;
+}
+
+function setSetting(settingObjId, settingId, value) {
+	var settings = window[settingObjId];
+	if (settings === undefined) {
+		return;
+	}
+	var path = settingId.split('.');
+	while ((p = path.shift())) {
+		var isArray = p.endsWith('[]');
+		if (isArray) {
+			p = p.substr(0, p.length - 2);
+		}
+		if (settings[p] === undefined) {
+			// non-existing value
+		}
+		else if (!isArray && typeof settings[p] == "object") {
+			settings = settings[p]; 
+		}
+		else {
+			localStorage.setItem(settingObjId+'#'+settingId, value);
+			if (isArray) {
+				value = value.split('\n');				
+			}
+			settings[p] = castValue(typeof settings[p], value);
+			break;
+		} 
+	}	
+}
+
 function setupSettingsUI() {
 	$('#settingsClear').click(function() {
 		localStorage.clear();
 		showAlert('Settings Reset', ['All settings have been reset to their initial value.', 'Reload the page for the changes to take effect.'], 'success');
+	});
+	
+	$('#settings :input[data-settings]').each(function(idx, elm) {
+		elm = $(elm);
+		var settingObjId = elm.data('settings');
+		if (settingObjId === "") {
+			settingObjId = elm.parents('[data-settings]').first().data('settings');
+		}
+		var settingId = elm.data('setting-id');
+		if (settingId === undefined) {
+			settingId = elm.attr('id');
+		}
+		if (elm.is(':checkbox')) {
+			elm.prop('checked', getSetting(settingObjId, settingId));
+			elm.change(function() { setSetting(settingObjId, settingId, $(this).is(':checked') ); });
+		}
+		else {
+			elm.val(getSetting(settingObjId, settingId));
+			elm.change(function() { setSetting(settingObjId, settingId, $(this).val() ); });
+		}
 	});
 }
 

@@ -150,8 +150,8 @@ ul.list-csv li:first-child:before {
 }
 
 * > .helplink {
-  opacity: 0.16;
   cursor: help;
+  opacity: 0.16;
 }
 
 *:hover > .helplink {

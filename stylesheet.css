@@ -149,6 +149,19 @@ ul.list-csv li:first-child:before {
   display: inline;
 }
 
+* > .helplink {
+  opacity: 0.16;
+  cursor: help;
+}
+
+*:hover > .helplink {
+  opacity: 1;
+}
+
+.helplink span {
+  color: #31708f;  
+}
+
 #about .jumbotron {/* csslint allow: ids */
   background-image: url(logo.svg);
   background-origin: content-box;

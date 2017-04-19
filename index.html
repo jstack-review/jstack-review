@@ -47,7 +47,7 @@
     <ul id="dumptabs" class="nav nav-tabs">
       <li><a class="btn" id="adddump" title="New dump analysis"><span class="glyphicon glyphicon-plus"></span></a></li>
       <li data-tabtarget="compare"><a class="btn" id="comparetabbtn" href="#compare" data-toggle="tab" title="Compare dumps"><span class="glyphicon glyphicon-transfer"></span></a></li>
-      <!--<li data-tabtarget="settings"><a class="btn" href="#settings" data-toggle="tab"><span class="glyphicon glyphicon-cog"></span></a></li>-->
+      <li data-tabtarget="settings"><a class="btn" href="#settings" data-toggle="tab"><span class="glyphicon glyphicon-cog"></span></a></li>
       <li data-tabtarget="about"><a class="btn" href="#about" data-toggle="tab"><span class="glyphicon glyphicon-info-sign"></span></a></li>
     </ul>
     
@@ -59,14 +59,7 @@
           <h2>Browser based Java Thread Dump Analyzer</h2>
           <p><a href="https://github.com/mpobjects/threaddump-analyzer">Source code on GitHub</a></p>
         </div>
-        
-        <div>
-          <h2>Settings</h2>
-          <form>
-            <button type="button" class="btn btn-default" id="settingsClear">Reset Settings</button>
-          </form>
-        </div>
-        
+
         <div>
           <h2>License</h2>
           <p>The Online Java Thread Dump Analyzer is licensed under version <a href="https://www.apache.org/licenses/LICENSE-2.0.html">2.0 of the Apache license</a>.</p>
@@ -88,11 +81,12 @@
         <form>
         <div>
           <h1>Settings</h1>
-          <button type="button" class="btn btn-danger" id="__settingsClear">Reset Settings</button>
+          <div class="alert alert-info" role="alert">Most settings will only take effect after performing a thread dump analysis.</div>
+          <button type="button" class="btn btn-danger" id="settingsClear">Reset Settings</button>
         </div>
         
         <div data-settings="renderConfig">
-          <h2>Collapsed Strack Frames</h2>
+          <h2>Collapsed Stack Frames <a href="https://github.com/mpobjects/jstack-review/wiki/Settings:-Collapsed-Stack-Frames" class="helplink" target="_blank" rel="noopener noreferrer"><span class="glyphicon glyphicon-question-sign small " aria-hidden="true"></span></a></h2>
           <div class="checkbox">
             <label><input type="checkbox" data-settings id="compactFrames.enabled" value="true"> Enabled</label>
           </div>
@@ -417,9 +411,9 @@
                 {{#first}}
                   <div class="frame-collapse">
                   <samp>at {{first}}</samp><br />
-                  <a class="collapsed" role="button" data-toggle="collapse" data-target="#{{analysisId}}_clpsfrms_{{id}}">
+                  <a class="collapsed" role="button" data-toggle="collapse" data-target="#{{analysisId}}_clpsfrms_{{id}}" title="Expand {{rest.length}} lines">
                     <span class="glyphicon glyphicon-option-vertical" title="Collapse"></span>
-                    <span class="glyphicon glyphicon-option-horizontal" title="Expand"></span>
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
                   </a>
                   <div class="collapse" id="{{analysisId}}_clpsfrms_{{id}}">
                     {{#rest}}

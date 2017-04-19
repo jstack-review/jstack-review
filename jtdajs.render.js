@@ -34,7 +34,7 @@ var jtda = jtda || {};
         	/* frames must be at least this lng before compacting */
         	minimum: 10,
 			/* do not compact the first lines */
-        	skip: 5,
+        	skip: 2,
         	/* compact the lines when a pattern matches this often in a row */
         	count: 5,
         	/* patterns to compact */

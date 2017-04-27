@@ -142,6 +142,7 @@ function executeAnalysis(dumpId) {
         $('#' + dumpId + '_inputpeak').show();
         $('#' + dumpId + '_inputpeak .sneakpeak').val(text.trim().split('\n').slice(0, 5).join('\n')+'\n[...]');
         new jtda.render.Renderer(target, renderConfig).render(analysis);
+        $('#'+dumpId+'_dump').scrollspy({ target: '#'+dumpId+'_navbar', offset: 50 });
     }
 }
 
@@ -272,6 +273,8 @@ function compareThreadDumps(oldId, newId) {
     }
     var render = new jtda.diff.render.Render($('#'+model.id+'_diff div.results'), renderConfig);
     render.render(diff);
+    
+    $('#'+model.id+'_diff').scrollspy({ target: '#'+model.id+'_navbar', offset: 50 });
     
     return false;
 }

@@ -277,8 +277,6 @@ var jtda = jtda || {};
             if (i - 1 > -1 
 				&& n[i].text !== undefined 
 				&& n[i - 1].text === undefined
-				//&& n[i].row – 1 > -1 // added this check
-				//&& n[i].row – 1 < o.length – 1 // added this check
 				&& n[i].row - 1 > -1
 				&& n[i].row -1 < o.length - 1 
 				&& n[i].row > 0 

@@ -584,10 +584,55 @@
     <script id="tmpl-diff-changed-threads" type="x-tmpl-mustache">
     <div id="{{diffId}}_changed" class="container-fluid">
       <h2>Changed Threads</h2>
+      
+      <table class="table table-striped table-hover">
+        <tr>
+          <th>Thread ID</th>
+          <th>Name</th>
+          <th>Frames Changed</th>
+          <th>Name Changed</th>
+          <th>Status Changed</th>
+          <th>Waiting for Notification Changed</th>
+          <th>Want to Acquire Changed</th>
+          <th>Locks Held Changed</th>
+        </tr>
+        {{#threads}}
+          {{> changed-thread-summary}}
+        {{/threads}}
+        <tr>
+          <th>Thread ID</th>
+          <th>Name</th>
+          <th>Frames Changed</th>
+          <th>Name Changed</th>
+          <th>Status Changed</th>
+          <th>Waiting for Notification Changed</th>
+          <th>Want to Acquire Changed</th>
+          <th>Locks Held Changed</th>
+        </tr>
+      </table>
+      
       {{#threads}}
         {{> changed-thread}}
       {{/threads}}
     </div>
+    </script>
+    
+    <script id="tmpl-diff-changed-thread-summary" type="x-tmpl-mustache">
+      <tr>
+        <td><a href="#{{diffId}}_changedthread_{{older.tid}}">{{older.tid}}</a></td>
+        <td class="nowrap">{{#older}}<span class="thread-status-color" style="background-color: {{threadStatusColor}}" title="{{getStatus}}"></span> {{name}}{{/older}}</td>
+        <td>{{#changed.frames}}<span class="glyphicon glyphicon-ok text-success"></span>{{/changed.frames}}</td>
+        <td>{{#changed.name}}<span class="glyphicon glyphicon-ok text-success"></span>{{/changed.name}}</td>
+        <td>{{#changed.status}}
+          {{#older}}<span class="thread-status-color" style="background-color: {{threadStatusColor}}" title="{{getStatus}}"></span>{{/older}}
+          <span class="glyphicon glyphicon-arrow-right text-muted"></span>
+          {{#newer}}<span class="thread-status-color" style="background-color: {{threadStatusColor}}" title="{{getStatus}}"></span>{{/newer}}          
+          {{/changed.status}}
+        </td>
+        <td>{{#changed.wantNotificationOn}}<span class="glyphicon glyphicon-ok text-success"></span>{{/changed.wantNotificationOn}}</td>
+        <td>{{#changed.wantToAcquire}}<span class="glyphicon glyphicon-ok text-success"></span>{{/changed.wantToAcquire}}</td>
+        <td>{{#changed.locksHeld}}<span class="glyphicon glyphicon-ok text-success"></span>{{/changed.locksHeld}}</td>
+      </tr>
     </script>
     
     <script id="tmpl-diff-changed-thread" type="x-tmpl-mustache">

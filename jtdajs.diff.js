@@ -19,9 +19,9 @@ var jtda = jtda || {};
     "use strict";
 
     jtda.diff = jtda.diff || {};
-    
+
     jtda.diff.Diff = function(meta, olderDump, newerDump) {
-    
+
         this.compare = function() {
             this._init();
             this._walkThreads();
@@ -29,10 +29,10 @@ var jtda = jtda || {};
                 this.goneThreads.length === 0 &&
                 this.changedThreads.length === 0;
         };
-        
+
         this._walkThreads = function() {
             var seenOldTid = {};
-            
+
             for (var i = 0; i < this.older.threads.length; ++i) {
                 var oldThread = this.older.threads[i];
                 seenOldTid[oldThread.tid] = true;
@@ -43,7 +43,7 @@ var jtda = jtda || {};
                 }
                 this._compareThreads(oldThread, newThread);
             }
-            
+
             for (i = 0; i < this.newer.threads.length; ++i) {
                 var thread = this.newer.threads[i];
                 if (seenOldTid[thread.tid] === true) {
@@ -51,13 +51,13 @@ var jtda = jtda || {};
                 }
                 this.newThreads.push(thread);
             }
-            
+
             this.goneThreads.sort(jtda.Thread.compare);
             this.newThreads.sort(jtda.Thread.compare);
             this.changedThreads.sort(jtda.diff.ThreadDiff.compare);
             this.unchangedThreads.sort(jtda.diff.ThreadDiff.compare);
         };
-        
+
         this._compareThreads = function(oldThread, newThread) {
             var changes = new jtda.diff.ThreadChanges();
             changes.name = oldThread.name !== newThread.name;
@@ -72,7 +72,7 @@ var jtda = jtda || {};
                 this.unchangedThreads.push(new jtda.diff.ThreadDiff(oldThread, newThread, changes));
             }
         };
-    
+
         this._init = function() {
             this.goneThreads = [];
             this.newThreads = [];
@@ -80,24 +80,24 @@ var jtda = jtda || {};
             this.changedThreads = [];
             this.unchangedThreads = [];
         };
-    
+
         this.id = meta.id;
         this.info = meta;
         this.older = olderDump;
         this.newer = newerDump;
         this._init();
     };
-    
+
     jtda.diff.ThreadChanges = function() {
         this.isChanged = function() {
             for (var prop in this) {
                 if (this.hasOwnProperty(prop) && typeof this[prop] == "boolean" && this[prop] === true) {
                     return true;
-                }                
+                }
             }
             return false;
         };
-        
+
         this.isProperties = function() {
             for (var prop in this) {
                 if (prop === "frames") {
@@ -105,11 +105,11 @@ var jtda = jtda || {};
                 }
                 if (this.hasOwnProperty(prop) && typeof this[prop] == "boolean" && this[prop] === true) {
                     return true;
-                }                
+                }
             }
-            return false; 
+            return false;
         };
-    
+
         this.name = false;
         this.frames = false;
         this.status = false;
@@ -117,7 +117,7 @@ var jtda = jtda || {};
         this.wantToAcquire = false;
         this.locksHeld = false;
     };
-    
+
     jtda.diff.ThreadDiff = function(olderThread, newerThread, changed) {
 
         /**
@@ -130,39 +130,37 @@ var jtda = jtda || {};
                 return false;
             }
             if (this._stackDiff === undefined) {
-                this._stackDiff = jtda.util.diff(this.older.frames, this.newer.frames); 
+                this._stackDiff = jtda.util.diff(this.older.frames, this.newer.frames);
             }
             return this._stackDiff;
         };
-    
+
         this.older = olderThread;
         this.newer = newerThread;
         this.changed = changed;
     };
-    
+
     jtda.diff.ThreadDiff.compare = function(a, b) {
-    	// put threads with frame changes on top
-    	if (a.changed.frames && b.changed.frames) {
-    		// TODO return jtda.diff.ThreadDiff.compareDiff(a, b);
-    	}
-    	else if (a.changed.frames && !b.changed.frames) {
-    		return -1;
-    	}
-    	else if (!a.changed.frames && b.changed.frames) {
-    		return 1;
-    	}
-    	var res = a.older.name.localeCompare(b.older.name);
+        // put threads with frame changes on top
+        if (a.changed.frames && b.changed.frames) {
+            // TODO return jtda.diff.ThreadDiff.compareDiff(a, b);
+        } else if (a.changed.frames && !b.changed.frames) {
+            return -1;
+        } else if (!a.changed.frames && b.changed.frames) {
+            return 1;
+        }
+        var res = a.older.name.localeCompare(b.older.name);
         if (res !== 0) {
             return res;
         }
         return a.older.tid.localeCompare(b.older.tid);
     };
-    
+
     jtda.diff.ThreadDiff.compareDiff = function(a, b) {
-    	// TODO
-    	return 0;
+        // TODO
+        return 0;
     };
-    
+
     /*
      * Generates an array with differences between two provided arrays. Each 
      * entry might contain a "ins", or "del", or nothing, to signal that the
@@ -191,7 +189,7 @@ var jtda = jtda || {};
                 }
             }
             if (out.n[0].row > 0) {
-            	for (n = 0; n < out.n[0].row && out.o[n].text === undefined; n++) {
+                for (n = 0; n < out.n[0].row && out.o[n].text === undefined; n++) {
                     res.push({
                         del: true,
                         line: out.o[n]
@@ -263,13 +261,13 @@ var jtda = jtda || {};
         }
 
         for (i = 0; i < n.length - 1; i++) {
-            if (n[i].text !== undefined 
-            	&& i + 1 < n.length - 1
-				&& n[i + 1].text === undefined 
-				&& n[i].row + 1 < o.length 
-				&& n[i].row + 1 < o.length - 1
-				&& o[n[i].row + 1].text === undefined 
-				&& n[i + 1] == o[n[i].row + 1]) {
+            if (n[i].text !== undefined &&
+                i + 1 < n.length - 1 &&
+                n[i + 1].text === undefined &&
+                n[i].row + 1 < o.length &&
+                n[i].row + 1 < o.length - 1 &&
+                o[n[i].row + 1].text === undefined &&
+                n[i + 1] == o[n[i].row + 1]) {
                 n[i + 1] = {
                     text: n[i + 1],
                     row: n[i].row + 1
@@ -282,14 +280,14 @@ var jtda = jtda || {};
         }
 
         for (i = n.length - 1; i > 0; i--) {
-            if (i - 1 > -1 
-				&& n[i].text !== undefined 
-				&& n[i - 1].text === undefined
-				&& n[i].row - 1 > -1
-				&& n[i].row -1 < o.length - 1 
-				&& n[i].row > 0 
-				&& o[n[i].row - 1].text === undefined 
-				&& n[i - 1] === o[n[i].row - 1]) {
+            if (i - 1 > -1 &&
+                n[i].text !== undefined &&
+                n[i - 1].text === undefined &&
+                n[i].row - 1 > -1 &&
+                n[i].row - 1 < o.length - 1 &&
+                n[i].row > 0 &&
+                o[n[i].row - 1].text === undefined &&
+                n[i - 1] === o[n[i].row - 1]) {
                 n[i - 1] = {
                     text: n[i - 1],
                     row: n[i].row - 1
@@ -306,5 +304,5 @@ var jtda = jtda || {};
             n: n
         };
     };
-    
+
 }());

@@ -255,8 +255,13 @@ var jtda = jtda || {};
         }
 
         for (i = 0; i < n.length - 1; i++) {
-            if (n[i].text !== undefined && n[i + 1].text === undefined && n[i].row + 1 < o.length && o[n[i].row + 1].text === undefined &&
-                n[i + 1] == o[n[i].row + 1]) {
+            if (n[i].text !== undefined 
+            	&& i + 1 < n.length - 1
+				&& n[i + 1].text === undefined 
+				&& n[i].row + 1 < o.length 
+				&& n[i].row + 1 < o.length - 1
+				&& o[n[i].row + 1].text === undefined 
+				&& n[i + 1] == o[n[i].row + 1]) {
                 n[i + 1] = {
                     text: n[i + 1],
                     row: n[i].row + 1
@@ -269,8 +274,16 @@ var jtda = jtda || {};
         }
 
         for (i = n.length - 1; i > 0; i--) {
-            if (n[i].text !== undefined && n[i - 1].text === undefined && n[i].row > 0 && o[n[i].row - 1].text === undefined &&
-                n[i - 1] === o[n[i].row - 1]) {
+            if (i - 1 > -1 
+				&& n[i].text !== undefined 
+				&& n[i - 1].text === undefined
+				//&& n[i].row – 1 > -1 // added this check
+				//&& n[i].row – 1 < o.length – 1 // added this check
+				&& n[i].row - 1 > -1
+				&& n[i].row -1 < o.length - 1 
+				&& n[i].row > 0 
+				&& o[n[i].row - 1].text === undefined 
+				&& n[i - 1] === o[n[i].row - 1]) {
                 n[i - 1] = {
                     text: n[i - 1],
                     row: n[i].row - 1

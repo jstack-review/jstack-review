@@ -141,11 +141,26 @@ var jtda = jtda || {};
     };
     
     jtda.diff.ThreadDiff.compare = function(a, b) {
+    	// put threads with frame changes on top
+    	if (a.changed.frames && b.changed.frames) {
+    		// TODO return jtda.diff.ThreadDiff.compareDiff(a, b);
+    	}
+    	else if (a.changed.frames && !b.changed.frames) {
+    		return -1;
+    	}
+    	else if (!a.changed.frames && b.changed.frames) {
+    		return 1;
+    	}
     	var res = a.older.name.localeCompare(b.older.name);
         if (res !== 0) {
             return res;
         }
         return a.older.tid.localeCompare(b.older.tid);
+    };
+    
+    jtda.diff.ThreadDiff.compareDiff = function(a, b) {
+    	// TODO
+    	return 0;
     };
     
     /*

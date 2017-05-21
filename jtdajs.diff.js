@@ -190,6 +190,14 @@ var jtda = jtda || {};
                     });
                 }
             }
+            if (out.n[0].row > 0) {
+            	for (n = 0; n < out.n[0].row && out.o[n].text === undefined; n++) {
+                    res.push({
+                        del: true,
+                        line: out.o[n]
+                    });
+                }
+            }
             for (i = 0; i < out.n.length; i++) {
                 if (out.n[i].text === undefined) {
                     res.push({

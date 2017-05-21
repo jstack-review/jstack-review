@@ -1151,3 +1151,41 @@ QUnit.test("Renderer.compactFrames", function(assert){
 	assert.equal(res[7].rest.length, 3);
 	assert.equal(res[8].rest.length, 4);
 });
+
+QUnit.test("Diff bug with leading removal", function(assert){
+	var older = [
+		'org.apache.wicket.MarkupContainer.getId(MarkupContainer.java:1134)',
+		'org.apache.wicket.MarkupContainer.children_indexOf(MarkupContainer.java:1234)',
+		'org.apache.wicket.MarkupContainer.put(MarkupContainer.java:1400)',
+		'org.apache.wicket.MarkupContainer.add(MarkupContainer.java:143)',
+		'org.apache.wicket.markup.html.list.ListView.onPopulate(ListView.java:558)',
+		'org.apache.wicket.markup.repeater.AbstractRepeater.onBeforeRender(AbstractRepeater.java:131)',
+		'org.apache.wicket.Component.internalBeforeRender(Component.java:1069)',
+		'org.apache.wicket.Component.beforeRender(Component.java:1103)',
+		'org.apache.wicket.MarkupContainer.onBeforeRenderChildren(MarkupContainer.java:1777)',
+		'org.apache.wicket.Component.onBeforeRender(Component.java:4001)',
+		'org.apache.wicket.Component.internalBeforeRender(Component.java:1069)',
+		'org.apache.wicket.Component.beforeRender(Component.java:1103)',
+		'org.apache.wicket.MarkupContainer.onBeforeRenderChildren(MarkupContainer.java:1777)',
+		'org.apache.wicket.Component.onBeforeRender(Component.java:4001)',
+		'org.apache.wicket.Component.internalBeforeRender(Component.java:1069)',
+		'org.apache.wicket.Component.prepareForRender(Component.java:2312)',
+		'org.apache.wicket.Component.prepareForRender(Component.java:2329)',
+		'org.apache.wicket.ajax.AjaxRequestTarget.respondComponent(AjaxRequestTarget.java:853)',
+		'org.apache.wicket.ajax.AjaxRequestTarget.respondComponents(AjaxRequestTarget.java:680)',
+		'org.apache.wicket.ajax.AjaxRequestTarget.respond(AjaxRequestTarget.java:590)',
+		'org.apache.wicket.request.AbstractRequestCycleProcessor.respond(AbstractRequestCycleProcessor.java:105)',
+		'org.apache.wicket.RequestCycle.processEventsAndRespond(RequestCycle.java:1287)',
+		'org.apache.wicket.RequestCycle.step(RequestCycle.java:1358)',
+		'org.apache.wicket.RequestCycle.steps(RequestCycle.java:1465)',
+		'org.apache.wicket.RequestCycle.request(RequestCycle.java:545)',
+		'org.apache.wicket.protocol.http.WicketFilter.doGet(WicketFilter.java:486)',
+		'org.apache.wicket.protocol.http.WicketServlet.doPost(WicketServlet.java:160)',
+		'javax.servlet.http.HttpServlet.service(HttpServlet.java:717)',
+		'javax.servlet.http.HttpServlet.service(HttpServlet.java:810)'
+	];
+	var newer = older.slice(1);
+	
+	var res = jtda.util.diff(older,newer);
+	assert.ok(res[0].del);	
+});

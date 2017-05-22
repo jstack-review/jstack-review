@@ -235,7 +235,10 @@ function populateCompareTab() {
         var header = dumpAnalysis[dumpId].name;
         if (dumpAnalysis[dumpId].filename !== undefined) {
             header += ': '+dumpAnalysis[dumpId].filename;
-        }        
+        }
+        if (dumpAnalysis[dumpId].dateString !== undefined) {
+        	header += '\t('+dumpAnalysis[dumpId].dateString+')';
+        }
         var option = '<option value="'+dumpIds[i]+'">'+header+'</option>';
         oldDump.append(option);
         newDump.append(option);
@@ -254,11 +257,13 @@ function compareThreadDumps(oldId, newId) {
             id: oldId,
             name: oldAnalysis.name,
             filename: oldAnalysis.filename,
+            analysis: oldAnalysis
         },
         'new': {
             id: newId,
             name: newAnalysis.name,
             filename: newAnalysis.filename,
+            analysis: newAnalysis
         }
     };
     $('#comparetabbtn').parent().before(Mustache.render($('#tmpl-diff-tab').html(), model));

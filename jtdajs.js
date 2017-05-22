@@ -23,6 +23,8 @@ var jtda = jtda || {};
         // for future usage
     };
 
+	var DATE_REGEX = new RegExp("^([0-9]{4})-([0-9]{2})-([0-9]{2}) ([0-9]{2}):([0-9]{2}):([0-9]{2})$");
+
     jtda.Analysis = function(id, name, config) {
 
         /* analyse the provided stack trace */
@@ -41,6 +43,15 @@ var jtda = jtda || {};
             var lines = text.split('\n');
             for (var i = 0; i < lines.length; i++) {
                 var line = lines[i];
+                if (this.date === undefined && DATE_REGEX.test(line.trim())) {
+                	var ln = line.trim();
+                	var dt = DATE_REGEX.exec(ln);
+                	if (dt !== null) {
+                		this.date = new Date(dt[1], dt[2], dt[3], dt[4], dt[5], dt[6]);
+                		this.dateString = ln;
+                		continue;
+                	}
+                }
                 // TODO:
                 //  1: check for start of thread
                 //  1a: complete thread line (in case of wrapping)
@@ -295,6 +306,8 @@ var jtda = jtda || {};
 
         this.id = id;
         this.name = name;
+        this.date = undefined;
+        this.dateString = undefined;
         this.filename = undefined;
         this.config = config;
         this.threadComparator = jtda.Thread.compare;

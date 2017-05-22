@@ -244,6 +244,10 @@
       <div class="row">
         <div class="col-md-2">
           <dl>
+            {{#analysis.dateString}}
+            <dt>Timestamp</dt>
+            <dd>{{.}}</dd>
+            {{/analysis.dateString}}
             <dt>Threads</dt>
             <dd>{{analysis.threads.length}}</dd>
             <dt>Synchronizers</dt>
@@ -529,8 +533,14 @@
         <dl>
           <dt>Older thread dump</dt>
           <dd><a href="#{{old.id}}_dump">{{old.name}}{{#old.filename}}: {{old.filename}}{{/old.filename}}</a></dd> 
+          {{#old.analysis.dateString}}
+          <dd>{{.}}</dd>
+          {{/old.analysis.dateString}}
           <dt>Newer thread dump</dt>
           <dd><a href="#{{new.id}}_dump">{{new.name}}{{#new.filename}}: {{new.filename}}{{/new.filename}}</a></dd>
+          {{#new.analysis.dateString}}
+          <dd>{{.}}</dd>
+          {{/new.analysis.dateString}}
         </dl>
       </div>
       <div class="results">

@@ -30,7 +30,8 @@ var analysisConfig = new jtda.AnalysisConfig();
 var renderConfig = new jtda.render.RenderConfig();
 // Keep in sync with code in addDump()
 var dumpIdRegEx = /^(((tda)|(diff))_[0-9]+)/;
-var afterInit = function(){};
+var tour = undefined;
+var afterInit = function(){tour.start();};
 
 function addDump(focusTab) {
     ++dumpCounter;
@@ -483,6 +484,81 @@ function setupSettingsUI() {
 	});
 }
 
+function setupTour() {
+	$('#tourbtn').click(function() {
+		tour.restart();
+	});
+	tour = new Tour({
+		onStart: function() {
+			$('#dumptabs a:first').tab('show');
+		},
+		steps: [
+			{
+				orphan: true,
+				title: 'Welcome to jstack.review',
+				content: 'This tour will guide you how to use jstack.review to analyze your Java thread dumps.<br />'+
+					'You can restart this tour at any time from the about section.',
+				backdrop: true
+			},
+			{
+				element: '#dumptabs li:first',
+				title: 'Thread Dumps',
+				content: 'Every thread dump analysis has its own tab.',
+				placement: 'bottom'
+			},
+			{
+				element: '#adddump',
+				title: 'Adding an Analysis',
+				content: 'You can add an additional thread dump analysis by adding a new tab.',
+				placement: 'bottom',
+				onNext: function() {
+					$('#tda_1_inputpeak:visible').hide();
+					$('#tda_1_input:hidden').show();
+				}
+			},
+			{
+				element: '#tda_1_input',
+				title: 'Providing the thread dump',
+				content: 'You can provide the thread dump by pasting from your clipboard, selecting files, or '+
+					'simply by dropping files in this area.',
+				placement: 'top'				
+			},
+			{
+				element: '#tda_1_input',
+				title: 'Multiple files',
+				content: 'When you select or drop multiple files it will automatically open additional tabs.',
+				placement: 'top'
+			},
+			{
+				element: '#tda_1_input button',
+				title: 'Analysis',
+				content: 'After pasting the thread dump, press the analyze button to perform the analysis. '+
+					'This is done automatically when files are selected or dropped.',
+				placement: 'right'
+			},
+			{
+				element: '#dumptabs li[data-tabtarget="compare"] a',
+				title: 'Compare Dump',
+				content: 'When two or more thread dumps are analyzed you can perform a comparison between the two dumps.',
+				placement: 'bottom'
+			},
+			{
+				element: '#dumptabs li[data-tabtarget="settings"] a',
+				title: 'Settings',
+				content: 'Here you can fine tune some settings of jstack.review which will affect the analysis results.',
+				placement: 'bottom'
+			},
+			{
+				orphan: true,
+				title: 'jstack.review',
+				content: 'Thank you for your attention. <br />We hope this tool will be valuable to you.',
+				backdrop: true
+			}
+		]
+	});
+	tour.init();
+}
+
 $(document).ready(function() {
 	setupSettingsUI();
 	if (localStorage.getItem('clientSideNotice') === '1') {
@@ -500,13 +576,16 @@ $(document).ready(function() {
 	$('#dumptabs>li[data-tabtarget]').on('show.bs.tab', updateTabHash);
     $(window).on('hashchange', ensureActiveTab);
     
+    setupTour();
+    
     // save initial hash to possibly switch back
-    if (location.hash !== undefined) {
+    if (location.hash !== undefined && location.hash !== "") {
     	var rethash = location.hash;
     	afterInit = function() {
     		if (rethash !== undefined && $(rethash).length > 0) {
     			location.hash = rethash; 
     		}
+    		console.log('sdfsd');
     		afterInit = function(){};
 		};
     }

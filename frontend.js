@@ -30,7 +30,7 @@ var analysisConfig = new jtda.AnalysisConfig();
 var renderConfig = new jtda.render.RenderConfig();
 // Keep in sync with code in addDump()
 var dumpIdRegEx = /^(((tda)|(diff))_[0-9]+)/;
-var tour = undefined;
+var tour;
 var afterInit = function(){tour.start();};
 
 function addDump(focusTab) {

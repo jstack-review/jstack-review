@@ -29,7 +29,7 @@ gulp.task('test', function() {
 });
 
 gulp.task('jslint', function() {
-    return gulp.src('*.js')
+    return gulp.src(['*.js', '!bootstrap-tour.min.js'])
         .pipe(jshint())
         .pipe(jshint.reporter('default'))
         .pipe(jshint.reporter('fail'));
@@ -43,7 +43,7 @@ gulp.task('htmllint', function() {
 });
 
 gulp.task('csslint', function() {
-    return gulp.src('*.css')
+    return gulp.src(['*.css', '!bootstrap-tour.min.css'])
         .pipe(csslint())
         .pipe(csslint.formatter())
         .pipe(csslint.formatter('fail'));

@@ -30,6 +30,7 @@ var analysisConfig = new jtda.AnalysisConfig();
 var renderConfig = new jtda.render.RenderConfig();
 // Keep in sync with code in addDump()
 var dumpIdRegEx = /^(((tda)|(diff))_[0-9]+)/;
+
 var tour;
 var afterInit = function(){tour.start();};
 
@@ -321,6 +322,47 @@ function adjustUrl(url) {
 }
 
 function importFromUrl(analysisId, url) {
+	var urlLoadStack = [];
+	var urls = url.split(/[\n\t;]/);
+	console.log(urls);
+	while ((url = urls.pop()) !== undefined) {
+	console.log(url);
+		url.trim();
+		if (!/^http(s)?:\/\//i.test(url)) {
+			continue;
+		}
+		if (analysisId === false) {
+			analysisId = addDump(false);
+		}
+		urlLoadStack.push({
+			id: analysisId,
+			url: url
+		});
+		analysisId = false;
+	}
+	var cmpIds;
+	if (urlLoadStack.length == 2) {
+		cmpIds = [urlLoadStack[0].id, urlLoadStack[1].id];
+	}
+	var origAferInit = afterInit;
+	afterInit = function() {
+		if (urlLoadStack.length === 0) {
+			afterInit = origAferInit;
+			if (cmpIds !== undefined) {
+				compareThreadDumps(cmpIds[0], cmpIds[1]);
+			}
+			if (afterInit !== undefined) {
+				afterInit();
+			}
+			return;
+		}
+		var entry = urlLoadStack.pop();
+		realImportFromUrl(entry.id, entry.url);
+	};
+	afterInit();
+}
+
+function realImportFromUrl(analysisId, url) {
 	if (!/^http(s)?:\/\//i.test(url)) {
 		console.log('No url: '+url);
 		return;
@@ -585,7 +627,6 @@ $(document).ready(function() {
     		if (rethash !== undefined && $(rethash).length > 0) {
     			location.hash = rethash; 
     		}
-    		console.log('sdfsd');
     		afterInit = function(){};
 		};
     }

@@ -324,9 +324,7 @@ function adjustUrl(url) {
 function importFromUrl(analysisId, url) {
 	var urlLoadStack = [];
 	var urls = url.split(/[\n\t;]/);
-	console.log(urls);
 	while ((url = urls.pop()) !== undefined) {
-	console.log(url);
 		url.trim();
 		if (!/^http(s)?:\/\//i.test(url)) {
 			continue;

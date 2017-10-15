@@ -1032,7 +1032,7 @@ QUnit.test("WAITING (on object monitor) without monitor?", function(assert){
     assert.equal(threads.length, 1);
     var thread = threads[0];
     assert.equal(thread.getStatus().status, jtda.ThreadStatus.WAITING_NOTIFY);
-    assert.equal(thread.wantNotificationOn, null);        
+    assert.equal(thread.wantNotificationOn, '0x000000079c2850b8');        
 });
 
 QUnit.test("heapdump thread dump", function(assert){
@@ -1188,4 +1188,32 @@ QUnit.test("Diff bug with leading removal", function(assert){
 	
 	var res = jtda.util.diff(older,newer);
 	assert.ok(res[0].del);	
+});
+
+QUnit.test("Classic wait with multiple locks", function(assert){
+	var threadDump = [	
+		'"interfaceTriggerEventTimerFactory" prio=10 tid=0x00007f46064f7800 nid=0x24d1 in Object.wait() [0x00007f468e5bb000]',
+		'   java.lang.Thread.State: TIMED_WAITING (on object monitor)',
+		'	at java.lang.Object.wait(Native Method)',
+		'	at EDU.oswego.cs.dl.util.concurrent.QueuedSemaphore$WaitQueue$WaitNode.doTimedWait(QueuedSemaphore.java:123)',
+		'	- locked <0x0000000714222f50> (a EDU.oswego.cs.dl.util.concurrent.QueuedSemaphore$WaitQueue$WaitNode)',
+		'	at EDU.oswego.cs.dl.util.concurrent.QueuedSemaphore.attempt(QueuedSemaphore.java:47)',
+		'	at org.jboss.resource.connectionmanager.InternalManagedConnectionPool.getConnection(InternalManagedConnectionPool.java:179)',
+		'	at quux.bar.foo.util.LocaleUtils.getActiveLocale(LocaleUtils.java:78)',
+		'	at foo.bar.quux.model.FooBarQuux.updateDetails(FooBarQuux.java:163)',
+		'	- locked <0x0000000714220d90> (a foo.bar.quux.model.FooBarQuux)',
+		'	at foo.bar.quux.model.FooBarQuux.<init>(FooBarQuux.java:64)',
+		'	at foo.bar.quux.service.ResourceAuthServiceImpl.createUserDetails(ResourceAuthServiceImpl.java:387)',
+		'	at foo.bar.quux.service.RunAsServiceImpl.runAs(RunAsServiceImpl.java:111)',
+		'	at foo.bar.quux.service.RunAsServiceImpl.runAsRoot(RunAsServiceImpl.java:119)',
+		'	at quux.bar.foo.InterfaceTriggerEventManagerImpl.handleCurrentMessages(InterfaceTriggerEventManagerImpl.java:118)',
+		'	- locked <0x00000004140db2a0> (a quux.bar.foo.InterfaceTriggerEventManagerImpl)',
+		'	at sun.reflect.GeneratedMethodAccessor3557.invoke(Unknown Source)',
+		'	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)'
+	].join('\n');
+	var analyzer = new jtda.Analysis(0, '', {});
+    analyzer.analyze(threadDump);
+    var thread = analyzer.threads[0];
+    assert.equal(thread.getStatus(), jtda.ThreadStatus.WAITING_NOTIFY);
+    assert.equal(thread.wantNotificationOn, '0x0000000714222f50');
 });

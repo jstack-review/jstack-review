@@ -131,11 +131,11 @@ var jtda = jtda || {};
                     // Not waiting for notification
                     continue;
                 }
-                if (thread.wantNotificationOn !== null || thread.classicalLocksHeld.length !== 1) {
+                if (thread.wantNotificationOn !== null || thread.classicalLockHeld === null) {
                     continue;
                 }
 
-                thread.setWantNotificationOn(thread.classicalLocksHeld[0]);
+                thread.setWantNotificationOn(thread.classicalLockHeld);
             }
         };
 
@@ -373,7 +373,13 @@ var jtda = jtda || {};
                         // but we just want a mapping between threads and
                         // locks so we must not list any lock more than once.
                         jtda.util.arrayAddUnique(this.locksHeld, id);
-                        jtda.util.arrayAddUnique(this.classicalLocksHeld, id);
+                        // lock on the 3rd line is probably the wait when waiting
+                        // lock is not reported explicitly
+                        if (this.frames.length >= 2 && this.classicalLockHeld === null && 
+								this.frames[this.frames.length-2].indexOf('java.lang.Object.wait') === 0 
+								) {
+                        	this.classicalLockHeld = id;
+                        }
                         return true;
 
                     default:
@@ -424,10 +430,9 @@ var jtda = jtda || {};
                 this.locksHeld.splice(lockIndex, 1);
             }
 
-            var classicalLockIndex = this.classicalLocksHeld.indexOf(lockId);
-            if (classicalLockIndex >= 0) {
-                this.classicalLocksHeld.splice(classicalLockIndex, 1);
-            }
+			if (this.classicalLockHeld === lockId) {
+				this.classicalLockHeld = null;
+			}
         };
 
         this._parseSpec = function(line) {
@@ -502,7 +507,7 @@ var jtda = jtda || {};
         this.threadState = null;
 
         // Only synchronized(){} style locks
-        this.classicalLocksHeld = [];
+        this.classicalLockHeld = null;
     };
     
     jtda.Thread.compare = function(a, b) {
@@ -526,6 +531,8 @@ var jtda = jtda || {};
             if (this.thread.wantNotificationOn !== null) {
                 this.status = jtda.ThreadStatus.WAITING_NOTIFY;
             } else if (this.thread.threadState === 'WAITING (on object monitor)') {
+                this.status = jtda.ThreadStatus.WAITING_NOTIFY;
+            } else if (this.thread.threadState === 'TIMED_WAITING (on object monitor)') {
                 this.status = jtda.ThreadStatus.WAITING_NOTIFY;
             } else if (this.thread.wantToAcquire !== null) {
                 this.status = jtda.ThreadStatus.WAITING_ACQUIRE;

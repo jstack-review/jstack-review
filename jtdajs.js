@@ -1,6 +1,6 @@
 /*
 Copyright 2014-2016 Spotify AB
-Copyright 2016-2017 MP Objects BV
+Copyright 2016-2018 MP Objects BV
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

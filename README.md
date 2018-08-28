@@ -16,6 +16,7 @@ The Java Thread Dump Analyzer is licensed under [version 2.0 of the Apache licen
 * Copyright 2016-2018 MP Objects BV
 
 [![Build Status](https://travis-ci.org/mpobjects/jstack-review.svg)](https://travis-ci.org/mpobjects/jstack-review) 
+[![Known Vulnerabilities](https://snyk.io/test/github/mpobjects/jstack-review/badge.svg?targetFile=package.json)](https://snyk.io/test/github/mpobjects/jstack-review?targetFile=package.json)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/mpobjects/jstack-review.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/mpobjects/jstack-review/alerts/)
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/mpobjects/jstack-review.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/mpobjects/jstack-review/context:javascript)
 

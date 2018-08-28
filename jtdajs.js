@@ -524,9 +524,9 @@ var jtda = jtda || {};
         };
 
         this.isWaiting = function() {
-            return this.status === jtda.ThreadStatus.WAITING_ACQUIRE 
-				|| this.status === jtda.ThreadStatus.WAITING_NOTIFY
-				|| this.status === jtda.ThreadStatus.WAITING_NOTIFY_TIMED;
+            return this.status === jtda.ThreadStatus.WAITING_ACQUIRE || 
+				this.status === jtda.ThreadStatus.WAITING_NOTIFY || 
+				this.status === jtda.ThreadStatus.WAITING_NOTIFY_TIMED;
         };
 
         this.determineStatus = function() {

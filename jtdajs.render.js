@@ -55,6 +55,7 @@ var jtda = jtda || {};
         this.threadStatusColor[jtda.ThreadStatus.SLEEPING] = '#1f77b4';
         this.threadStatusColor[jtda.ThreadStatus.WAITING_ACQUIRE] = '#ff7f0e';
         this.threadStatusColor[jtda.ThreadStatus.WAITING_NOTIFY] = '#d62728';
+        this.threadStatusColor[jtda.ThreadStatus.WAITING_NOTIFY_TIMED] = '#d6d627';
         
         this.threadStatusColorAlt = {};
         this.threadStatusColorAlt[jtda.ThreadStatus.UNKNOWN] = '#c7c7c7';
@@ -65,6 +66,7 @@ var jtda = jtda || {};
         this.threadStatusColorAlt[jtda.ThreadStatus.SLEEPING] = '#aec7e8';
         this.threadStatusColorAlt[jtda.ThreadStatus.WAITING_ACQUIRE] = '#ffbb78';
         this.threadStatusColorAlt[jtda.ThreadStatus.WAITING_NOTIFY] = '#ff9896';
+        this.threadStatusColorAlt[jtda.ThreadStatus.WAITING_NOTIFY_TIMED] = '#fcff96';
 
         this.synchronizerChart = {
             max: 7,

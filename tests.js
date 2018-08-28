@@ -838,7 +838,7 @@ QUnit.test( "analyze thread waiting for unspecified notification 4", function(as
 
     assert.ok(!threadStatus.isRunning());
     assert.ok(threadStatus.isWaiting());
-    assert.equal(threadStatus.toString(), 'awaiting notification');
+    assert.equal(threadStatus.toString(), 'awaiting notification (timed)');
 });
 
 QUnit.test("thread status no stack trace", function(assert) {
@@ -1062,7 +1062,7 @@ QUnit.test("heapdump thread dump", function(assert){
     assert.equal(thread.frames.length, 9);
     assert.equal(thread.daemon, true);
     assert.equal(thread.state, 'TIMED_WAITING');
-    assert.equal(thread.getStatus().status, jtda.ThreadStatus.SLEEPING);
+    assert.equal(thread.getStatus().status, jtda.ThreadStatus.WAITING_NOTIFY_TIMED);
 });
 
 QUnit.test("Renderer.compilePattern", function(assert){

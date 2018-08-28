@@ -524,7 +524,9 @@ var jtda = jtda || {};
         };
 
         this.isWaiting = function() {
-            return this.status === jtda.ThreadStatus.WAITING_ACQUIRE || this.status === jtda.ThreadStatus.WAITING_NOTIFY;
+            return this.status === jtda.ThreadStatus.WAITING_ACQUIRE 
+				|| this.status === jtda.ThreadStatus.WAITING_NOTIFY
+				|| this.status === jtda.ThreadStatus.WAITING_NOTIFY_TIMED;
         };
 
         this.determineStatus = function() {
@@ -533,7 +535,7 @@ var jtda = jtda || {};
             } else if (this.thread.threadState === 'WAITING (on object monitor)') {
                 this.status = jtda.ThreadStatus.WAITING_NOTIFY;
             } else if (this.thread.threadState === 'TIMED_WAITING (on object monitor)') {
-                this.status = jtda.ThreadStatus.WAITING_NOTIFY;
+                this.status = jtda.ThreadStatus.WAITING_NOTIFY_TIMED;
             } else if (this.thread.wantToAcquire !== null) {
                 this.status = jtda.ThreadStatus.WAITING_ACQUIRE;
             } else if (this.thread.threadState === 'TIMED_WAITING (sleeping)') {
@@ -557,7 +559,7 @@ var jtda = jtda || {};
         	if (this.thread.state === 'RUNNABLE') {
         		this.status = jtda.ThreadStatus.RUNNING;
         	} else if (this.thread.state === 'TIMED_WAITING') {
-        		this.status = jtda.ThreadStatus.SLEEPING;
+        		this.status = jtda.ThreadStatus.WAITING_NOTIFY_TIMED;
         	} else if (this.thread.state === 'WAITING') {
                 this.status = jtda.ThreadStatus.WAITING_NOTIFY;
             } else if (this.thread.state === 'NEW') {
@@ -587,10 +589,12 @@ var jtda = jtda || {};
     jtda.ThreadStatus.SLEEPING = "sleeping";
     jtda.ThreadStatus.WAITING_ACQUIRE = "waiting to acquire";
     jtda.ThreadStatus.WAITING_NOTIFY = "awaiting notification";
+    jtda.ThreadStatus.WAITING_NOTIFY_TIMED = "awaiting notification (timed)";
     
     jtda.ThreadStatus.ALL = [
         jtda.ThreadStatus.RUNNING,
         jtda.ThreadStatus.WAITING_NOTIFY,
+        jtda.ThreadStatus.WAITING_NOTIFY_TIMED,
         jtda.ThreadStatus.WAITING_ACQUIRE,
         jtda.ThreadStatus.SLEEPING,
         jtda.ThreadStatus.NEW,

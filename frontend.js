@@ -231,7 +231,6 @@ function populateCompareTab() {
     oldDump.empty();
     newDump.empty();
     
-    var titles = {};
     for (var i = 0; i < dumpIds.length; ++i) {
         var dumpId = dumpIds[i];
         var header = dumpAnalysis[dumpId].name;
@@ -440,6 +439,7 @@ function getSetting(settingObjId, settingId) {
 	}
 	var path = settingId.split('.');
 	var savedValue = localStorage.getItem(settingObjId+'#'+settingId);
+	var p;
 	while ((p = path.shift())) {
 		var isArray = p.endsWith('[]');
 		if (isArray) {
@@ -475,6 +475,7 @@ function setSetting(settingObjId, settingId, value) {
 		return;
 	}
 	var path = settingId.split('.');
+	var p;
 	while ((p = path.shift())) {
 		var isArray = p.endsWith('[]');
 		if (isArray) {

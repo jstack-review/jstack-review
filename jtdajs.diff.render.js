@@ -160,7 +160,6 @@ var jtda = jtda || {};
         };
 
         this._renderChangedThreads = function(diff) {
-            var _this = this;
             var model = {
                 diff: diff,
                 diffId: diff.id,

@@ -86,22 +86,34 @@ var jtda = jtda || {};
             while (element.firstChild) {
                 element.removeChild(element.firstChild);
             }
-        }
+        };
 
         this.append = function(htmlText) {
             element.insertAdjacentHTML('beforeend', htmlText);
-        }
+        };
 
-        if (target.jquery) {
-            element = target.get(0);
-        }
-        else if (target instanceof Element) {
+        if (target instanceof Element) {
             element = target;
         }
         else {
-            throw new Error('Cannot render to '+target);
+            throw new Error('Cannot render to non DOM Element: '+target);
         }
-    }
+    };
+
+    jtda.render.RendererTarget.get = function(target) {
+        if (target instanceof jtda.render.RendererTarget) {
+            return target;
+        }
+        else if (target && target.jquery) {
+            if (target.size() === 0) {
+                throw new Error('Empty JQuery target');
+            }
+            return new jtda.render.RendererTarget(target.get(0));
+        }
+        else {
+            // TODO: allow any arbitrary target with empty(), append?
+        }
+    };
 
     jtda.render.Renderer = function(target, config) {
         this.getTemplate = function(name) {
@@ -506,9 +518,9 @@ var jtda = jtda || {};
             }, this._partials()));
         };
 
-        this.target = new jtda.render.RendererTarget(target);
+        this.target = jtda.render.RendererTarget.get(target);
         this.config = config;
-        
+
         this.compactFrameCounter = 0;
     };
 

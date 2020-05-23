@@ -1,6 +1,7 @@
 /*
 Copyright 2014-2016 Spotify AB
 Copyright 2016-2018 MP Objects BV
+Copyright 2020 jstack.review
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -1066,7 +1067,7 @@ QUnit.test("heapdump thread dump", function(assert){
 });
 
 QUnit.test("Renderer.compilePattern", function(assert){
-	var renderer = new jtda.render.Renderer(null, new jtda.render.RenderConfig() );
+	var renderer = new jtda.render.Renderer(null, new jtda.render.RenderConfig(function () {}) );
 
 	var result = renderer.compilePattern('java.util.');	
 	assert.ok(result.test('java.util.foo.bar'));
@@ -1088,7 +1089,7 @@ QUnit.test("Renderer.compilePattern", function(assert){
 });
 
 QUnit.test("Renderer.getMatchingPattern", function(assert){
-	var renderer = new jtda.render.Renderer(null, new jtda.render.RenderConfig() );
+	var renderer = new jtda.render.Renderer(null, new jtda.render.RenderConfig(function () {}) );
 	
 	var patterns = renderer.compilePatterns([
 		'java.*.',
@@ -1108,7 +1109,7 @@ QUnit.test("Renderer.getMatchingPattern", function(assert){
 });
 
 QUnit.test("Renderer.compactFrames", function(assert){
-	var renderer = new jtda.render.Renderer(null, new jtda.render.RenderConfig() );
+	var renderer = new jtda.render.Renderer(null, new jtda.render.RenderConfig(function () {}) );
 	renderer.config.compactFrames.enabled = true;
 	renderer.config.compactFrames.minimum = 0;
 	renderer.config.compactFrames.skip = 2;

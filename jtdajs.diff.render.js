@@ -1,5 +1,6 @@
 /*
 Copyright 2017 MP Objects BV
+Copyright 2020 jstack.review
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,7 +19,6 @@ var jtda = jtda || {};
 (function() {
     "use strict";
 
-    /* global $ */
     /* global Mustache */
 
     jtda.diff.render = jtda.diff.render || {};
@@ -27,9 +27,11 @@ var jtda = jtda || {};
 
         this.getTemplate = function(name) {
             if (name.charAt(0) === '^') {
-                return $('#tmpl-' + name.substring(1)).html();
+                return config.templateLookup(name.substring(1), this);
             }
-            return $('#tmpl-diff-' + name).html();
+            else {
+                return config.templateLookup('diff-' + name, this);
+            }
         };
 
         /**

@@ -1,5 +1,6 @@
 /*
 Copyright 2017-2018 MP Objects BV
+Copyright 2020 jstack.review
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,7 +28,9 @@ var dumpCounter = 0;
 var diffCounter = 0;
 var dumpAnalysis = {};
 var analysisConfig = new jtda.AnalysisConfig();
-var renderConfig = new jtda.render.RenderConfig();
+var renderConfig = new jtda.render.RenderConfig(function (templateId) {
+    return $('#tmpl-' + templateId).html();
+});
 // Keep in sync with code in addDump()
 var dumpIdRegEx = /^(((tda)|(diff))_[0-9]+)/;
 

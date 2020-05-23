@@ -1,5 +1,6 @@
 /*
 Copyright 2017-2018 MP Objects BV
+Copyright 2020 jstack.review
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,32 +19,31 @@ var jtda = jtda || {};
 (function() {
     "use strict";
 
-    /* global $ */
     /* global Mustache */
     /* global Chart */
 
     jtda.render = jtda.render || {};
 
-    jtda.render.RenderConfig = function() {
+    jtda.render.RenderConfig = function(templateLookup) {
         this.threads = {
             groupSimilar: true
         };
-        
+
         this.compactFrames = {
-        	enabled: true,
-        	/* frames must be at least this lng before compacting */
-        	minimum: 10,
-			/* do not compact the first lines */
-        	skip: 2,
-        	/* compact the lines when a pattern matches this often in a row */
-        	count: 5,
-        	/* patterns to compact */
-        	patterns: [
-        		'java.*.',
-        		'javax.*.',
-        		'org.apache.*.',
-        		'org.springframework.*.',
-			]
+            enabled: true,
+            /* frames must be at least this lng before compacting */
+            minimum: 10,
+            /* do not compact the first lines */
+            skip: 2,
+            /* compact the lines when a pattern matches this often in a row */
+            count: 5,
+            /* patterns to compact */
+            patterns: [
+                'java.*.',
+                'javax.*.',
+                'org.apache.*.',
+                'org.springframework.*.',
+            ]
         };
 
         this.threadStatusColor = {};
@@ -56,7 +56,7 @@ var jtda = jtda || {};
         this.threadStatusColor[jtda.ThreadStatus.WAITING_ACQUIRE] = '#ff7f0e';
         this.threadStatusColor[jtda.ThreadStatus.WAITING_NOTIFY] = '#d62728';
         this.threadStatusColor[jtda.ThreadStatus.WAITING_NOTIFY_TIMED] = '#d6d627';
-        
+
         this.threadStatusColorAlt = {};
         this.threadStatusColorAlt[jtda.ThreadStatus.UNKNOWN] = '#c7c7c7';
         this.threadStatusColorAlt[jtda.ThreadStatus.RUNNING] = '#98df8a';
@@ -72,11 +72,16 @@ var jtda = jtda || {};
             max: 7,
             colors: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
         };
+
+        this.templateLookup = templateLookup;
+        if (typeof this.templateLookup !== 'function') {
+            throw new Error('Template lookup function required');
+        }
     };
 
     jtda.render.Renderer = function(target, config) {
         this.getTemplate = function(name) {
-            return $('#tmpl-analysis-' + name).html();
+            return config.templateLookup('analysis-' + name, this);
         };
 
         /**

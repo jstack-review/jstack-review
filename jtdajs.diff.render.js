@@ -202,7 +202,7 @@ var jtda = jtda || {};
             return res;
         };
 
-        this.target = target;
+        this.target = new jtda.render.RendererTarget(target);
         this.config = config;
     };
 

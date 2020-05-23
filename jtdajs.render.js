@@ -79,6 +79,30 @@ var jtda = jtda || {};
         }
     };
 
+    jtda.render.RendererTarget = function(target) {
+        var element;
+
+        this.empty = function() {
+            while (element.firstChild) {
+                element.removeChild(element.firstChild);
+            }
+        }
+
+        this.append = function(htmlText) {
+            element.insertAdjacentHTML('beforeend', htmlText);
+        }
+
+        if (target.jquery) {
+            element = target.get(0);
+        }
+        else if (target instanceof Element) {
+            element = target;
+        }
+        else {
+            throw new Error('Cannot render to '+target);
+        }
+    }
+
     jtda.render.Renderer = function(target, config) {
         this.getTemplate = function(name) {
             return config.templateLookup('analysis-' + name, this);
@@ -482,7 +506,7 @@ var jtda = jtda || {};
             }, this._partials()));
         };
 
-        this.target = target;
+        this.target = new jtda.render.RendererTarget(target);
         this.config = config;
         
         this.compactFrameCounter = 0;

@@ -14,6 +14,7 @@ The Java Thread Dump Analyzer is licensed under [version 2.0 of the Apache licen
 
 * Copyright 2014-2016 Spotify AB
 * Copyright 2016-2018 MP Objects BV
+* Copyright 2020 jstack.review
 
 [![Build Status](https://travis-ci.org/jstack-review/jstack-review.svg)](https://travis-ci.org/jstack-review/jstack-review) 
 [![Known Vulnerabilities](https://snyk.io/test/github/jstack-review/jstack-review/badge.svg?targetFile=package.json)](https://snyk.io/test/github/jstack-review/jstack-review?targetFile=package.json)

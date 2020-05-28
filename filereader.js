@@ -112,7 +112,7 @@ See http://github.com/bgrins/filereader.js for documentation.
                 if (file) {
 
                     // Create a fake file name for images from clipboard, since this data doesn't get sent
-                    var matches = new RegExp("/\(.*\)").exec(file.type);
+                    var matches = new RegExp("/(.*)").exec(file.type);
                     if (!file.name && matches) {
                         var extension = matches[1];
                         file.name = "clipboard" + i + "." + extension;

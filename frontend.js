@@ -380,7 +380,7 @@ function realImportFromUrl(analysisId, url) {
 	
 	var redirCount = 0;
 	var retrieveData = function(url) {
-		urlField.html(url);
+		urlField.text(url);
 		$.get({
 			url: url,
 			dataType: 'text',

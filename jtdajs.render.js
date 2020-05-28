@@ -107,8 +107,11 @@ var jtda = jtda || {};
         else if (target instanceof Element) {
             return new jtda.render.RendererTarget(target);
         }
+        else if (target && typeof target.append === 'function') {
+            return target;
+        }
         else {
-            // TODO: allow any arbitrary target with append()?
+            throw new Error('Cannot render to: '+target);
         }
     };
 

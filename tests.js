@@ -20,6 +20,9 @@ limitations under the License.
 /* global jtda */
 /* global document */
 
+// Dummy object to receive the rendered output
+var dummyRenderTarget = { append: function() {} };
+
 QUnit.test( "thread header 1", function(assert) {
     var header = '"thread name" prio=10 tid=0x00007f16a118e000 nid=0x6e5a runnable [0x00007f18b91d0000]';
     var thread = new jtda.Thread(header);
@@ -525,7 +528,7 @@ QUnit.test( "analyze two threads with same stack", function(assert) {
     var aardvark = threads[1];
     assert.equal(aardvark.name, "aardvark thread");
 
-    var renderer = new jtda.render.Renderer(undefined, {});
+    var renderer = new jtda.render.Renderer(dummyRenderTarget, {});
     var analysisResult = renderer.groupSimilarThreads(analyzer.threads);
     assert.deepEqual(analysisResult, [{
     	groupId: 0,
@@ -1067,7 +1070,7 @@ QUnit.test("heapdump thread dump", function(assert){
 });
 
 QUnit.test("Renderer.compilePattern", function(assert){
-	var renderer = new jtda.render.Renderer(null, new jtda.render.RenderConfig(function () {}) );
+	var renderer = new jtda.render.Renderer(dummyRenderTarget, new jtda.render.RenderConfig(function () {}) );
 
 	var result = renderer.compilePattern('java.util.');	
 	assert.ok(result.test('java.util.foo.bar'));
@@ -1089,7 +1092,7 @@ QUnit.test("Renderer.compilePattern", function(assert){
 });
 
 QUnit.test("Renderer.getMatchingPattern", function(assert){
-	var renderer = new jtda.render.Renderer(null, new jtda.render.RenderConfig(function () {}) );
+	var renderer = new jtda.render.Renderer(dummyRenderTarget, new jtda.render.RenderConfig(function () {}) );
 	
 	var patterns = renderer.compilePatterns([
 		'java.*.',
@@ -1109,7 +1112,7 @@ QUnit.test("Renderer.getMatchingPattern", function(assert){
 });
 
 QUnit.test("Renderer.compactFrames", function(assert){
-	var renderer = new jtda.render.Renderer(null, new jtda.render.RenderConfig(function () {}) );
+	var renderer = new jtda.render.Renderer(dummyRenderTarget, new jtda.render.RenderConfig(function () {}) );
 	renderer.config.compactFrames.enabled = true;
 	renderer.config.compactFrames.minimum = 0;
 	renderer.config.compactFrames.skip = 2;

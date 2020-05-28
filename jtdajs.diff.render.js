@@ -45,7 +45,6 @@ var jtda = jtda || {};
         };
 
         this.render = function(diff) {
-            this.target.empty();
             this.target.append(Mustache.render(this.getTemplate('navbar'), {
                 diffId: diff.id,
                 diff: diff

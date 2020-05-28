@@ -82,12 +82,6 @@ var jtda = jtda || {};
     jtda.render.RendererTarget = function(target) {
         var element;
 
-        this.empty = function() {
-            while (element.firstChild) {
-                element.removeChild(element.firstChild);
-            }
-        };
-
         this.append = function(htmlText) {
             element.insertAdjacentHTML('beforeend', htmlText);
         };
@@ -110,8 +104,11 @@ var jtda = jtda || {};
             }
             return new jtda.render.RendererTarget(target.get(0));
         }
+        else if (target instanceof Element) {
+            return new jtda.render.RendererTarget(target);
+        }
         else {
-            // TODO: allow any arbitrary target with empty(), append?
+            // TODO: allow any arbitrary target with append()?
         }
     };
 
@@ -131,7 +128,6 @@ var jtda = jtda || {};
         };
 
         this.render = function(analysis) {
-            this.target.empty();
             this.target.append(Mustache.render(this.getTemplate('navbar'), {
                 analysisId: analysis.id,
                 analysis: analysis

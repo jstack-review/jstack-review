@@ -127,7 +127,7 @@ function removeDump() {
 function executeAnalysis(dumpId) {
     var text = $('#' + dumpId + '_dumpInput').val();
     
-    if (/\s*http(s)?:\/\/[^/]+\/.*\s*/.test(text)) {
+    if (/^(\s*(http(s)?:\/\/[^\/]+\/\S*)\s*)*$/g.test(text)) {
     	importFromUrl(dumpId, text.trim()); 
     	return;
     }

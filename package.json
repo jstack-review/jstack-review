@@ -19,11 +19,12 @@
     "thread dump"
   ],
   "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-csslint": "1.0.0",
-    "gulp-htmlhint": "0.3.1",
-    "gulp-jshint": "2.0.4",
-    "gulp-qunit": "1.5.0",
-    "gulp-util": "^3.0.8"
+    "gulp": "^4.0.2",
+    "gulp-csslint": "^1.0.1",
+    "gulp-htmlhint": "^4.0.0",
+    "gulp-jshint": "^2.1.0",
+    "gulp-qunit": "^3.0.0",
+    "gulp-util": "^3.0.8",
+    "jshint": "^2.12.0"
   }
 }

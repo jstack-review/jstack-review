@@ -5,10 +5,10 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mpobjects/threaddump-analyzer.git"
+    "url": "https://github.com/jstack-review/jstack-review.git"
   },
   "bugs": {
-    "url": "https://github.com/mpobjects/threaddump-analyzer/issues"
+    "url": "https://github.com/jstack-review/jstack-review/issues"
   },
   "scripts": {
     "test": "gulp test jslint htmllint csslint"

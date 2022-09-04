@@ -25,5 +25,8 @@
     "gulp-jshint": "^2.1.0",
     "gulp-qunit": "^3.0.1",
     "jshint": "^2.13.5"
+  },
+  "overrides": {
+    "glob-parent": "^5.1.2"
   }
 }

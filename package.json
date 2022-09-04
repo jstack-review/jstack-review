@@ -24,7 +24,6 @@
     "gulp-htmlhint": "^4.0.2",
     "gulp-jshint": "^2.1.0",
     "gulp-qunit": "^3.0.1",
-    "gulp-util": "^3.0.8",
     "jshint": "^2.13.5"
   }
 }

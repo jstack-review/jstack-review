@@ -750,6 +750,48 @@ QUnit.test("thread status terminated", function(assert) {
     assert.equal(threadStatus.toString(), 'terminated');
 });
 
+QUnit.test("thread status waiting (parking)", function(assert) {
+    var threadStatus = new jtda.ThreadStatus({
+        frames: ['frame'],
+        wantNotificationOn: null,
+        wantToAcquire: null,
+        locksHeld: [],
+        threadState: 'WAITING (parking)',
+    });
+
+    assert.ok(!threadStatus.isRunning());
+    assert.ok(threadStatus.isWaiting());
+    assert.equal(threadStatus.toString(), 'awaiting notification');
+});
+
+QUnit.test("thread status timed waiting (parking)", function(assert) {
+    var threadStatus = new jtda.ThreadStatus({
+        frames: ['frame'],
+        wantNotificationOn: null,
+        wantToAcquire: null,
+        locksHeld: [],
+        threadState: 'TIMED_WAITING (parking)',
+    });
+
+    assert.ok(!threadStatus.isRunning());
+    assert.ok(threadStatus.isWaiting());
+    assert.equal(threadStatus.toString(), 'awaiting notification (timed)');
+});
+
+QUnit.test("thread status blocked (on object monitor)", function(assert) {
+    var threadStatus = new jtda.ThreadStatus({
+        frames: ['frame'],
+        wantNotificationOn: null,
+        wantToAcquire: null,
+        locksHeld: [],
+        threadState: 'BLOCKED (on object monitor)',
+    });
+
+    assert.ok(!threadStatus.isRunning());
+    assert.ok(threadStatus.isWaiting());
+    assert.equal(threadStatus.toString(), 'waiting to acquire');
+});
+
 QUnit.test( "analyze thread waiting for unspecified notification 1", function(assert) {
     var threadDump = [
         '"Thread Name" daemon prio=10 tid=0x000000000219d000 nid=0x3fa3 in Object.wait() [0x00007f0fc985d000]',

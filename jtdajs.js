@@ -544,6 +544,12 @@ var jtda = jtda || {};
                 this.status = jtda.ThreadStatus.NEW;
             } else if (this.thread.threadState === 'TERMINATED') {
                 this.status = jtda.ThreadStatus.TERMINATED;
+            } else if (this.thread.threadState === 'WAITING (parking)') {
+                this.status = jtda.ThreadStatus.WAITING_NOTIFY;
+            } else if (this.thread.threadState === 'TIMED_WAITING (parking)') {
+                this.status = jtda.ThreadStatus.WAITING_NOTIFY_TIMED;
+            } else if (this.thread.threadState === 'BLOCKED (on object monitor)') {
+                this.status = jtda.ThreadStatus.WAITING_ACQUIRE;
             } else if (this.thread.frames.length === 0) {
                 this.status = jtda.ThreadStatus.NON_JAVA_THREAD;
             } else if (this.thread.threadState === 'RUNNABLE') {

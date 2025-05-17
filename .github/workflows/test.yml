@@ -16,4 +16,4 @@ jobs:
           node-version: 24.x
           cache: "npm"
       - run: npm ci
-      - run: npm test
+      - run: OPENSSL_CONF=/dev/null npm test

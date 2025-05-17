@@ -2,18 +2,18 @@ name: Run tests
 
 on:
   push:
-    branches: [ gh-pages ]
+    branches: ["gh-pages"]
   pull_request:
-    branches: [ gh-pages ]
+    branches: ["gh-pages"]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: 24.x
           cache: "npm"
-    - run: npm ci
-    - run: npm test
+      - run: npm ci
+      - run: npm test
